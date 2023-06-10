@@ -1,0 +1,67 @@
+[
+    {
+        "name": "org.openstreetmap.osmosis.apidb.ApidbPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.areafilter.AreaFilterPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.core.CorePluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.dataset.DatasetPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "crosby.binary.osmosis.BinaryPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.pbf2.PbfPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.pgsimple.PgSimplePluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.pgsnapshot.PgSnapshotPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.replication.ReplicationPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.set.SetPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.tagfilter.TagFilterPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.tagtransform.TransformPlugin",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    },
+    {
+        "name": "org.openstreetmap.osmosis.xml.XmlPluginLoader",
+        "allDeclaredMethods": true,
+        "allDeclaredConstructors": true
+    }
+]

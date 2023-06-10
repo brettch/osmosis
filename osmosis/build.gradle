@@ -1,5 +1,8 @@
 plugins {
     id 'application'
+
+    // Apply GraalVM Native Image plugin
+    id 'org.graalvm.buildtools.native' version "${dependencyVersionGraalvmNative}"
 }
 
 application {
@@ -21,4 +24,12 @@ dependencies {
     implementation project(':osmosis-tagfilter')
     implementation project(':osmosis-tagtransform')
     implementation project(':osmosis-xml')
+}
+
+graalvmNative {
+    binaries {
+        main {
+            configurationFileDirectories.from(file('src/native-config'))
+        }
+    }
 }

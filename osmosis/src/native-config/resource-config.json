@@ -1,0 +1,19 @@
+{
+  "resources" : {
+    "includes" : [ {
+      "pattern" : "\\Qorg/openstreetmap/osmosis/extract/apidb/v0_6/osmosis-extract-apidb.conf\\E"
+    }, {
+      "pattern" : "\\Qosmosis-plugins.conf\\E"
+    }, {
+      "pattern" : "\\Qorg/openstreetmap/osmosis/replication/v0_6/impl/replicationDownloaderConfiguration.txt\\E"
+    }, {
+      "pattern" : "\\Qorg/openstreetmap/osmosis/replication/v0_6/impl/intervalConfiguration.txt\\E"
+    }, {
+      "pattern" : "\\Qorg/openstreetmap/osmosis/replication/v0_6/impl/replicationFileMergerConfiguration.txt\\E"
+    }, {
+      "pattern" : "\\Qorg/openstreetmap/osmosis/xml/common/test-unicode-node.osm\\E"
+    } ],
+    "excludes" : [ ]
+  },
+  "bundles" : [ ]
+}
