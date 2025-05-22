@@ -1,5 +1,5 @@
 dependencies {
-    implementation group: 'net.sf.jpf', name: 'jpf', version: dependencyVersionJpf
+    implementation libs.jpf
 }
 
 /*

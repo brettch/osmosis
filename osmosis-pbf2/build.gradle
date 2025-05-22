@@ -1,9 +1,9 @@
 dependencies {
     implementation project(':osmosis-core')
-    implementation group: 'com.google.guava', name: 'guava', version: dependencyVersionGuava
-    implementation group: 'com.google.protobuf', name: 'protobuf-java', version: dependencyVersionProtobuf
-    implementation group: 'commons-io', name: 'commons-io', version: dependencyVersionCommonsIo
-    implementation group: 'org.openstreetmap.pbf', name: 'osmpbf', version: dependencyVersionOsmPbf
+    implementation libs.guava
+    implementation libs.protobuf
+    implementation libs.commons.io
+    implementation libs.osm.pbf
     testImplementation project(':osmosis-pbf')
     testImplementation project(':osmosis-testutil')
     testImplementation project(':osmosis-xml')

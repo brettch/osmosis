@@ -1,7 +1,7 @@
 dependencies {
     implementation project(':osmosis-core')
-    implementation group: 'com.google.protobuf', name: 'protobuf-java', version: dependencyVersionProtobuf
-    implementation group: 'org.openstreetmap.pbf', name: 'osmpbf', version: dependencyVersionOsmPbf
+    implementation libs.protobuf
+    implementation libs.osm.pbf
     testImplementation project(':osmosis-testutil')
     testImplementation project(':osmosis-xml')
 }

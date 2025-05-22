@@ -1,6 +1,6 @@
 dependencies {
     implementation project(':osmosis-core')
-    implementation group: 'commons-codec', name: 'commons-codec', version: dependencyVersionCommonsCodec
-    implementation group: 'org.apache.commons', name: 'commons-compress', version: dependencyVersionCommonsCompress
+    implementation libs.commons.codec
+    implementation libs.commons.compress
     testImplementation project(':osmosis-testutil')
 }

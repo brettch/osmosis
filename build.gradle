@@ -69,7 +69,7 @@ configure(javaProjects) {
 	}
 
 	dependencies {
-		testImplementation group: 'junit', name: 'junit', version: dependencyVersionJunit
+		testImplementation libs.junit
 	}
 
 	checkstyle {

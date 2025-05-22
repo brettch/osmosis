@@ -1,4 +1,4 @@
 dependencies {
     implementation project(':osmosis-core')
-    implementation group: 'junit', name: 'junit', version: dependencyVersionJunit
+    implementation libs.junit
 }

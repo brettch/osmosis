@@ -1,0 +1,31 @@
+[versions]
+commons-codec = "1.17.1"
+commons-compress = "1.27.1"
+commons-csv = "1.12.0"
+commons-io = "2.18.0"
+commons-dbcp = "1.4"
+guava = "33.4.0-jre"
+jpf = "1.5"
+junit = "4.13.2"
+mysql = "8.0.33"
+osm-pbf = "1.6.0"
+postgis = "2024.1.0"
+postgresql = "42.7.4"
+protobuf = "4.29.2"
+spring = "6.2.1"
+
+[libraries]
+commons-codec = { group = "commons-codec", name = "commons-codec", version.ref = "commons-codec" }
+commons-compress = { group = "org.apache.commons", name = "commons-compress", version.ref = "commons-compress" }
+commons-csv = { group = "org.apache.commons", name = "commons-csv", version.ref = "commons-csv" }
+commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
+commons-dbcp = { group = "commons-dbcp", name = "commons-dbcp", version.ref = "commons-dbcp" }
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+jpf = { group = "net.sf.jpf", name = "jpf", version.ref = "jpf" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+mysql = { group = "mysql", name = "mysql-connector-java", version.ref = "mysql" }
+osm-pbf = { group = "org.openstreetmap.pbf", name = "osmpbf", version.ref = "osm-pbf" }
+postgis = { group = "net.postgis", name = "postgis-jdbc", version.ref = "postgis" }
+postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
+protobuf = { group = "com.google.protobuf", name = "protobuf-java", version.ref = "protobuf" }
+spring = { group = "org.springframework", name = "spring-jdbc", version.ref = "spring" }

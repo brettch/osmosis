@@ -1,7 +1,7 @@
 dependencies {
     implementation project(':osmosis-core')
     implementation project(':osmosis-xml')
-    implementation group: 'org.apache.commons', name: 'commons-csv', version: dependencyVersionCommonsCsv
+    implementation libs.commons.csv
 
     testImplementation project(':osmosis-testutil')
 }
