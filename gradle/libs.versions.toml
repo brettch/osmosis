@@ -13,6 +13,7 @@ postgis = "2024.1.0"
 postgresql = "42.7.4"
 protobuf = "4.29.2"
 spring = "6.2.1"
+version-catalog-update = "1.0.0"
 
 [libraries]
 commons-codec = { group = "commons-codec", name = "commons-codec", version.ref = "commons-codec" }
@@ -29,3 +30,6 @@ postgis = { group = "net.postgis", name = "postgis-jdbc", version.ref = "postgis
 postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
 protobuf = { group = "com.google.protobuf", name = "protobuf-java", version.ref = "protobuf" }
 spring = { group = "org.springframework", name = "spring-jdbc", version.ref = "spring" }
+
+[plugins]
+version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "version-catalog-update" }

@@ -4,6 +4,10 @@ buildscript {
 	}
 }
 
+plugins {
+    alias(libs.plugins.version.catalog.update)
+}
+
 /* Build collections containing each type of project.  These collections will
  * be used to apply common configurations to projects of the same type.
  */
