@@ -1,4 +1,4 @@
-FROM fedora:41
+FROM fedora:42
 
 # Install UTF8 locale support
 RUN dnf install -y glibc-langpack-en
