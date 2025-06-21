@@ -22,21 +22,6 @@ OSMOSIS_OPTIONS - The osmosis options to apply (eg. -q or -plugin MyPluginLoader
 COMPILATION
 To perform a complete osmosis rebuild, the following command may be run from the osmosis root directory.
 
-ant all
-
-The "all" ant target performs all steps including creation of new distribution files, checkstyle analysis and unit tests.
-
-Sometimes old files can be left hanging around causing problems.  It may be necessary to run the following command
-to clean up any old files.
-
-ant clean
-
-If you wish to rebuild all artefacts without running unit tests, the following command may be used.
-
-ant publish
-
 HELP
 Osmosis documentation is available at:
 http://wiki.openstreetmap.org/index.php/Osmosis
-
-Please ask any questions, report any issues, or suggest enhancements using the Open Street Map talk or development mailing lists.

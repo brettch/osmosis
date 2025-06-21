@@ -35,7 +35,6 @@ allprojects {
 
 // Apply common configurations to all projects supporting Java.
 configure(javaProjects) {
-	apply plugin: 'checkstyle'
 	apply plugin: 'java-library'
 	apply plugin: 'maven-publish'
 	apply plugin: 'signing'
@@ -69,11 +68,6 @@ configure(javaProjects) {
 
 	dependencies {
 		testImplementation libs.junit
-	}
-
-	checkstyle {
-		configFile = new File(rootDir, 'build-support/checkstyle.xml')
-		configProperties.samedir = configFile.parentFile
 	}
 
 	// Configure the maven-publish plugin to upload artifacts to the Sonatype repository.

@@ -36,10 +36,6 @@ Generate project files to allow the project to be imported into Eclipse.
 
     ./docker.sh ./gradlew eclipse
 
-Verify checkstyle compliance:
-    
-    ./docker.sh ./gradlew checkstyleMain checkstyleTest
-
 After completing the build process, a working Osmosis installation is contained
 in the `package` sub-directory.  The Osmosis launcher scripts reside in the `bin`
 sub-directory of package.  On a UNIX-like environment use the "osmosis" script,
