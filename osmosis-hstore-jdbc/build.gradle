@@ -1,5 +1,5 @@
+apply plugin: rootProject.libs.plugins.spotless.get().pluginId
+
 dependencies {
     implementation libs.postgresql
 }
-
-// Disable formatting checks because this is external code.

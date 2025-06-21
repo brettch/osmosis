@@ -12,6 +12,7 @@ osm-pbf = "1.6.0"
 postgis = "2025.1.1"
 postgresql = "42.7.7"
 protobuf = "4.31.1"
+spotless = "7.0.4"
 spring = "6.2.8"
 version-catalog-update = "1.0.0"
 
@@ -32,4 +33,5 @@ protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protob
 spring = { module = "org.springframework:spring-jdbc", version.ref = "spring" }
 
 [plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "version-catalog-update" }

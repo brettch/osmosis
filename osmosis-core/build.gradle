@@ -63,3 +63,4 @@ task generateResources {
 // Define task dependency to ensure constants file is always up to date.
 processResources.dependsOn generateResources
 sourcesJar.dependsOn generateResources
+spotlessJava.dependsOn generateJavaSources
