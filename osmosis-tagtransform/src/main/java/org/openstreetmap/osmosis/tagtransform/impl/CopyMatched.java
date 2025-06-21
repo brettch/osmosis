@@ -7,17 +7,19 @@ import org.openstreetmap.osmosis.tagtransform.DataSource;
 import org.openstreetmap.osmosis.tagtransform.Match;
 import org.openstreetmap.osmosis.tagtransform.Output;
 
-
 public class CopyMatched implements Output {
 
-	@Override
-	public void apply(Map<String, String> originalTags, Map<String, String> tags, Collection<Match> matches, Map<String, DataSource> dataSources) {
-		// put any matches directly
-		for (Match match : matches) {
-			if (match.getKeyGroupCount() > 0) {
-				tags.put(match.getKey(0), match.getValue(0));
-			}
-		}
-	}
-
+    @Override
+    public void apply(
+            Map<String, String> originalTags,
+            Map<String, String> tags,
+            Collection<Match> matches,
+            Map<String, DataSource> dataSources) {
+        // put any matches directly
+        for (Match match : matches) {
+            if (match.getKeyGroupCount() > 0) {
+                tags.put(match.getKey(0), match.getValue(0));
+            }
+        }
+    }
 }

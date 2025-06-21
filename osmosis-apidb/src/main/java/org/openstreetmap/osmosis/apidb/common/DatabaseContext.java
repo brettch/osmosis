@@ -10,16 +10,14 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.database.DatabaseLoginCredentials;
 import org.openstreetmap.osmosis.core.database.DatabaseType;
 
-
 /**
  * This class manages the lifecycle of JDBC objects to minimise the risk of connection leaks and to
  * support a consistent approach to database access.
- * 
+ *
  * @author Brett Henderson
  */
 public class DatabaseContext implements AutoCloseable {
@@ -30,20 +28,20 @@ public class DatabaseContext implements AutoCloseable {
 
     private Connection connection;
 
-	/**
-	 * This statement is used in cases where the statement isn't exposed to the client. It is stored
-	 * globally here to allow it to remain open after a method return and to simplify resource
-	 * cleanup. It will be closed during release or if a new statement is created.
-	 */
+    /**
+     * This statement is used in cases where the statement isn't exposed to the client. It is stored
+     * globally here to allow it to remain open after a method return and to simplify resource
+     * cleanup. It will be closed during release or if a new statement is created.
+     */
     private Statement statement;
-    
+
     private IdentityValueLoader identityValueLoader;
 
     private boolean autoCommit;
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param loginCredentials Contains all information required to connect to the database.
      */
     public DatabaseContext(DatabaseLoginCredentials loginCredentials) {
@@ -51,16 +49,16 @@ public class DatabaseContext implements AutoCloseable {
         autoCommit = false;
         try {
             switch (loginCredentials.getDbType()) {
-            case POSTGRESQL:
-                Class.forName("org.postgresql.Driver");
-                identityValueLoader = new PostgresqlIdentityValueLoader(this);
-                break;
-            case MYSQL:
-                Class.forName("com.mysql.jdbc.Driver");
-                identityValueLoader = new MysqlIdentityValueLoader(this);
-                break;
-            default:
-                throw createUnknownDbTypeException();
+                case POSTGRESQL:
+                    Class.forName("org.postgresql.Driver");
+                    identityValueLoader = new PostgresqlIdentityValueLoader(this);
+                    break;
+                case MYSQL:
+                    Class.forName("com.mysql.jdbc.Driver");
+                    identityValueLoader = new MysqlIdentityValueLoader(this);
+                    break;
+                default:
+                    throw createUnknownDbTypeException();
             }
 
         } catch (ClassNotFoundException e) {
@@ -75,23 +73,23 @@ public class DatabaseContext implements AutoCloseable {
     /**
      * If no database connection is open, a new connection is opened. The database connection is
      * then returned.
-     * 
+     *
      * @return The database connection.
      */
     private Connection getConnection() {
         if (connection == null) {
             switch (loginCredentials.getDbType()) {
-            case POSTGRESQL:
-                connection = getPostgresConnection();
-                break;
-            case MYSQL:
-                connection = getMysqlConnection();
-                break;
-            default:
-                throw createUnknownDbTypeException();
+                case POSTGRESQL:
+                    connection = getPostgresConnection();
+                    break;
+                case MYSQL:
+                    connection = getMysqlConnection();
+                    break;
+                default:
+                    throw createUnknownDbTypeException();
             }
         }
-        
+
         return connection;
     }
 
@@ -104,11 +102,10 @@ public class DatabaseContext implements AutoCloseable {
             LOG.finer("Creating a new database connection.");
 
             newConnection = DriverManager.getConnection(
-            		"jdbc:postgresql://" + loginCredentials.getHost() + "/"
-                    + loginCredentials.getDatabase(), // + "?logLevel=2"
+                    "jdbc:postgresql://" + loginCredentials.getHost() + "/"
+                            + loginCredentials.getDatabase(), // + "?logLevel=2"
                     loginCredentials.getUser(),
-                    loginCredentials.getPassword()
-            );
+                    loginCredentials.getPassword());
 
             newConnection.setAutoCommit(autoCommit);
 
@@ -147,176 +144,167 @@ public class DatabaseContext implements AutoCloseable {
         return newConnection;
     }
 
-
-	/**
-	 * Returns the database type currently in use. This should only be used when it is not possible
-	 * to write database agnostic statements.
-	 * 
-	 * @return The database type.
-	 */
+    /**
+     * Returns the database type currently in use. This should only be used when it is not possible
+     * to write database agnostic statements.
+     *
+     * @return The database type.
+     */
     public DatabaseType getDatabaseType() {
-    	return loginCredentials.getDbType();
+        return loginCredentials.getDbType();
     }
-	
-	
-    /**
-	 * Truncates the contents of the specified tables.
-	 * 
-	 * @param tables
-	 *            The tables to be truncated.
-	 */
-	public void truncateTables(List<String> tables) {
-		switch (loginCredentials.getDbType()) {
-        case POSTGRESQL:
-        	StringBuilder statementBuilder = new StringBuilder();
-    		
-			for (String table : tables) {
-				if (statementBuilder.length() == 0) {
-					statementBuilder.append("TRUNCATE ");
-				} else {
-					statementBuilder.append(", ");
-				}
-				
-				statementBuilder.append(table);
-			}
-			
-			statementBuilder.append(" CASCADE");
-			
-			executeStatement(statementBuilder.toString());
-			break;
-        case MYSQL:
-			for (String table : tables) {
-				executeStatement("TRUNCATE " + table);
-			}
-			break;
-		default:
-            throw createUnknownDbTypeException();
-        }
-	}
-	
-	
-    /**
-	 * Disables the indexes of the specified tables.
-	 * 
-	 * @param tables
-	 *            The tables to disable indexes on.
-	 */
-	public void disableIndexes(List<String> tables) {
-		switch (loginCredentials.getDbType()) {
-        case POSTGRESQL:
-			// There is no way to automatically disable all indexes for a table.
-			break;
-        case MYSQL:
-        	for (String table : tables) {
-        		executeStatement("ALTER TABLE " + table + " DISABLE KEYS");
-			}
-			break;
-		default:
-            throw createUnknownDbTypeException();
-        }
-	}
-	
-	
-    /**
-	 * Enables the indexes of the specified tables.
-	 * 
-	 * @param tables
-	 *            The tables to enable indexes on.
-	 */
-	public void enableIndexes(List<String> tables) {
-		switch (loginCredentials.getDbType()) {
-        case POSTGRESQL:
-			// There is no way to automatically disable all indexes for a table.
-			break;
-        case MYSQL:
-        	for (String table : tables) {
-        		executeStatement("ALTER TABLE " + table + " ENABLE KEYS");
-			}
-			break;
-		default:
-            throw createUnknownDbTypeException();
-        }
-	}
-	
-	
-    /**
-	 * Locks the specified tables for exclusive access.
-	 * 
-	 * @param tables
-	 *            The tables to lock.
-	 */
-	public void lockTables(List<String> tables) {
-		switch (loginCredentials.getDbType()) {
-        case POSTGRESQL:
-			// Locking tables is not supported.
-			break;
-        case MYSQL:
-        	StringBuilder statementBuilder = new StringBuilder();
-        	
-        	for (String table : tables) {
-        		if (statementBuilder.length() == 0) {
-        			statementBuilder.append("LOCK TABLES ");
-        		} else {
-        			statementBuilder.append(", ");
-        		}
-        		statementBuilder.append(table);
-        		statementBuilder.append(" WRITE");
-			}
-        	
-        	executeStatement(statementBuilder.toString());
-			break;
-		default:
-            throw createUnknownDbTypeException();
-        }
-	}
-	
-	
-    /**
-	 * Unlocks the specified tables.
-	 * 
-	 * @param tables
-	 *            The tables to unlock.
-	 */
-	public void unlockTables(List<String> tables) {
-		switch (loginCredentials.getDbType()) {
-        case POSTGRESQL:
-			// Locking tables is not supported.
-			break;
-        case MYSQL:
-        	executeStatement("UNLOCK TABLES");
-			break;
-		default:
-            throw createUnknownDbTypeException();
-        }
-	}
 
+    /**
+     * Truncates the contents of the specified tables.
+     *
+     * @param tables
+     *            The tables to be truncated.
+     */
+    public void truncateTables(List<String> tables) {
+        switch (loginCredentials.getDbType()) {
+            case POSTGRESQL:
+                StringBuilder statementBuilder = new StringBuilder();
 
-	/**
-	 * Gets the last inserted identity column value. This is a global value and may not work
-	 * correctly if the database uses triggers.
-	 * 
-	 * @return The last inserted identity column value.
-	 */
-	public long getLastInsertId() {
-		return identityValueLoader.getLastInsertId();
-	}
+                for (String table : tables) {
+                    if (statementBuilder.length() == 0) {
+                        statementBuilder.append("TRUNCATE ");
+                    } else {
+                        statementBuilder.append(", ");
+                    }
 
+                    statementBuilder.append(table);
+                }
 
-	/**
-	 * Gets the last retrieved sequence value. This is specific to the current connection only.
-	 * 
-	 * @param sequenceName
-	 *            The name of the sequence.
-	 * @return The last inserted identity column value.
-	 */
-	public long getLastSequenceId(String sequenceName) {
-		return identityValueLoader.getLastSequenceId(sequenceName);
-	}
+                statementBuilder.append(" CASCADE");
 
+                executeStatement(statementBuilder.toString());
+                break;
+            case MYSQL:
+                for (String table : tables) {
+                    executeStatement("TRUNCATE " + table);
+                }
+                break;
+            default:
+                throw createUnknownDbTypeException();
+        }
+    }
+
+    /**
+     * Disables the indexes of the specified tables.
+     *
+     * @param tables
+     *            The tables to disable indexes on.
+     */
+    public void disableIndexes(List<String> tables) {
+        switch (loginCredentials.getDbType()) {
+            case POSTGRESQL:
+                // There is no way to automatically disable all indexes for a table.
+                break;
+            case MYSQL:
+                for (String table : tables) {
+                    executeStatement("ALTER TABLE " + table + " DISABLE KEYS");
+                }
+                break;
+            default:
+                throw createUnknownDbTypeException();
+        }
+    }
+
+    /**
+     * Enables the indexes of the specified tables.
+     *
+     * @param tables
+     *            The tables to enable indexes on.
+     */
+    public void enableIndexes(List<String> tables) {
+        switch (loginCredentials.getDbType()) {
+            case POSTGRESQL:
+                // There is no way to automatically disable all indexes for a table.
+                break;
+            case MYSQL:
+                for (String table : tables) {
+                    executeStatement("ALTER TABLE " + table + " ENABLE KEYS");
+                }
+                break;
+            default:
+                throw createUnknownDbTypeException();
+        }
+    }
+
+    /**
+     * Locks the specified tables for exclusive access.
+     *
+     * @param tables
+     *            The tables to lock.
+     */
+    public void lockTables(List<String> tables) {
+        switch (loginCredentials.getDbType()) {
+            case POSTGRESQL:
+                // Locking tables is not supported.
+                break;
+            case MYSQL:
+                StringBuilder statementBuilder = new StringBuilder();
+
+                for (String table : tables) {
+                    if (statementBuilder.length() == 0) {
+                        statementBuilder.append("LOCK TABLES ");
+                    } else {
+                        statementBuilder.append(", ");
+                    }
+                    statementBuilder.append(table);
+                    statementBuilder.append(" WRITE");
+                }
+
+                executeStatement(statementBuilder.toString());
+                break;
+            default:
+                throw createUnknownDbTypeException();
+        }
+    }
+
+    /**
+     * Unlocks the specified tables.
+     *
+     * @param tables
+     *            The tables to unlock.
+     */
+    public void unlockTables(List<String> tables) {
+        switch (loginCredentials.getDbType()) {
+            case POSTGRESQL:
+                // Locking tables is not supported.
+                break;
+            case MYSQL:
+                executeStatement("UNLOCK TABLES");
+                break;
+            default:
+                throw createUnknownDbTypeException();
+        }
+    }
+
+    /**
+     * Gets the last inserted identity column value. This is a global value and may not work
+     * correctly if the database uses triggers.
+     *
+     * @return The last inserted identity column value.
+     */
+    public long getLastInsertId() {
+        return identityValueLoader.getLastInsertId();
+    }
+
+    /**
+     * Gets the last retrieved sequence value. This is specific to the current connection only.
+     *
+     * @param sequenceName
+     *            The name of the sequence.
+     * @return The last inserted identity column value.
+     */
+    public long getLastSequenceId(String sequenceName) {
+        return identityValueLoader.getLastSequenceId(sequenceName);
+    }
 
     /**
      * Executes a sql statement against the database.
-     * 
+     *
      * @param sql The sql statement to be invoked.
      */
     public void executeStatement(String sql) {
@@ -334,14 +322,13 @@ public class DatabaseContext implements AutoCloseable {
         }
     }
 
-    
     /**
-	 * Creates a new database prepared statement.
-	 * 
-	 * @param sql
-	 *            The statement to be created.
-	 * @return The newly created statement.
-	 */
+     * Creates a new database prepared statement.
+     *
+     * @param sql
+     *            The statement to be created.
+     * @return The newly created statement.
+     */
     public PreparedStatement prepareStatement(String sql) {
         try {
             PreparedStatement preparedStatement;
@@ -354,46 +341,45 @@ public class DatabaseContext implements AutoCloseable {
             throw new OsmosisRuntimeException("Unable to create database prepared statement.", e);
         }
     }
-    
-    
+
     private void setStatementFetchSizeForStreaming(Statement streamingStatement) {
-    	try {
-	    	switch (loginCredentials.getDbType()) {
-	        case POSTGRESQL:
-	        	streamingStatement.setFetchSize(10000);
-				break;
-	        case MYSQL:
-	        	streamingStatement.setFetchSize(Integer.MIN_VALUE);
-				break;
-			default:
-                throw createUnknownDbTypeException();
+        try {
+            switch (loginCredentials.getDbType()) {
+                case POSTGRESQL:
+                    streamingStatement.setFetchSize(10000);
+                    break;
+                case MYSQL:
+                    streamingStatement.setFetchSize(Integer.MIN_VALUE);
+                    break;
+                default:
+                    throw createUnknownDbTypeException();
             }
-    	} catch (SQLException e) {
-    		throw new OsmosisRuntimeException("Unable to update statement fetch size.", e);
-    	}
+        } catch (SQLException e) {
+            throw new OsmosisRuntimeException("Unable to update statement fetch size.", e);
+        }
     }
 
     /**
-	 * Creates a new database statement that is configured so that any result sets created using it
-	 * will stream data from the database instead of returning all records at once and storing in
-	 * memory.
-	 * <p>
-	 * If no input parameters need to be set on the statement, use the executeStreamingQuery method
-	 * instead.
-	 * 
-	 * @param sql
-	 *            The statement to be created. This must be a select statement.
-	 * @return The newly created statement.
-	 */
+     * Creates a new database statement that is configured so that any result sets created using it
+     * will stream data from the database instead of returning all records at once and storing in
+     * memory.
+     * <p>
+     * If no input parameters need to be set on the statement, use the executeStreamingQuery method
+     * instead.
+     *
+     * @param sql
+     *            The statement to be created. This must be a select statement.
+     * @return The newly created statement.
+     */
     public PreparedStatement prepareStatementForStreaming(String sql) {
         try {
             PreparedStatement newStatement;
 
             // Create a statement for returning streaming results.
-			newStatement = getConnection().prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY,
-					ResultSet.CONCUR_READ_ONLY);
+            newStatement =
+                    getConnection().prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 
-			setStatementFetchSizeForStreaming(newStatement);
+            setStatementFetchSizeForStreaming(newStatement);
 
             return newStatement;
 
@@ -405,7 +391,7 @@ public class DatabaseContext implements AutoCloseable {
     /**
      * Executes a query and returns a result set. The returned result set must be closed by the
      * caller.
-     * 
+     *
      * @param sql The query to execute.
      * @return The newly created result set.
      */
@@ -420,7 +406,7 @@ public class DatabaseContext implements AutoCloseable {
             }
 
             statement = getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            
+
             setStatementFetchSizeForStreaming(statement);
 
             resultSet = statement.executeQuery(sql);
@@ -448,12 +434,12 @@ public class DatabaseContext implements AutoCloseable {
     /**
      * Releases all database resources. This method is guaranteed not to throw transactions and
      * should always be called in a finally block whenever this class is used.
-     * 
+     *
      * @deprecated Use {@link #close()} instead.
      */
     @Deprecated
     public void release() {
-    	close();
+        close();
     }
 
     /**
@@ -461,11 +447,11 @@ public class DatabaseContext implements AutoCloseable {
      * should always be called in a finally or try-with-resources block whenever this class is used.
      */
     public void close() {
-    	identityValueLoader.close();
-    	
+        identityValueLoader.close();
+
         if (statement != null) {
             try {
-            	statement.close();
+                statement.close();
 
             } catch (SQLException e) {
                 // We cannot throw an exception within a release statement.
@@ -489,7 +475,7 @@ public class DatabaseContext implements AutoCloseable {
 
     /**
      * Sets the auto-commit property on the underlying connection.
-     * 
+     *
      * @param autoCommit The new auto commit value.
      */
     public void setAutoCommit(boolean autoCommit) {
@@ -507,31 +493,31 @@ public class DatabaseContext implements AutoCloseable {
 
     /**
      * Indicates if the specified column exists in the database.
-     * 
+     *
      * @param tableName The table to check for.
      * @param columnName The column to check for.
      * @return True if the column exists, false otherwise.
      */
     public boolean doesColumnExist(String tableName, String columnName) {
-    	LOG.finest("Checking if column {" + columnName + "} in table {" + tableName + "} exists.");
+        LOG.finest("Checking if column {" + columnName + "} in table {" + tableName + "} exists.");
 
         try (ResultSet resultSet = getConnection().getMetaData().getColumns(null, null, tableName, columnName)) {
-        	return resultSet.next();
+            return resultSet.next();
         } catch (SQLException e) {
-        	throw new OsmosisRuntimeException("Unable to check for the existence of column " + tableName + "."
-                  + columnName + ".", e);
+            throw new OsmosisRuntimeException(
+                    "Unable to check for the existence of column " + tableName + "." + columnName + ".", e);
         }
     }
 
     /**
      * Indicates if the specified table exists in the database.
-     * 
+     *
      * @param tableName The table to check for.
      * @return True if the table exists, false otherwise.
      */
     public boolean doesTableExist(String tableName) {
         try (ResultSet resultSet =
-                     getConnection().getMetaData().getTables(null, null, tableName, new String[] {"TABLE"})) {
+                getConnection().getMetaData().getTables(null, null, tableName, new String[] {"TABLE"})) {
             LOG.finest("Checking if table {" + tableName + "} exists.");
 
             return resultSet.next();

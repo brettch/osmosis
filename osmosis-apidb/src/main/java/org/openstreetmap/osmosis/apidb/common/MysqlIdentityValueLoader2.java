@@ -5,55 +5,49 @@ import java.util.Objects;
 
 /**
  * Mysql implementation of an identity value loader.
- * 
+ *
  * @author Brett Henderson
  */
 public class MysqlIdentityValueLoader2 implements IdentityValueLoader {
-	private static final String SQL_SELECT_LAST_INSERT_ID =
-		"SELECT LAST_INSERT_ID() AS lastInsertId FROM DUAL";
-	
-	private DatabaseContext2 dbCtx;
-	
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param dbCtx
-	 *            The database context to use for all database access.
-	 */
-	public MysqlIdentityValueLoader2(DatabaseContext2 dbCtx) {
-		this.dbCtx = dbCtx;
-	}
-	
-	
-	/**
-	 * Returns the id of the most recently inserted row on the current
-	 * connection.
-	 * 
-	 * @return The newly inserted id.
-	 */
-	public long getLastInsertId() {
-		return Objects.requireNonNull(
-			dbCtx.getJdbcTemplate().queryForObject(SQL_SELECT_LAST_INSERT_ID, Long.class),
-			"Last insert ID was not found"
-		);
-	}
+    private static final String SQL_SELECT_LAST_INSERT_ID = "SELECT LAST_INSERT_ID() AS lastInsertId FROM DUAL";
 
+    private DatabaseContext2 dbCtx;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public long getLastSequenceId(String sequenceName) {
-		throw new UnsupportedOperationException();
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void close() {
-		// Do nothing.
-	}
+    /**
+     * Creates a new instance.
+     *
+     * @param dbCtx
+     *            The database context to use for all database access.
+     */
+    public MysqlIdentityValueLoader2(DatabaseContext2 dbCtx) {
+        this.dbCtx = dbCtx;
+    }
+
+    /**
+     * Returns the id of the most recently inserted row on the current
+     * connection.
+     *
+     * @return The newly inserted id.
+     */
+    public long getLastInsertId() {
+        return Objects.requireNonNull(
+                dbCtx.getJdbcTemplate().queryForObject(SQL_SELECT_LAST_INSERT_ID, Long.class),
+                "Last insert ID was not found");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getLastSequenceId(String sequenceName) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() {
+        // Do nothing.
+    }
 }

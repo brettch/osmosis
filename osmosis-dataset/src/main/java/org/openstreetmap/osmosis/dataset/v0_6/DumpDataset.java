@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.dataset.v0_6;
 
 import java.util.Collections;
-
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.Dataset;
 import org.openstreetmap.osmosis.core.container.v0_6.DatasetContext;
@@ -11,60 +10,55 @@ import org.openstreetmap.osmosis.core.lifecycle.ReleasableIterator;
 import org.openstreetmap.osmosis.core.task.v0_6.DatasetSinkSource;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
-
 /**
  * Reads all data from a dataset.
- * 
+ *
  * @author Brett Henderson
  */
 public class DumpDataset implements DatasetSinkSource {
-	private Sink sink;
-	private DatasetContext datasetReader;
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setSink(Sink sink) {
-		this.sink = sink;
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void process(Dataset dataset) {
-		if (datasetReader != null) {
-			throw new OsmosisRuntimeException("process may only be invoked once.");
-		}
-		
-		datasetReader = dataset.createReader();
-		
-		// Pass all data within the dataset to the sink.
-		try (ReleasableIterator<EntityContainer> bboxData = datasetReader.iterate()) {
-			sink.initialize(Collections.<String, Object>emptyMap());
-			
-			while (bboxData.hasNext()) {
-				sink.process(bboxData.next());
-			}
-			
-			sink.complete();
-			
-		}
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void close() {
-		sink.close();
-		
-		if (datasetReader != null) {
-			datasetReader.close();
-		}
-	}
+    private Sink sink;
+    private DatasetContext datasetReader;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setSink(Sink sink) {
+        this.sink = sink;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void process(Dataset dataset) {
+        if (datasetReader != null) {
+            throw new OsmosisRuntimeException("process may only be invoked once.");
+        }
+
+        datasetReader = dataset.createReader();
+
+        // Pass all data within the dataset to the sink.
+        try (ReleasableIterator<EntityContainer> bboxData = datasetReader.iterate()) {
+            sink.initialize(Collections.<String, Object>emptyMap());
+
+            while (bboxData.hasNext()) {
+                sink.process(bboxData.next());
+            }
+
+            sink.complete();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() {
+        sink.close();
+
+        if (datasetReader != null) {
+            datasetReader.close();
+        }
+    }
 }

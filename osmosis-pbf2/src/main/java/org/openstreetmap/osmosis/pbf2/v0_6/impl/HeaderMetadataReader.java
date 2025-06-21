@@ -2,9 +2,6 @@
 package org.openstreetmap.osmosis.pbf2.v0_6.impl;
 
 import crosby.binary.Osmformat;
-import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
-import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
+import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 
 /**
  * Obtains metadata suitable for passing to {@link org.openstreetmap.osmosis.core.task.v0_6.Sink#initialize(Map)} from

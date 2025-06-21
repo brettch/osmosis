@@ -4,7 +4,6 @@ package org.openstreetmap.osmosis.core.runner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.core.OsmosisConstants;
 import org.openstreetmap.osmosis.core.TaskRegistrar;
@@ -22,7 +21,7 @@ public class OsmosisRunner implements Runnable {
     private final OsmosisTask outTask;
 
     /**
-     * Standard Constructor. 
+     * Standard Constructor.
      * Todo: This can easily be extended to take a list of tasks and add them all to the pipeline
      *
      * @param inTask The in Task
@@ -57,7 +56,6 @@ public class OsmosisRunner implements Runnable {
 
         LOG.info("Pipeline complete.");
 
-        LOG.info("Total execution time: " + (System.currentTimeMillis() - startTime)
-                + " milliseconds.");
+        LOG.info("Total execution time: " + (System.currentTimeMillis() - startTime) + " milliseconds.");
     }
 }

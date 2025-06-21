@@ -4,9 +4,8 @@ package org.openstreetmap.osmosis.pbf2.v0_6.impl;
 import com.google.protobuf.InvalidProtocolBufferException;
 import crosby.binary.Fileformat;
 import crosby.binary.Osmformat;
-import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
-
 import java.util.function.Function;
+import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 
 /**
  * Parses the raw blob data from a PBF stream into a strongly typed block.

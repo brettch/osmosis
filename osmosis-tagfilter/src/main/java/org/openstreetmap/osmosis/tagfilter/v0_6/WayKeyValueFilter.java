@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
-
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.BoundContainer;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
@@ -20,148 +19,135 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 import org.openstreetmap.osmosis.core.task.v0_6.SinkSource;
 import org.openstreetmap.osmosis.tagfilter.common.KeyValueFileReader;
 
-
 /**
  * A simple class to filter way entities by their tags.
- * 
+ *
  * @author Brett Henderson
  * @author Karl Newman
- * @author Christoph Sommer 
+ * @author Christoph Sommer
  */
 public class WayKeyValueFilter implements SinkSource, EntityProcessor {
-	private Sink sink;
-	private HashSet<String> allowedKeyValues;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param keyValueList
-	 *            Comma-separated list of allowed key-value combinations,
-	 *            e.g. "highway.motorway,highway.motorway_link" 
-	 */
-	public WayKeyValueFilter(String keyValueList) {
+    private Sink sink;
+    private HashSet<String> allowedKeyValues;
 
-		allowedKeyValues = new HashSet<String>();
-		String[] keyValues = keyValueList.split(",");
-		for (int i = 0; i < keyValues.length; i++) {
-			allowedKeyValues.add(keyValues[i]);
-		}
+    /**
+     * Creates a new instance.
+     *
+     * @param keyValueList
+     *            Comma-separated list of allowed key-value combinations,
+     *            e.g. "highway.motorway,highway.motorway_link"
+     */
+    public WayKeyValueFilter(String keyValueList) {
 
-	}
+        allowedKeyValues = new HashSet<String>();
+        String[] keyValues = keyValueList.split(",");
+        for (int i = 0; i < keyValues.length; i++) {
+            allowedKeyValues.add(keyValues[i]);
+        }
+    }
 
+    /**
+     * Creates a new instance.
+     *
+     * @param keyValueListFile
+     *            File containing one key-value combination per line
+     */
+    public WayKeyValueFilter(File keyValueListFile) {
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param keyValueListFile
-	 *            File containing one key-value combination per line
-	 */
-	public WayKeyValueFilter(File keyValueListFile) {
+        String[] keyValues;
+        try {
+            KeyValueFileReader reader = new KeyValueFileReader(keyValueListFile);
+            keyValues = reader.loadKeyValues();
+        } catch (FileNotFoundException ex) {
+            throw new OsmosisRuntimeException(
+                    "Unable to find key.value file " + keyValueListFile.getAbsolutePath() + ".", ex);
+        } catch (IOException ex) {
+            throw new OsmosisRuntimeException(
+                    "Unable to read from key.value file " + keyValueListFile.getAbsolutePath() + ".", ex);
+        }
 
-		String[] keyValues;
-		try {
-			KeyValueFileReader reader = new KeyValueFileReader(keyValueListFile);
-			keyValues = reader.loadKeyValues();
-		} catch (FileNotFoundException ex) {
-			throw new OsmosisRuntimeException("Unable to find key.value file " + keyValueListFile.getAbsolutePath()
-					+ ".", ex);
-		} catch (IOException ex) {
-			throw new OsmosisRuntimeException("Unable to read from key.value file "
-					+ keyValueListFile.getAbsolutePath() + ".", ex);
-		}
+        allowedKeyValues = new HashSet<String>();
+        for (int i = 0; i < keyValues.length; i++) {
+            allowedKeyValues.add(keyValues[i]);
+        }
+    }
 
-		allowedKeyValues = new HashSet<String>();
-		for (int i = 0; i < keyValues.length; i++) {
-			allowedKeyValues.add(keyValues[i]);
-		}
-
-	}
-    
-    
     /**
      * {@inheritDoc}
      */
     public void initialize(Map<String, Object> metaData) {
-		sink.initialize(metaData);
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void process(EntityContainer entityContainer) {
-		// Ask the entity container to invoke the appropriate processing method
-		// for the entity type.
-		entityContainer.process(this);
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void process(BoundContainer boundContainer) {
-		// By default, pass it on unchanged
-		sink.process(boundContainer);
-	}
+        sink.initialize(metaData);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void process(EntityContainer entityContainer) {
+        // Ask the entity container to invoke the appropriate processing method
+        // for the entity type.
+        entityContainer.process(this);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void process(NodeContainer container) {
-		sink.process(container);
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void process(WayContainer container) {
-		Way way = container.getEntity();
+    /**
+     * {@inheritDoc}
+     */
+    public void process(BoundContainer boundContainer) {
+        // By default, pass it on unchanged
+        sink.process(boundContainer);
+    }
 
-		boolean matchesFilter = false;
-		for (Tag tag : way.getTags()) {
-			String keyValue = tag.getKey() + "." + tag.getValue();
-			if (allowedKeyValues.contains(keyValue)) {
-				matchesFilter = true;
-				break;
-			}
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public void process(NodeContainer container) {
+        sink.process(container);
+    }
 
-		if (matchesFilter) {
-			sink.process(container);
-		}
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void process(RelationContainer container) {
-		sink.process(container);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void process(WayContainer container) {
+        Way way = container.getEntity();
 
+        boolean matchesFilter = false;
+        for (Tag tag : way.getTags()) {
+            String keyValue = tag.getKey() + "." + tag.getValue();
+            if (allowedKeyValues.contains(keyValue)) {
+                matchesFilter = true;
+                break;
+            }
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void complete() {
-		sink.complete();
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void close() {
-		sink.close();
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setSink(Sink sink) {
-		this.sink = sink;
-	}
+        if (matchesFilter) {
+            sink.process(container);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void process(RelationContainer container) {
+        sink.process(container);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void complete() {
+        sink.complete();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close() {
+        sink.close();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setSink(Sink sink) {
+        this.sink = sink;
+    }
 }

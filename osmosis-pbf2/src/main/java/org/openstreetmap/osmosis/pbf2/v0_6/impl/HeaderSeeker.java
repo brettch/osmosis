@@ -2,10 +2,9 @@
 package org.openstreetmap.osmosis.pbf2.v0_6.impl;
 
 import crosby.binary.Osmformat;
-import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
-
 import java.util.Optional;
 import java.util.function.Function;
+import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 
 /**
  * Finds the first header in the stream.  It validates that a header occurs first.  This function has side effects in

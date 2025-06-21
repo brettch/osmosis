@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 
 /**
@@ -19,7 +18,7 @@ import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
  * <li>password</li>
  * <li>db</li>
  * </ul>
- * 
+ *
  * @author Brett Henderson
  */
 public class AuthenticationPropertiesLoader {
@@ -35,7 +34,7 @@ public class AuthenticationPropertiesLoader {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param propertiesFile The location of the properties file containing authentication
      *        information.
      */
@@ -58,7 +57,7 @@ public class AuthenticationPropertiesLoader {
     /**
      * Updates the login credentials with values from the properties file. Only values contained in
      * the properties file will be added.
-     * 
+     *
      * @param loginCredentials The login credentials to be updated.
      */
     public void updateLoginCredentials(DatabaseLoginCredentials loginCredentials) {
@@ -82,6 +81,5 @@ public class AuthenticationPropertiesLoader {
         if (properties.containsKey(KEY_DBTYPE)) {
             loginCredentials.setDbType(properties.getProperty(KEY_DBTYPE));
         }
-
     }
 }

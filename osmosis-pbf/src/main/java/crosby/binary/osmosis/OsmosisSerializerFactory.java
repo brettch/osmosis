@@ -1,11 +1,10 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package crosby.binary.osmosis;
 
+import crosby.binary.file.BlockOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-
-import crosby.binary.file.BlockOutputStream;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManager;
@@ -27,34 +26,27 @@ public class OsmosisSerializerFactory extends TaskManagerFactory {
         OsmosisSerializer task = null;
 
         // Get the task arguments.
-        fileName = getStringArgument(taskConfig, ARG_FILE_NAME,
-                getDefaultStringArgument(taskConfig, DEFAULT_FILE_NAME));
+        fileName =
+                getStringArgument(taskConfig, ARG_FILE_NAME, getDefaultStringArgument(taskConfig, DEFAULT_FILE_NAME));
 
         // Create a file object from the file name provided.
         file = new File(fileName);
 
         // Build the task object.
         try {
-            BlockOutputStream output = new BlockOutputStream(
-                    new FileOutputStream(file));
+            BlockOutputStream output = new BlockOutputStream(new FileOutputStream(file));
             task = new OsmosisSerializer(output);
-            task.configBatchLimit(this.getIntegerArgument(taskConfig,
-                    "batchlimit", 8000));
-            task.configOmit(this.getBooleanArgument(taskConfig, "omitmetadata",
-                    false));
-            task.setUseDense(this.getBooleanArgument(taskConfig, "usedense",
-                true));
-            task.configGranularity(this.getIntegerArgument(taskConfig,
-                    "granularity", 100));
+            task.configBatchLimit(this.getIntegerArgument(taskConfig, "batchlimit", 8000));
+            task.configOmit(this.getBooleanArgument(taskConfig, "omitmetadata", false));
+            task.setUseDense(this.getBooleanArgument(taskConfig, "usedense", true));
+            task.configGranularity(this.getIntegerArgument(taskConfig, "granularity", 100));
 
-            output.setCompress(this.getStringArgument(taskConfig, "compress",
-                    "deflate"));
+            output.setCompress(this.getStringArgument(taskConfig, "compress", "deflate"));
 
         } catch (FileNotFoundException e) {
-        	throw new OsmosisRuntimeException("Failed to initialize Osmosis pbf serializer.", e);
+            throw new OsmosisRuntimeException("Failed to initialize Osmosis pbf serializer.", e);
         }
 
-        return new SinkManager(taskConfig.getId(), task, taskConfig
-                .getPipeArgs());
+        return new SinkManager(taskConfig.getId(), task, taskConfig.getPipeArgs());
     }
 }

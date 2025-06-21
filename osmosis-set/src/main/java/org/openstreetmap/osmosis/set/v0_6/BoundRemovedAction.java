@@ -8,49 +8,49 @@ import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
  * a bound entity from the output stream.
  */
 public enum BoundRemovedAction {
-	/**
-	 * Continue processing quietly.
-	 */
-	Ignore("ignore"),
-	
-	/**
-	 * Continue processing but emit a warning to the log.
-	 */
-	Warn("warn"),
-	
-	/**
-	 * Stop processing and emit an error message to the log.
-	 */
-	Fail("fail");
-	
-	private final String keyword;
+    /**
+     * Continue processing quietly.
+     */
+    Ignore("ignore"),
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @param keyword The string representation of this enum instance.
-	 */
-	BoundRemovedAction(String keyword) {
-		this.keyword = keyword;
-	}
-	
-	/**
-	 * Returns an action for a given string, if possible.
-	 * 
-	 * @param s the string to parse
-	 * @return an action corresponding to a string, if it exists.
-	 */
-	public static BoundRemovedAction parse(String s) {
-		if (s == null) {
-			throw new OsmosisRuntimeException(
-				"Unrecognized bound removed action value: must be one of ignore, warn, fail.");
-		}
-		for (BoundRemovedAction a : values()) {
-			if (a.keyword.equals(s.toLowerCase())) {
-				return a;
-			}
-		}
-		throw new OsmosisRuntimeException(
-			"Unrecognized bound removed action value: must be one of ignore, warn, fail.");
-	}
+    /**
+     * Continue processing but emit a warning to the log.
+     */
+    Warn("warn"),
+
+    /**
+     * Stop processing and emit an error message to the log.
+     */
+    Fail("fail");
+
+    private final String keyword;
+
+    /**
+     * Create a new instance.
+     *
+     * @param keyword The string representation of this enum instance.
+     */
+    BoundRemovedAction(String keyword) {
+        this.keyword = keyword;
+    }
+
+    /**
+     * Returns an action for a given string, if possible.
+     *
+     * @param s the string to parse
+     * @return an action corresponding to a string, if it exists.
+     */
+    public static BoundRemovedAction parse(String s) {
+        if (s == null) {
+            throw new OsmosisRuntimeException(
+                    "Unrecognized bound removed action value: must be one of ignore, warn, fail.");
+        }
+        for (BoundRemovedAction a : values()) {
+            if (a.keyword.equals(s.toLowerCase())) {
+                return a;
+            }
+        }
+        throw new OsmosisRuntimeException(
+                "Unrecognized bound removed action value: must be one of ignore, warn, fail.");
+    }
 }

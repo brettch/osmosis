@@ -2,9 +2,7 @@
 package org.openstreetmap.osmosis.core.sort.v0_6;
 
 import java.util.Comparator;
-
 import org.openstreetmap.osmosis.core.container.v0_6.ChangeContainer;
-
 
 /**
  * Orders changes in such a way that they can be applied to an ordered data
@@ -16,27 +14,25 @@ import org.openstreetmap.osmosis.core.container.v0_6.ChangeContainer;
  * <li>Ways ordered by id and version</li>
  * <li>Relations ordered by id and version</li>
  * </ul>
- * 
+ *
  * @author Brett Henderson
  */
 public class ChangeForStreamableApplierComparator implements Comparator<ChangeContainer> {
-	private Comparator<ChangeContainer> comparator;
-	
-	
-	/**
-	 * Creates a new instance.
-	 */
-	public ChangeForStreamableApplierComparator() {
-		// We have an existing entity comparator that performs the same ordering so simply adapt it.
-		comparator = new ChangeAsEntityComparator(new EntityContainerComparator(
-				new EntityByTypeThenIdThenVersionComparator()));
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public int compare(ChangeContainer o1, ChangeContainer o2) {
-		return comparator.compare(o1, o2);
-	}
+    private Comparator<ChangeContainer> comparator;
+
+    /**
+     * Creates a new instance.
+     */
+    public ChangeForStreamableApplierComparator() {
+        // We have an existing entity comparator that performs the same ordering so simply adapt it.
+        comparator = new ChangeAsEntityComparator(
+                new EntityContainerComparator(new EntityByTypeThenIdThenVersionComparator()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int compare(ChangeContainer o1, ChangeContainer o2) {
+        return comparator.compare(o1, o2);
+    }
 }

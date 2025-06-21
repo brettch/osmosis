@@ -4,11 +4,9 @@ package org.openstreetmap.osmosis.replication.common;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.time.DateFormatter;
 import org.openstreetmap.osmosis.core.time.DateParser;
-
 
 /**
  * Contains the state to be remembered between replication invocations. This
@@ -16,174 +14,158 @@ import org.openstreetmap.osmosis.core.time.DateParser;
  * none is repeated except after certain failure situations.
  */
 public class ReplicationState {
-	/**
-	 * The key used when passing an instance through the pipeline as metadata.
-	 */
-	public static final String META_DATA_KEY = "replication.state";
-	
-	
-	private Date timestamp;
-	private long sequenceNumber;
+    /**
+     * The key used when passing an instance through the pipeline as metadata.
+     */
+    public static final String META_DATA_KEY = "replication.state";
 
+    private Date timestamp;
+    private long sequenceNumber;
 
-	/**
-	 * Creates a new instance with all values set to defaults.
-	 */
-	public ReplicationState() {
-		this.timestamp = new Date(0);
-		this.sequenceNumber = 0;
-	}
+    /**
+     * Creates a new instance with all values set to defaults.
+     */
+    public ReplicationState() {
+        this.timestamp = new Date(0);
+        this.sequenceNumber = 0;
+    }
 
+    /**
+     * Creates a new instance.
+     *
+     * @param timestamp
+     *            The maximum timestamp of data currently read from the database.
+     * @param sequenceNumber
+     *            The replication sequence number.
+     */
+    public ReplicationState(Date timestamp, long sequenceNumber) {
+        this.timestamp = timestamp;
+        this.sequenceNumber = sequenceNumber;
+    }
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param timestamp
-	 *            The maximum timestamp of data currently read from the database.
-	 * @param sequenceNumber
-	 *            The replication sequence number.
-	 */
-	public ReplicationState(Date timestamp, long sequenceNumber) {
-		this.timestamp = timestamp;
-		this.sequenceNumber = sequenceNumber;
-	}
-	
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param properties
-	 *            The properties to load state from.
-	 */
-	public ReplicationState(Map<String, String> properties) {
-		load(properties);
-	}
-	
-	
-	private String loadProperty(Map<String, String> properties, String key) {
-		if (!properties.containsKey(key)) {
-			throw new OsmosisRuntimeException("The replication state doesn't contain a " + key + " property.");
-		}
-		return properties.get(key);
-	}
-	
-	
-	/**
-	 * Loads all state from the provided properties object.
-	 * 
-	 * @param properties
-	 *            The properties to be read.
-	 */
-	public void load(Map<String, String> properties) {
-		timestamp = new DateParser().parse(loadProperty(properties, "timestamp"));
-		sequenceNumber = Long.parseLong(loadProperty(properties, "sequenceNumber"));
-	}
+    /**
+     * Creates a new instance.
+     *
+     * @param properties
+     *            The properties to load state from.
+     */
+    public ReplicationState(Map<String, String> properties) {
+        load(properties);
+    }
 
+    private String loadProperty(Map<String, String> properties, String key) {
+        if (!properties.containsKey(key)) {
+            throw new OsmosisRuntimeException("The replication state doesn't contain a " + key + " property.");
+        }
+        return properties.get(key);
+    }
 
-	/**
-	 * Writes all state into the provided properties object.
-	 * 
-	 * @param properties
-	 *            The properties to be updated.
-	 */
-	public void store(Map<String, String> properties) {
-		properties.put("timestamp", new DateFormatter().format(timestamp));
-		properties.put("sequenceNumber", Long.toString(sequenceNumber));
-	}
+    /**
+     * Loads all state from the provided properties object.
+     *
+     * @param properties
+     *            The properties to be read.
+     */
+    public void load(Map<String, String> properties) {
+        timestamp = new DateParser().parse(loadProperty(properties, "timestamp"));
+        sequenceNumber = Long.parseLong(loadProperty(properties, "sequenceNumber"));
+    }
 
+    /**
+     * Writes all state into the provided properties object.
+     *
+     * @param properties
+     *            The properties to be updated.
+     */
+    public void store(Map<String, String> properties) {
+        properties.put("timestamp", new DateFormatter().format(timestamp));
+        properties.put("sequenceNumber", Long.toString(sequenceNumber));
+    }
 
-	/**
-	 * Writes all state into a new properties object.
-	 * 
-	 * @return The properties.
-	 */
-	public Map<String, String> store() {
-		Map<String, String> properties = new HashMap<String, String>();
-		store(properties);
-		return properties;
-	}
+    /**
+     * Writes all state into a new properties object.
+     *
+     * @return The properties.
+     */
+    public Map<String, String> store() {
+        Map<String, String> properties = new HashMap<String, String>();
+        store(properties);
+        return properties;
+    }
 
+    /**
+     * Gets the maximum timestamp of data currently read from the database.
+     *
+     * @return The timestamp.
+     */
+    public Date getTimestamp() {
+        return timestamp;
+    }
 
-	/**
-	 * Gets the maximum timestamp of data currently read from the database.
-	 * 
-	 * @return The timestamp.
-	 */
-	public Date getTimestamp() {
-		return timestamp;
-	}
+    /**
+     * Sets the maximum timestamp of data currently read from the database.
+     *
+     * @param timestamp
+     *            The timestamp.
+     */
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
 
+    /**
+     * Gets the replication sequence number.
+     *
+     * @return The sequence number.
+     */
+    public long getSequenceNumber() {
+        return sequenceNumber;
+    }
 
-	/**
-	 * Sets the maximum timestamp of data currently read from the database.
-	 * 
-	 * @param timestamp
-	 *            The timestamp.
-	 */
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
-	
-	
-	/**
-	 * Gets the replication sequence number.
-	 * 
-	 * @return The sequence number.
-	 */
-	public long getSequenceNumber() {
-		return sequenceNumber;
-	}
+    /**
+     * Sets the replication sequence number.
+     *
+     * @param sequenceNumber
+     *            The sequence number.
+     */
+    public void setSequenceNumber(long sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        boolean result;
 
-	/**
-	 * Sets the replication sequence number.
-	 * 
-	 * @param sequenceNumber
-	 *            The sequence number.
-	 */
-	public void setSequenceNumber(long sequenceNumber) {
-		this.sequenceNumber = sequenceNumber;
-	}
+        if (obj instanceof ReplicationState) {
+            ReplicationState compareState = (ReplicationState) obj;
 
+            if (timestamp.equals(compareState.timestamp) && sequenceNumber == compareState.sequenceNumber) {
+                result = true;
+            } else {
+                result = false;
+            }
+        } else {
+            result = false;
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		boolean result;
-		
-		if (obj instanceof ReplicationState) {
-			ReplicationState compareState = (ReplicationState) obj;
-			
-			if (timestamp.equals(compareState.timestamp)
-					&& sequenceNumber == compareState.sequenceNumber) {
-				result = true;
-			} else {
-				result = false;
-			}
-		} else {
-			result = false;
-		}
-		
-		return result;
-	}
+        return result;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return (int) sequenceNumber + (int) timestamp.getTime();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int hashCode() {
-		return (int) sequenceNumber + (int) timestamp.getTime();
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString() {
-		return "ReplicationState(timestamp=" + timestamp + ", sequenceNumber=" + sequenceNumber + ")";
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "ReplicationState(timestamp=" + timestamp + ", sequenceNumber=" + sequenceNumber + ")";
+    }
 }

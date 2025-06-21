@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-
 import org.openstreetmap.osmosis.apidb.common.DatabaseContext;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.database.DatabaseLoginCredentials;
@@ -17,7 +16,7 @@ import org.openstreetmap.osmosis.core.database.DatabasePreferences;
 /**
  * Reads the version number stored in the schema_info table and verifies that it matches the
  * expected version.
- * 
+ *
  * @author Brett Henderson
  */
 public class SchemaVersionValidator {
@@ -33,19 +32,19 @@ public class SchemaVersionValidator {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param credentials Contains all information required to connect to the database.
      * @param preferences The database preferences.
      */
     public SchemaVersionValidator(DatabaseLoginCredentials credentials, DatabasePreferences preferences) {
-    	this.credentials = credentials;
+        this.credentials = credentials;
         this.preferences = preferences;
     }
 
     /**
      * Validates that the schema migrations match the expected list of migrations. This method
      * caches the result allowing it to be called multiple times without a performance penalty.
-     * 
+     *
      * @param expectedMigrations The expected schema migrations.
      */
     public void validateVersion(String[] expectedMigrations) {
@@ -58,7 +57,7 @@ public class SchemaVersionValidator {
 
     /**
      * Performs the database lookup and validates the expected version.
-     * 
+     *
      * @param expectedMigrations The expected schema migrations.
      */
     private void validateDBVersion(String[] expectedMigrations) {
@@ -77,11 +76,11 @@ public class SchemaVersionValidator {
                 // Load the database migrations into a Set.
                 actualMigrationSet = new HashSet<String>();
                 try (ResultSet resultSet = dbCtx.executeQuery(SELECT_SQL)) {
-	                while (resultSet.next()) {
-	                    actualMigrationSet.add(resultSet.getString("version"));
-	                }
+                    while (resultSet.next()) {
+                        actualMigrationSet.add(resultSet.getString("version"));
+                    }
                 } catch (SQLException e) {
-                	throw new OsmosisRuntimeException("Unable to retrieve existing database migrations", e);
+                    throw new OsmosisRuntimeException("Unable to retrieve existing database migrations", e);
                 }
 
                 // Remove items from both sets that are identical.

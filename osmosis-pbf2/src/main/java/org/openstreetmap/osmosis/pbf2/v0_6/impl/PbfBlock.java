@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.pbf2.v0_6.impl;
 
 import crosby.binary.Osmformat;
-
 import java.util.Optional;
 
 /**

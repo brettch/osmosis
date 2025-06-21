@@ -1,16 +1,15 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.common;
 
+import java.io.IOException;
+import java.io.InputStream;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * SAX parser factory that additionally verifies that the underlying parser is providing correct unicode support for
@@ -18,9 +17,7 @@ import java.io.InputStream;
  */
 public final class SaxParserFactory {
 
-    private SaxParserFactory() {
-    }
-
+    private SaxParserFactory() {}
 
     /**
      * Creates a new SAX parser.
@@ -38,7 +35,6 @@ public final class SaxParserFactory {
         }
     }
 
-
     /**
      * Validate SAX parser unicode support.
      */
@@ -50,9 +46,8 @@ public final class SaxParserFactory {
             InputStream is = SaxParserFactory.class.getResourceAsStream("test-unicode-node.osm");
             parser.parse(is, unicodeTestHandler);
             if (!unicodeTestHandler.isCorrect()) {
-                throw new OsmosisRuntimeException(
-                        "SAX Parser doesn't correctly support multi-byte characters,"
-                                + " try including a modern version of Xerces on the classpath.");
+                throw new OsmosisRuntimeException("SAX Parser doesn't correctly support multi-byte characters,"
+                        + " try including a modern version of Xerces on the classpath.");
             }
         } catch (SAXException e) {
             throw new OsmosisRuntimeException("Unable to create SAX Parser.", e);
@@ -61,12 +56,10 @@ public final class SaxParserFactory {
         }
     }
 
-
     static {
         // Trigger validation during class initialisation.
         validate();
     }
-
 
     /**
      * Looks at the SAX document and validates that the "name" and "name:en" attributes both contain the
@@ -79,15 +72,13 @@ public final class SaxParserFactory {
         private boolean nameCorrect;
         private boolean enNameCorrect;
 
-
         private boolean validateNameValue(Attributes attributes) {
             return NAME_VALUE.equals(attributes.getValue("v"));
         }
 
-
         @Override
-        public void startElement(
-                String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+                throws SAXException {
             if ("tag".equals(qName)) {
                 if ("name".equals(attributes.getValue("k"))) {
                     if (validateNameValue(attributes)) {
@@ -100,7 +91,6 @@ public final class SaxParserFactory {
                 }
             }
         }
-
 
         /**
          * Are all fields correct.

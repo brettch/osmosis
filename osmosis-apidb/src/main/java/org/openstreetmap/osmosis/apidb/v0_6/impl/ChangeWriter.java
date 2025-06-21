@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-
 import org.openstreetmap.osmosis.apidb.common.DatabaseContext;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.database.DatabaseLoginCredentials;
@@ -23,134 +22,133 @@ import org.openstreetmap.osmosis.core.task.common.ChangeAction;
 import org.openstreetmap.osmosis.core.util.FixedPrecisionCoordinateConvertor;
 import org.openstreetmap.osmosis.core.util.TileCalculator;
 
-
 /**
  * Writes changes to a database.
- * 
+ *
  * @author Brett Henderson
  */
 public class ChangeWriter implements Completable {
 
     private static final String INSERT_SQL_NODE =
-    	"INSERT INTO nodes (node_id, version, timestamp, visible, changeset_id, latitude, longitude, tile)"
-            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO nodes (node_id, version, timestamp, visible, changeset_id, latitude, longitude, tile)"
+                    + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String UPDATE_SQL_NODE =
-    	"UPDATE nodes SET timestamp = ?, visible = ?, changeset_id = ?, latitude = ?, longitude = ?, tile = ?"
-            + " WHERE node_id = ? AND version = ?";
+            "UPDATE nodes SET timestamp = ?, visible = ?, changeset_id = ?, latitude = ?, longitude = ?, tile = ?"
+                    + " WHERE node_id = ? AND version = ?";
 
     private static final String SELECT_SQL_NODE_COUNT =
-    	"SELECT Count(node_id) AS rowCount FROM nodes WHERE node_id = ? AND version = ?";
+            "SELECT Count(node_id) AS rowCount FROM nodes WHERE node_id = ? AND version = ?";
 
     private static final String INSERT_SQL_NODE_CURRENT =
-    	"INSERT INTO current_nodes (id, version, timestamp, visible, changeset_id, latitude, longitude, tile)"
-            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO current_nodes (id, version, timestamp, visible, changeset_id, latitude, longitude, tile)"
+                    + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String UPDATE_SQL_NODE_CURRENT =
-    	"UPDATE current_nodes SET version = ?, timestamp = ?, visible = ?, changeset_id = ?, latitude = ?,"
-            + " longitude = ?, tile = ? WHERE id = ?";
+            "UPDATE current_nodes SET version = ?, timestamp = ?, visible = ?, changeset_id = ?, latitude = ?,"
+                    + " longitude = ?, tile = ? WHERE id = ?";
 
     private static final String SELECT_SQL_NODE_CURRENT_COUNT =
-    	"SELECT Count(id) AS rowCount FROM current_nodes WHERE id = ?";
+            "SELECT Count(id) AS rowCount FROM current_nodes WHERE id = ?";
 
     private static final String INSERT_SQL_NODE_TAG =
-	"INSERT INTO node_tags (node_id, version, k, v) VALUES (?, ?, ?, ?)";
+            "INSERT INTO node_tags (node_id, version, k, v) VALUES (?, ?, ?, ?)";
 
     private static final String DELETE_SQL_NODE_TAG = "DELETE FROM node_tags WHERE node_id = ? AND version = ?";
 
     private static final String INSERT_SQL_NODE_TAG_CURRENT =
-    	"INSERT INTO current_node_tags (node_id, k, v) VALUES (?, ?, ?)";
+            "INSERT INTO current_node_tags (node_id, k, v) VALUES (?, ?, ?)";
 
     private static final String DELETE_SQL_NODE_TAG_CURRENT = "DELETE FROM current_node_tags WHERE node_id = ?";
 
     private static final String INSERT_SQL_WAY =
-    	"INSERT INTO ways (way_id, version, timestamp, visible, changeset_id) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO ways (way_id, version, timestamp, visible, changeset_id) VALUES (?, ?, ?, ?, ?)";
 
     private static final String UPDATE_SQL_WAY =
-    	"UPDATE ways SET timestamp = ?, visible = ?, changeset_id = ? WHERE way_id = ? AND version = ?";
+            "UPDATE ways SET timestamp = ?, visible = ?, changeset_id = ? WHERE way_id = ? AND version = ?";
 
     private static final String SELECT_SQL_WAY_COUNT =
-    	"SELECT Count(way_id) AS rowCount FROM ways WHERE way_id = ? AND version = ?";
+            "SELECT Count(way_id) AS rowCount FROM ways WHERE way_id = ? AND version = ?";
 
     private static final String INSERT_SQL_WAY_CURRENT =
-    	"INSERT INTO current_ways (id, version, timestamp, visible, changeset_id) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO current_ways (id, version, timestamp, visible, changeset_id) VALUES (?, ?, ?, ?, ?)";
 
     private static final String UPDATE_SQL_WAY_CURRENT =
-    	"UPDATE current_ways SET version = ?, timestamp = ?, visible = ?, changeset_id = ? WHERE id = ?";
+            "UPDATE current_ways SET version = ?, timestamp = ?, visible = ?, changeset_id = ? WHERE id = ?";
 
     private static final String SELECT_SQL_WAY_CURRENT_COUNT =
-    	"SELECT Count(id) AS rowCount FROM current_ways WHERE id = ?";
+            "SELECT Count(id) AS rowCount FROM current_ways WHERE id = ?";
 
     private static final String INSERT_SQL_WAY_TAG = "INSERT INTO way_tags (way_id, version, k, v) VALUES (?, ?, ?, ?)";
 
     private static final String DELETE_SQL_WAY_TAG = "DELETE FROM way_tags WHERE way_id = ? AND version = ?";
 
     private static final String INSERT_SQL_WAY_TAG_CURRENT =
-	"INSERT INTO current_way_tags (way_id, k, v) VALUES (?, ?, ?)";
+            "INSERT INTO current_way_tags (way_id, k, v) VALUES (?, ?, ?)";
 
     private static final String DELETE_SQL_WAY_TAG_CURRENT = "DELETE FROM current_way_tags WHERE way_id = ?";
 
     private static final String INSERT_SQL_WAY_NODE =
-    	"INSERT INTO way_nodes (way_id, version, node_id, sequence_id) VALUES (?, ?, ?, ?)";
+            "INSERT INTO way_nodes (way_id, version, node_id, sequence_id) VALUES (?, ?, ?, ?)";
 
     private static final String DELETE_SQL_WAY_NODE = "DELETE FROM way_nodes WHERE way_id = ? AND version = ?";
 
     private static final String INSERT_SQL_WAY_NODE_CURRENT =
-    	"INSERT INTO current_way_nodes (way_id, node_id, sequence_id) VALUES (?, ?, ?)";
+            "INSERT INTO current_way_nodes (way_id, node_id, sequence_id) VALUES (?, ?, ?)";
 
     private static final String DELETE_SQL_WAY_NODE_CURRENT = "DELETE FROM current_way_nodes WHERE way_id = ?";
 
     private static final String INSERT_SQL_RELATION =
-    	"INSERT INTO relations (relation_id, version, timestamp, visible, changeset_id) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO relations (relation_id, version, timestamp, visible, changeset_id) VALUES (?, ?, ?, ?, ?)";
 
     private static final String UPDATE_SQL_RELATION =
-    	"UPDATE relations SET timestamp = ?, visible = ?, changeset_id = ? WHERE relation_id = ? AND version = ?";
+            "UPDATE relations SET timestamp = ?, visible = ?, changeset_id = ? WHERE relation_id = ? AND version = ?";
 
     private static final String SELECT_SQL_RELATION_COUNT =
-    	"SELECT Count(id) AS rowCount FROM current_relations WHERE id = ? AND version = ?";
+            "SELECT Count(id) AS rowCount FROM current_relations WHERE id = ? AND version = ?";
 
     private static final String INSERT_SQL_RELATION_CURRENT =
-    	"INSERT INTO current_relations (id, version, timestamp, visible, changeset_id) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO current_relations (id, version, timestamp, visible, changeset_id) VALUES (?, ?, ?, ?, ?)";
 
     private static final String UPDATE_SQL_RELATION_CURRENT =
-    	"UPDATE current_relations SET version = ?, timestamp = ?, visible = ?, changeset_id = ? WHERE id = ?";
+            "UPDATE current_relations SET version = ?, timestamp = ?, visible = ?, changeset_id = ? WHERE id = ?";
 
     private static final String SELECT_SQL_RELATION_CURRENT_COUNT =
-    	"SELECT Count(id) AS rowCount FROM current_relations WHERE id = ?";
+            "SELECT Count(id) AS rowCount FROM current_relations WHERE id = ?";
 
     private static final String INSERT_SQL_RELATION_TAG =
-    	"INSERT INTO relation_tags (relation_id, version, k, v) VALUES (?, ?, ?, ?)";
+            "INSERT INTO relation_tags (relation_id, version, k, v) VALUES (?, ?, ?, ?)";
 
     private static final String DELETE_SQL_RELATION_TAG =
-	"DELETE FROM relation_tags WHERE relation_id = ? AND version = ?";
+            "DELETE FROM relation_tags WHERE relation_id = ? AND version = ?";
 
     private static final String INSERT_SQL_RELATION_TAG_CURRENT =
-    	"INSERT INTO current_relation_tags (relation_id, k, v) VALUES (?, ?, ?)";
+            "INSERT INTO current_relation_tags (relation_id, k, v) VALUES (?, ?, ?)";
 
     private static final String DELETE_SQL_RELATION_TAG_CURRENT =
-    	"DELETE FROM current_relation_tags WHERE relation_id = ?";
+            "DELETE FROM current_relation_tags WHERE relation_id = ?";
 
     private static final String INSERT_SQL_RELATION_MEMBER_MYSQL =
-    	"INSERT INTO relation_members (relation_id, version, member_type, member_id, member_role, sequence_id)"
-            + " VALUES (?, ?, ?, ?, ?, ?)";
+            "INSERT INTO relation_members (relation_id, version, member_type, member_id, member_role, sequence_id)"
+                    + " VALUES (?, ?, ?, ?, ?, ?)";
 
     private static final String INSERT_SQL_RELATION_MEMBER_PGSQL =
-    	"INSERT INTO relation_members (relation_id, version, member_type, member_id, member_role, sequence_id)"
-            + " VALUES (?, ?, ?::nwr_enum, ?, ?, ?)";
+            "INSERT INTO relation_members (relation_id, version, member_type, member_id, member_role, sequence_id)"
+                    + " VALUES (?, ?, ?::nwr_enum, ?, ?, ?)";
 
     private static final String DELETE_SQL_RELATION_MEMBER =
-    	"DELETE FROM relation_members WHERE relation_id = ? AND version = ?";
+            "DELETE FROM relation_members WHERE relation_id = ? AND version = ?";
 
     private static final String INSERT_SQL_RELATION_MEMBER_CURRENT_MYSQL =
-    	"INSERT INTO current_relation_members (relation_id, member_type, member_id, member_role, sequence_id)"
-            + " VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO current_relation_members (relation_id, member_type, member_id, member_role, sequence_id)"
+                    + " VALUES (?, ?, ?, ?, ?)";
 
     private static final String INSERT_SQL_RELATION_MEMBER_CURRENT_PGSQL =
-    	"INSERT INTO current_relation_members (relation_id, member_type, member_id, member_role, sequence_id)"
-            + " VALUES (?, ?::nwr_enum, ?, ?, ?)";
+            "INSERT INTO current_relation_members (relation_id, member_type, member_id, member_role, sequence_id)"
+                    + " VALUES (?, ?::nwr_enum, ?, ?, ?)";
 
     private static final String DELETE_SQL_RELATION_MEMBER_CURRENT =
-    	"DELETE FROM current_relation_members WHERE relation_id = ?";
+            "DELETE FROM current_relation_members WHERE relation_id = ?";
 
     private final DatabaseContext dbCtx;
     private final UserManager userManager;
@@ -200,7 +198,7 @@ public class ChangeWriter implements Completable {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param loginCredentials Contains all information required to connect to the database.
      * @param populateCurrentTables If true, the current tables will be populated as well as history
      *        tables.
@@ -220,24 +218,24 @@ public class ChangeWriter implements Completable {
 
     /**
      * Checks to see if the specified entity exists.
-     * 
+     *
      * @param statement The statement used to perform the check.
      * @param id The entity identifier.
      * @return True if the entity exists, false otherwise.
      * @throws SQLException if an error occurs accessing the database.
      */
     private boolean checkIfEntityExists(PreparedStatement statement, long id) throws SQLException {
-    	statement.setLong(1, id);
-    	try (ResultSet resultSet = statement.executeQuery()) {
-    		resultSet.next();
-    		
-    		return (resultSet.getInt("rowCount") != 0);
-    	}
+        statement.setLong(1, id);
+        try (ResultSet resultSet = statement.executeQuery()) {
+            resultSet.next();
+
+            return (resultSet.getInt("rowCount") != 0);
+        }
     }
 
     /**
      * Checks to see if the specified entity history item exists.
-     * 
+     *
      * @param statement The statement used to perform the check.
      * @param id The entity identifier.
      * @param version The entity version.
@@ -245,15 +243,15 @@ public class ChangeWriter implements Completable {
      * @throws SQLException if an error occurs accessing the database.
      */
     private boolean checkIfEntityHistoryExists(PreparedStatement statement, long id, int version) throws SQLException {
-    	int prmIndex = 1;
+        int prmIndex = 1;
         statement.setLong(prmIndex++, id);
         statement.setInt(prmIndex++, version);
-        
+
         try (ResultSet resultSet = statement.executeQuery()) {
-    		resultSet.next();
-    		
-    		return (resultSet.getInt("rowCount") != 0);
-    	}
+            resultSet.next();
+
+            return (resultSet.getInt("rowCount") != 0);
+        }
     }
 
     private void assertEntityHasTimestamp(Entity entity) {
@@ -265,7 +263,7 @@ public class ChangeWriter implements Completable {
 
     /**
      * Writes the specified node change to the database.
-     * 
+     *
      * @param node The node to be written.
      * @param action The change to be applied.
      */
@@ -278,7 +276,7 @@ public class ChangeWriter implements Completable {
 
         // Add or update the user in the database.
         userManager.addOrUpdateUser(node.getUser());
-        
+
         // Create the changeset in the database.
         changesetManager.addChangesetIfRequired(node.getChangesetId(), node.getUser());
 
@@ -292,8 +290,8 @@ public class ChangeWriter implements Completable {
             selectNodeCountStatement = statementContainer.add(dbCtx.prepareStatement(SELECT_SQL_NODE_COUNT));
             insertNodeCurrentStatement = statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_NODE_CURRENT));
             updateNodeCurrentStatement = statementContainer.add(dbCtx.prepareStatement(UPDATE_SQL_NODE_CURRENT));
-            selectNodeCurrentCountStatement = statementContainer.add(dbCtx
-                    .prepareStatement(SELECT_SQL_NODE_CURRENT_COUNT));
+            selectNodeCurrentCountStatement =
+                    statementContainer.add(dbCtx.prepareStatement(SELECT_SQL_NODE_CURRENT_COUNT));
             insertNodeTagStatement = statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_NODE_TAG));
             deleteNodeTagStatement = statementContainer.add(dbCtx.prepareStatement(DELETE_SQL_NODE_TAG));
             insertNodeTagCurrentStatement = statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_NODE_TAG_CURRENT));
@@ -309,8 +307,8 @@ public class ChangeWriter implements Completable {
             deleteNodeTagStatement.execute();
 
         } catch (SQLException e) {
-            throw new OsmosisRuntimeException("Unable to delete node history tags for node with id=" + node.getId()
-                    + ".", e);
+            throw new OsmosisRuntimeException(
+                    "Unable to delete node history tags for node with id=" + node.getId() + ".", e);
         }
 
         // Update the node if it already exists in the history table, otherwise insert it.
@@ -319,21 +317,22 @@ public class ChangeWriter implements Completable {
 
         } catch (SQLException e) {
             throw new OsmosisRuntimeException(
-            		"Unable to check if current node with id=" + node.getId() + " exists.", e);
+                    "Unable to check if current node with id=" + node.getId() + " exists.", e);
         }
         if (exists) {
             // Update the node in the history table.
             try {
                 prmIndex = 1;
-                updateNodeStatement.setTimestamp(prmIndex++, new Timestamp(node.getTimestamp().getTime()));
+                updateNodeStatement.setTimestamp(
+                        prmIndex++, new Timestamp(node.getTimestamp().getTime()));
                 updateNodeStatement.setBoolean(prmIndex++, visible);
                 updateNodeStatement.setLong(prmIndex++, node.getChangesetId());
-                updateNodeStatement.setInt(prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node
-                        .getLatitude()));
-                updateNodeStatement.setInt(prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node
-                        .getLongitude()));
-                updateNodeStatement.setLong(prmIndex++, tileCalculator.calculateTile(node.getLatitude(), node
-                        .getLongitude()));
+                updateNodeStatement.setInt(
+                        prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node.getLatitude()));
+                updateNodeStatement.setInt(
+                        prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node.getLongitude()));
+                updateNodeStatement.setLong(
+                        prmIndex++, tileCalculator.calculateTile(node.getLatitude(), node.getLongitude()));
                 updateNodeStatement.setLong(prmIndex++, node.getId());
                 updateNodeStatement.setInt(prmIndex++, node.getVersion());
 
@@ -348,15 +347,16 @@ public class ChangeWriter implements Completable {
                 prmIndex = 1;
                 insertNodeStatement.setLong(prmIndex++, node.getId());
                 insertNodeStatement.setInt(prmIndex++, node.getVersion());
-                insertNodeStatement.setTimestamp(prmIndex++, new Timestamp(node.getTimestamp().getTime()));
+                insertNodeStatement.setTimestamp(
+                        prmIndex++, new Timestamp(node.getTimestamp().getTime()));
                 insertNodeStatement.setBoolean(prmIndex++, visible);
                 insertNodeStatement.setLong(prmIndex++, node.getChangesetId());
-                insertNodeStatement.setInt(prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node
-                        .getLatitude()));
-                insertNodeStatement.setInt(prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node
-                        .getLongitude()));
-                insertNodeStatement.setLong(prmIndex++, tileCalculator.calculateTile(node.getLatitude(), node
-                        .getLongitude()));
+                insertNodeStatement.setInt(
+                        prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node.getLatitude()));
+                insertNodeStatement.setInt(
+                        prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node.getLongitude()));
+                insertNodeStatement.setLong(
+                        prmIndex++, tileCalculator.calculateTile(node.getLatitude(), node.getLongitude()));
 
                 insertNodeStatement.execute();
 
@@ -377,8 +377,10 @@ public class ChangeWriter implements Completable {
                 insertNodeTagStatement.execute();
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to insert history node tag with id=" + node.getId()
-                        + " and key=(" + tag.getKey() + ").", e);
+                throw new OsmosisRuntimeException(
+                        "Unable to insert history node tag with id=" + node.getId() + " and key=(" + tag.getKey()
+                                + ").",
+                        e);
             }
         }
 
@@ -391,7 +393,7 @@ public class ChangeWriter implements Completable {
 
             } catch (SQLException e) {
                 throw new OsmosisRuntimeException(
-                		"Unable to delete current node tags with id=" + node.getId() + ".", e);
+                        "Unable to delete current node tags with id=" + node.getId() + ".", e);
             }
 
             // Update the node if it already exists in the current table, otherwise insert it.
@@ -399,23 +401,24 @@ public class ChangeWriter implements Completable {
                 exists = checkIfEntityExists(selectNodeCurrentCountStatement, node.getId());
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to check if current node with id=" + node.getId()
-                        + " exists.", e);
+                throw new OsmosisRuntimeException(
+                        "Unable to check if current node with id=" + node.getId() + " exists.", e);
             }
             if (exists) {
                 // Update the node in the current table.
                 try {
                     prmIndex = 1;
                     updateNodeCurrentStatement.setInt(prmIndex++, node.getVersion());
-                    updateNodeCurrentStatement.setTimestamp(prmIndex++, new Timestamp(node.getTimestamp().getTime()));
+                    updateNodeCurrentStatement.setTimestamp(
+                            prmIndex++, new Timestamp(node.getTimestamp().getTime()));
                     updateNodeCurrentStatement.setBoolean(prmIndex++, visible);
                     updateNodeCurrentStatement.setLong(prmIndex++, node.getChangesetId());
-                    updateNodeCurrentStatement.setInt(prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node
-                            .getLatitude()));
-                    updateNodeCurrentStatement.setInt(prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node
-                            .getLongitude()));
-                    updateNodeCurrentStatement.setLong(prmIndex++, tileCalculator.calculateTile(node.getLatitude(),
-                            node.getLongitude()));
+                    updateNodeCurrentStatement.setInt(
+                            prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node.getLatitude()));
+                    updateNodeCurrentStatement.setInt(
+                            prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node.getLongitude()));
+                    updateNodeCurrentStatement.setLong(
+                            prmIndex++, tileCalculator.calculateTile(node.getLatitude(), node.getLongitude()));
                     updateNodeCurrentStatement.setLong(prmIndex++, node.getId());
 
                     updateNodeCurrentStatement.execute();
@@ -429,15 +432,16 @@ public class ChangeWriter implements Completable {
                     prmIndex = 1;
                     insertNodeCurrentStatement.setLong(prmIndex++, node.getId());
                     insertNodeCurrentStatement.setInt(prmIndex++, node.getVersion());
-                    insertNodeCurrentStatement.setTimestamp(prmIndex++, new Timestamp(node.getTimestamp().getTime()));
+                    insertNodeCurrentStatement.setTimestamp(
+                            prmIndex++, new Timestamp(node.getTimestamp().getTime()));
                     insertNodeCurrentStatement.setBoolean(prmIndex++, visible);
                     insertNodeCurrentStatement.setLong(prmIndex++, node.getChangesetId());
-                    insertNodeCurrentStatement.setInt(prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node
-                            .getLatitude()));
-                    insertNodeCurrentStatement.setInt(prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node
-                            .getLongitude()));
-                    insertNodeCurrentStatement.setLong(prmIndex++, tileCalculator.calculateTile(node.getLatitude(),
-                            node.getLongitude()));
+                    insertNodeCurrentStatement.setInt(
+                            prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node.getLatitude()));
+                    insertNodeCurrentStatement.setInt(
+                            prmIndex++, FixedPrecisionCoordinateConvertor.convertToFixed(node.getLongitude()));
+                    insertNodeCurrentStatement.setLong(
+                            prmIndex++, tileCalculator.calculateTile(node.getLatitude(), node.getLongitude()));
 
                     insertNodeCurrentStatement.execute();
 
@@ -457,8 +461,10 @@ public class ChangeWriter implements Completable {
                     insertNodeTagCurrentStatement.execute();
 
                 } catch (SQLException e) {
-                    throw new OsmosisRuntimeException("Unable to insert current node tag with id=" + node.getId()
-                            + " and key=(" + tag.getKey() + ").", e);
+                    throw new OsmosisRuntimeException(
+                            "Unable to insert current node tag with id=" + node.getId() + " and key=(" + tag.getKey()
+                                    + ").",
+                            e);
                 }
             }
         }
@@ -466,7 +472,7 @@ public class ChangeWriter implements Completable {
 
     /**
      * Writes the specified way change to the database.
-     * 
+     *
      * @param way The way to be written.
      * @param action The change to be applied.
      */
@@ -480,7 +486,7 @@ public class ChangeWriter implements Completable {
 
         // Add or update the user in the database.
         userManager.addOrUpdateUser(way.getUser());
-        
+
         // Create the changeset in the database.
         changesetManager.addChangesetIfRequired(way.getChangesetId(), way.getUser());
 
@@ -496,8 +502,8 @@ public class ChangeWriter implements Completable {
             selectWayCountStatement = statementContainer.add(dbCtx.prepareStatement(SELECT_SQL_WAY_COUNT));
             insertWayCurrentStatement = statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_WAY_CURRENT));
             updateWayCurrentStatement = statementContainer.add(dbCtx.prepareStatement(UPDATE_SQL_WAY_CURRENT));
-            selectWayCurrentCountStatement = statementContainer.add(dbCtx
-                    .prepareStatement(SELECT_SQL_WAY_CURRENT_COUNT));
+            selectWayCurrentCountStatement =
+                    statementContainer.add(dbCtx.prepareStatement(SELECT_SQL_WAY_CURRENT_COUNT));
             insertWayTagStatement = statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_WAY_TAG));
             deleteWayTagStatement = statementContainer.add(dbCtx.prepareStatement(DELETE_SQL_WAY_TAG));
             insertWayTagCurrentStatement = statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_WAY_TAG_CURRENT));
@@ -517,8 +523,8 @@ public class ChangeWriter implements Completable {
             deleteWayTagStatement.execute();
 
         } catch (SQLException e) {
-            throw new OsmosisRuntimeException("Unable to delete way history tags for way with id=" + way.getId() + ".",
-                    e);
+            throw new OsmosisRuntimeException(
+                    "Unable to delete way history tags for way with id=" + way.getId() + ".", e);
         }
 
         // Remove the existing way nodes of the way history item.
@@ -545,7 +551,8 @@ public class ChangeWriter implements Completable {
             // Update the way in the history table.
             try {
                 prmIndex = 1;
-                updateWayStatement.setTimestamp(prmIndex++, new Timestamp(way.getTimestamp().getTime()));
+                updateWayStatement.setTimestamp(
+                        prmIndex++, new Timestamp(way.getTimestamp().getTime()));
                 updateWayStatement.setBoolean(prmIndex++, visible);
                 updateWayStatement.setLong(prmIndex++, way.getChangesetId());
                 updateWayStatement.setLong(prmIndex++, way.getId());
@@ -562,7 +569,8 @@ public class ChangeWriter implements Completable {
                 prmIndex = 1;
                 insertWayStatement.setLong(prmIndex++, way.getId());
                 insertWayStatement.setInt(prmIndex++, way.getVersion());
-                insertWayStatement.setTimestamp(prmIndex++, new Timestamp(way.getTimestamp().getTime()));
+                insertWayStatement.setTimestamp(
+                        prmIndex++, new Timestamp(way.getTimestamp().getTime()));
                 insertWayStatement.setBoolean(prmIndex++, visible);
                 insertWayStatement.setLong(prmIndex++, way.getChangesetId());
 
@@ -585,8 +593,9 @@ public class ChangeWriter implements Completable {
                 insertWayTagStatement.execute();
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to insert history way tag with id=" + way.getId()
-                        + " and key=(" + tag.getKey() + ").", e);
+                throw new OsmosisRuntimeException(
+                        "Unable to insert history way tag with id=" + way.getId() + " and key=(" + tag.getKey() + ").",
+                        e);
             }
         }
 
@@ -606,8 +615,10 @@ public class ChangeWriter implements Completable {
                 insertWayNodeStatement.execute();
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to insert history way node with way id=" + way.getId()
-                        + " and node id=" + nodeReference.getNodeId() + ".", e);
+                throw new OsmosisRuntimeException(
+                        "Unable to insert history way node with way id=" + way.getId() + " and node id="
+                                + nodeReference.getNodeId() + ".",
+                        e);
             }
         }
 
@@ -636,15 +647,16 @@ public class ChangeWriter implements Completable {
                 exists = checkIfEntityExists(selectWayCurrentCountStatement, way.getId());
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to check if current way with id=" + way.getId() + " exists.",
-                        e);
+                throw new OsmosisRuntimeException(
+                        "Unable to check if current way with id=" + way.getId() + " exists.", e);
             }
             if (exists) {
                 // Update the way in the current table.
                 try {
                     prmIndex = 1;
                     updateWayCurrentStatement.setInt(prmIndex++, way.getVersion());
-                    updateWayCurrentStatement.setTimestamp(prmIndex++, new Timestamp(way.getTimestamp().getTime()));
+                    updateWayCurrentStatement.setTimestamp(
+                            prmIndex++, new Timestamp(way.getTimestamp().getTime()));
                     updateWayCurrentStatement.setBoolean(prmIndex++, visible);
                     updateWayCurrentStatement.setLong(prmIndex++, way.getChangesetId());
                     updateWayCurrentStatement.setLong(prmIndex++, way.getId());
@@ -660,7 +672,8 @@ public class ChangeWriter implements Completable {
                     prmIndex = 1;
                     insertWayCurrentStatement.setLong(prmIndex++, way.getId());
                     insertWayCurrentStatement.setInt(prmIndex++, way.getVersion());
-                    insertWayCurrentStatement.setTimestamp(prmIndex++, new Timestamp(way.getTimestamp().getTime()));
+                    insertWayCurrentStatement.setTimestamp(
+                            prmIndex++, new Timestamp(way.getTimestamp().getTime()));
                     insertWayCurrentStatement.setBoolean(prmIndex++, visible);
                     insertWayCurrentStatement.setLong(prmIndex++, way.getChangesetId());
 
@@ -682,8 +695,10 @@ public class ChangeWriter implements Completable {
                     insertWayTagCurrentStatement.execute();
 
                 } catch (SQLException e) {
-                    throw new OsmosisRuntimeException("Unable to insert current way tag with id=" + way.getId()
-                            + " and key=(" + tag.getKey() + ").", e);
+                    throw new OsmosisRuntimeException(
+                            "Unable to insert current way tag with id=" + way.getId() + " and key=(" + tag.getKey()
+                                    + ").",
+                            e);
                 }
             }
 
@@ -702,8 +717,10 @@ public class ChangeWriter implements Completable {
                     insertWayNodeCurrentStatement.execute();
 
                 } catch (SQLException e) {
-                    throw new OsmosisRuntimeException("Unable to insert current way node with way id=" + way.getId()
-                            + " and node id=" + nodeReference.getNodeId() + ".", e);
+                    throw new OsmosisRuntimeException(
+                            "Unable to insert current way node with way id=" + way.getId() + " and node id="
+                                    + nodeReference.getNodeId() + ".",
+                            e);
                 }
             }
         }
@@ -711,7 +728,7 @@ public class ChangeWriter implements Completable {
 
     /**
      * Writes the specified relation change to the database.
-     * 
+     *
      * @param relation The relation to be written.
      * @param action The change to be applied.
      */
@@ -725,7 +742,7 @@ public class ChangeWriter implements Completable {
 
         // Add or update the user in the database.
         userManager.addOrUpdateUser(relation.getUser());
-        
+
         // Create the changeset in the database.
         changesetManager.addChangesetIfRequired(relation.getChangesetId(), relation.getUser());
 
@@ -739,45 +756,45 @@ public class ChangeWriter implements Completable {
             insertRelationStatement = statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION));
             updateRelationStatement = statementContainer.add(dbCtx.prepareStatement(UPDATE_SQL_RELATION));
             selectRelationCountStatement = statementContainer.add(dbCtx.prepareStatement(SELECT_SQL_RELATION_COUNT));
-            insertRelationCurrentStatement = statementContainer
-                    .add(dbCtx.prepareStatement(INSERT_SQL_RELATION_CURRENT));
-            updateRelationCurrentStatement = statementContainer
-                    .add(dbCtx.prepareStatement(UPDATE_SQL_RELATION_CURRENT));
-            selectRelationCurrentCountStatement = statementContainer.add(dbCtx
-                    .prepareStatement(SELECT_SQL_RELATION_CURRENT_COUNT));
+            insertRelationCurrentStatement =
+                    statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_CURRENT));
+            updateRelationCurrentStatement =
+                    statementContainer.add(dbCtx.prepareStatement(UPDATE_SQL_RELATION_CURRENT));
+            selectRelationCurrentCountStatement =
+                    statementContainer.add(dbCtx.prepareStatement(SELECT_SQL_RELATION_CURRENT_COUNT));
             insertRelationTagStatement = statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_TAG));
             deleteRelationTagStatement = statementContainer.add(dbCtx.prepareStatement(DELETE_SQL_RELATION_TAG));
-            insertRelationTagCurrentStatement = statementContainer.add(dbCtx
-                    .prepareStatement(INSERT_SQL_RELATION_TAG_CURRENT));
-            deleteRelationTagCurrentStatement = statementContainer.add(dbCtx
-                    .prepareStatement(DELETE_SQL_RELATION_TAG_CURRENT));
+            insertRelationTagCurrentStatement =
+                    statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_TAG_CURRENT));
+            deleteRelationTagCurrentStatement =
+                    statementContainer.add(dbCtx.prepareStatement(DELETE_SQL_RELATION_TAG_CURRENT));
             switch (dbCtx.getDatabaseType()) {
-            case POSTGRESQL:
-            	insertRelationMemberStatement =
-            		statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_MEMBER_PGSQL));
-                break;
-            case MYSQL:
-            	insertRelationMemberStatement =
-            		statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_MEMBER_MYSQL));
-                break;
-            default:
-                throw new OsmosisRuntimeException("Unknown database type " + dbCtx.getDatabaseType() + ".");
+                case POSTGRESQL:
+                    insertRelationMemberStatement =
+                            statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_MEMBER_PGSQL));
+                    break;
+                case MYSQL:
+                    insertRelationMemberStatement =
+                            statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_MEMBER_MYSQL));
+                    break;
+                default:
+                    throw new OsmosisRuntimeException("Unknown database type " + dbCtx.getDatabaseType() + ".");
             }
             deleteRelationMemberStatement = statementContainer.add(dbCtx.prepareStatement(DELETE_SQL_RELATION_MEMBER));
             switch (dbCtx.getDatabaseType()) {
-            case POSTGRESQL:
-            	insertRelationMemberCurrentStatement =
-            		statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_MEMBER_CURRENT_PGSQL));
-                break;
-            case MYSQL:
-            	insertRelationMemberCurrentStatement =
-            		statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_MEMBER_CURRENT_MYSQL));
-                break;
-            default:
-                throw new OsmosisRuntimeException("Unknown database type " + dbCtx.getDatabaseType() + ".");
+                case POSTGRESQL:
+                    insertRelationMemberCurrentStatement =
+                            statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_MEMBER_CURRENT_PGSQL));
+                    break;
+                case MYSQL:
+                    insertRelationMemberCurrentStatement =
+                            statementContainer.add(dbCtx.prepareStatement(INSERT_SQL_RELATION_MEMBER_CURRENT_MYSQL));
+                    break;
+                default:
+                    throw new OsmosisRuntimeException("Unknown database type " + dbCtx.getDatabaseType() + ".");
             }
-            deleteRelationMemberCurrentStatement = statementContainer.add(dbCtx
-                    .prepareStatement(DELETE_SQL_RELATION_MEMBER_CURRENT));
+            deleteRelationMemberCurrentStatement =
+                    statementContainer.add(dbCtx.prepareStatement(DELETE_SQL_RELATION_MEMBER_CURRENT));
         }
 
         // Remove the existing tags of the relation history item.
@@ -789,8 +806,8 @@ public class ChangeWriter implements Completable {
             deleteRelationTagStatement.execute();
 
         } catch (SQLException e) {
-            throw new OsmosisRuntimeException("Unable to delete relation history tags for relation with id="
-                    + relation.getId() + ".", e);
+            throw new OsmosisRuntimeException(
+                    "Unable to delete relation history tags for relation with id=" + relation.getId() + ".", e);
         }
 
         // Remove the existing relation members of the relation history item.
@@ -802,8 +819,8 @@ public class ChangeWriter implements Completable {
             deleteRelationMemberStatement.execute();
 
         } catch (SQLException e) {
-            throw new OsmosisRuntimeException("Unable to delete relation history members for relation with id="
-                    + relation.getId() + ".", e);
+            throw new OsmosisRuntimeException(
+                    "Unable to delete relation history members for relation with id=" + relation.getId() + ".", e);
         }
 
         // Update the relation if it already exists in the history table, otherwise insert it.
@@ -811,14 +828,15 @@ public class ChangeWriter implements Completable {
             exists = checkIfEntityHistoryExists(selectRelationCountStatement, relation.getId(), relation.getVersion());
 
         } catch (SQLException e) {
-            throw new OsmosisRuntimeException("Unable to check if current relation with id=" + relation.getId()
-                    + " exists.", e);
+            throw new OsmosisRuntimeException(
+                    "Unable to check if current relation with id=" + relation.getId() + " exists.", e);
         }
         if (exists) {
             // Update the relation in the history table.
             try {
                 prmIndex = 1;
-                updateRelationStatement.setTimestamp(prmIndex++, new Timestamp(relation.getTimestamp().getTime()));
+                updateRelationStatement.setTimestamp(
+                        prmIndex++, new Timestamp(relation.getTimestamp().getTime()));
                 updateRelationStatement.setBoolean(prmIndex++, visible);
                 updateRelationStatement.setLong(prmIndex++, relation.getChangesetId());
                 updateRelationStatement.setLong(prmIndex++, relation.getId());
@@ -836,7 +854,8 @@ public class ChangeWriter implements Completable {
                 prmIndex = 1;
                 insertRelationStatement.setLong(prmIndex++, relation.getId());
                 insertRelationStatement.setInt(prmIndex++, relation.getVersion());
-                insertRelationStatement.setTimestamp(prmIndex++, new Timestamp(relation.getTimestamp().getTime()));
+                insertRelationStatement.setTimestamp(
+                        prmIndex++, new Timestamp(relation.getTimestamp().getTime()));
                 insertRelationStatement.setBoolean(prmIndex++, visible);
                 insertRelationStatement.setLong(prmIndex++, relation.getChangesetId());
 
@@ -860,8 +879,10 @@ public class ChangeWriter implements Completable {
                 insertRelationTagStatement.execute();
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to insert history relation tag with id=" + relation.getId()
-                        + " and key=(" + tag.getKey() + ").", e);
+                throw new OsmosisRuntimeException(
+                        "Unable to insert history relation tag with id=" + relation.getId() + " and key=("
+                                + tag.getKey() + ").",
+                        e);
             }
         }
 
@@ -875,8 +896,8 @@ public class ChangeWriter implements Completable {
                 prmIndex = 1;
                 insertRelationMemberStatement.setLong(prmIndex++, relation.getId());
                 insertRelationMemberStatement.setInt(prmIndex++, relation.getVersion());
-                insertRelationMemberStatement.setString(prmIndex++, memberTypeRenderer.render(relationMember
-                        .getMemberType()));
+                insertRelationMemberStatement.setString(
+                        prmIndex++, memberTypeRenderer.render(relationMember.getMemberType()));
                 insertRelationMemberStatement.setLong(prmIndex++, relationMember.getMemberId());
                 insertRelationMemberStatement.setString(prmIndex++, relationMember.getMemberRole());
                 insertRelationMemberStatement.setInt(prmIndex++, i + 1);
@@ -884,9 +905,11 @@ public class ChangeWriter implements Completable {
                 insertRelationMemberStatement.execute();
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to insert history relation member with relation id="
-                        + relation.getId() + ", member type=" + relationMember.getMemberId() + " and member id="
-                        + relationMember.getMemberId() + ".", e);
+                throw new OsmosisRuntimeException(
+                        "Unable to insert history relation member with relation id="
+                                + relation.getId() + ", member type=" + relationMember.getMemberId() + " and member id="
+                                + relationMember.getMemberId() + ".",
+                        e);
             }
         }
 
@@ -898,8 +921,8 @@ public class ChangeWriter implements Completable {
                 deleteRelationTagCurrentStatement.execute();
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to delete current relation tags with id=" + relation.getId()
-                        + ".", e);
+                throw new OsmosisRuntimeException(
+                        "Unable to delete current relation tags with id=" + relation.getId() + ".", e);
             }
             // Delete the existing relation members from the current table.
             try {
@@ -908,8 +931,8 @@ public class ChangeWriter implements Completable {
                 deleteRelationMemberCurrentStatement.execute();
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to delete current relation members with id="
-                        + relation.getId() + ".", e);
+                throw new OsmosisRuntimeException(
+                        "Unable to delete current relation members with id=" + relation.getId() + ".", e);
             }
 
             // Update the relation if it already exists in the current table, otherwise insert it.
@@ -917,16 +940,16 @@ public class ChangeWriter implements Completable {
                 exists = checkIfEntityExists(selectRelationCurrentCountStatement, relation.getId());
 
             } catch (SQLException e) {
-                throw new OsmosisRuntimeException("Unable to check if current relation with id=" + relation.getId()
-                        + " exists.", e);
+                throw new OsmosisRuntimeException(
+                        "Unable to check if current relation with id=" + relation.getId() + " exists.", e);
             }
             if (exists) {
                 // Update the relation in the current table.
                 try {
                     prmIndex = 1;
                     updateRelationCurrentStatement.setInt(prmIndex++, relation.getVersion());
-                    updateRelationCurrentStatement.setTimestamp(prmIndex++, new Timestamp(relation.getTimestamp()
-                            .getTime()));
+                    updateRelationCurrentStatement.setTimestamp(
+                            prmIndex++, new Timestamp(relation.getTimestamp().getTime()));
                     updateRelationCurrentStatement.setBoolean(prmIndex++, visible);
                     updateRelationCurrentStatement.setLong(prmIndex++, relation.getChangesetId());
                     updateRelationCurrentStatement.setLong(prmIndex++, relation.getId());
@@ -934,8 +957,8 @@ public class ChangeWriter implements Completable {
                     updateRelationCurrentStatement.execute();
 
                 } catch (SQLException e) {
-                    throw new OsmosisRuntimeException("Unable to update current relation with id=" + relation.getId()
-                            + ".", e);
+                    throw new OsmosisRuntimeException(
+                            "Unable to update current relation with id=" + relation.getId() + ".", e);
                 }
             } else {
                 // Insert the new node into the current table.
@@ -943,16 +966,16 @@ public class ChangeWriter implements Completable {
                     prmIndex = 1;
                     insertRelationCurrentStatement.setLong(prmIndex++, relation.getId());
                     insertRelationCurrentStatement.setInt(prmIndex++, relation.getVersion());
-                    insertRelationCurrentStatement.setTimestamp(prmIndex++, new Timestamp(relation.getTimestamp()
-                            .getTime()));
+                    insertRelationCurrentStatement.setTimestamp(
+                            prmIndex++, new Timestamp(relation.getTimestamp().getTime()));
                     insertRelationCurrentStatement.setBoolean(prmIndex++, visible);
                     insertRelationCurrentStatement.setLong(prmIndex++, relation.getChangesetId());
 
                     insertRelationCurrentStatement.execute();
 
                 } catch (SQLException e) {
-                    throw new OsmosisRuntimeException("Unable to insert current relation with id=" + relation.getId()
-                            + ".", e);
+                    throw new OsmosisRuntimeException(
+                            "Unable to insert current relation with id=" + relation.getId() + ".", e);
                 }
             }
 
@@ -967,8 +990,10 @@ public class ChangeWriter implements Completable {
                     insertRelationTagCurrentStatement.execute();
 
                 } catch (SQLException e) {
-                    throw new OsmosisRuntimeException("Unable to insert current relation tag with id="
-                            + relation.getId() + " and key=(" + tag.getKey() + ").", e);
+                    throw new OsmosisRuntimeException(
+                            "Unable to insert current relation tag with id=" + relation.getId() + " and key=("
+                                    + tag.getKey() + ").",
+                            e);
                 }
             }
 
@@ -981,8 +1006,8 @@ public class ChangeWriter implements Completable {
                 try {
                     prmIndex = 1;
                     insertRelationMemberCurrentStatement.setLong(prmIndex++, relation.getId());
-                    insertRelationMemberCurrentStatement.setString(prmIndex++, memberTypeRenderer.render(relationMember
-                            .getMemberType()));
+                    insertRelationMemberCurrentStatement.setString(
+                            prmIndex++, memberTypeRenderer.render(relationMember.getMemberType()));
                     insertRelationMemberCurrentStatement.setLong(prmIndex++, relationMember.getMemberId());
                     insertRelationMemberCurrentStatement.setString(prmIndex++, relationMember.getMemberRole());
                     insertRelationMemberCurrentStatement.setInt(prmIndex++, i + 1);
@@ -990,9 +1015,12 @@ public class ChangeWriter implements Completable {
                     insertRelationMemberCurrentStatement.execute();
 
                 } catch (SQLException e) {
-                    throw new OsmosisRuntimeException("Unable to insert current relation member with relation id="
-                            + relation.getId() + ", member type=" + relationMember.getMemberId() + " and member id="
-                            + relationMember.getMemberId() + ".", e);
+                    throw new OsmosisRuntimeException(
+                            "Unable to insert current relation member with relation id="
+                                    + relation.getId() + ", member type=" + relationMember.getMemberId()
+                                    + " and member id="
+                                    + relationMember.getMemberId() + ".",
+                            e);
                 }
             }
         }

@@ -1,10 +1,9 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.common;
 
+import javax.xml.parsers.SAXParser;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.xml.parsers.SAXParser;
 
 /**
  * Test the SaxParserFactory.

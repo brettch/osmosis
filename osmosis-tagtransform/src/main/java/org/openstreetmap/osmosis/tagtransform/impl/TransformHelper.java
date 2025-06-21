@@ -26,127 +26,123 @@ import org.openstreetmap.osmosis.tagtransform.TTEntityType;
 import org.openstreetmap.osmosis.tagtransform.Translation;
 import org.openstreetmap.osmosis.xml.common.XmlTimestampFormat;
 
-
 /**
  * Class is intended to provide utility place for tag transform functionality.
  * See {@link org.openstreetmap.osmosis.tagtransform.v0_6.TransformTask
  * TransformTask} for example implementation.
- * 
+ *
  * @author apopov
- * 
+ *
  * @param <T>
  *            is a sink type.
  */
 public abstract class TransformHelper<T extends Task & Initializable> implements Initializable {
-	protected Logger logger = Logger.getLogger(this.getClass().getName());
+    protected Logger logger = Logger.getLogger(this.getClass().getName());
 
-	protected T sink;
-	protected String statsFile;
-	protected String configFile;
-	protected List<Translation> translations;
-	protected static TimestampFormat timestampFormat = new XmlTimestampFormat();
+    protected T sink;
+    protected String statsFile;
+    protected String configFile;
+    protected List<Translation> translations;
+    protected static TimestampFormat timestampFormat = new XmlTimestampFormat();
 
+    public TransformHelper(String configFile, String statsFile) {
+        logger.log(Level.FINE, "Transform configured with " + configFile + " and " + statsFile);
+        translations = new TransformLoader().load(configFile);
+        this.statsFile = statsFile;
+        this.configFile = configFile;
+    }
 
-	public TransformHelper(String configFile, String statsFile) {
-		logger.log(Level.FINE, "Transform configured with " + configFile + " and " + statsFile);
-		translations = new TransformLoader().load(configFile);
-		this.statsFile = statsFile;
-		this.configFile = configFile;
-	}
+    @Override
+    public void initialize(Map<String, Object> metaData) {
+        sink.initialize(metaData);
+    }
 
+    public void setSink(T sink) {
+        this.sink = sink;
+    }
 
-	@Override
-	public void initialize(Map<String, Object> metaData) {
-		sink.initialize(metaData);
-	}
+    @Override
+    public void complete() {
+        if (statsFile != null && !statsFile.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append(configFile);
+            builder.append("\n\n");
+            for (Translation t : translations) {
+                t.outputStats(builder, "");
+            }
 
+            Writer writer = null;
+            try {
+                writer = new FileWriter(new File(statsFile));
+                writer.write(builder.toString());
+            } catch (IOException e) {
+                throw new StatsSaveException("Failed to save stats: " + e.getLocalizedMessage(), e);
+            } finally {
+                if (writer != null) {
+                    try {
+                        writer.close();
+                    } catch (IOException e) {
+                        logger.log(Level.WARNING, "Unable to close stats file " + statsFile + ".", e);
+                    }
+                }
+            }
+        }
+        sink.complete();
+    }
 
-	public void setSink(T sink) {
-		this.sink = sink;
-	}
+    @Override
+    public void close() {
+        sink.close();
+    }
 
+    /**
+     * Transforms entity container according to configFile.
+     *
+     * @param entityContainer
+     *            The entity to be processed.
+     * @return transformed (if needed) entityContainer
+     */
+    protected EntityContainer processEntityContainer(EntityContainer entityContainer) {
+        // Entities may have been made read-only at some point in the pipeline.
+        // We want a writeable instance so that we can update the tags.
+        EntityContainer writeableEntityContainer = entityContainer.getWriteableInstance();
+        Entity entity = entityContainer.getEntity();
+        Collection<Tag> entityTags = entity.getTags();
+        EntityType entityType = entity.getType();
 
-	@Override
-	public void complete() {
-		if (statsFile != null && !statsFile.isEmpty()) {
-			StringBuilder builder = new StringBuilder();
-			builder.append(configFile);
-			builder.append("\n\n");
-			for (Translation t : translations) {
-				t.outputStats(builder, "");
-			}
+        // Store the tags in a map keyed by tag key.
+        Map<String, String> tagMap = new HashMap<String, String>();
+        for (Tag tag : entity.getTags()) {
+            tagMap.put(tag.getKey(), tag.getValue());
+        }
 
-			Writer writer = null;
-			try {
-				writer = new FileWriter(new File(statsFile));
-				writer.write(builder.toString());
-			} catch (IOException e) {
-				throw new StatsSaveException("Failed to save stats: " + e.getLocalizedMessage(), e);
-			} finally {
-				if (writer != null) {
-					try {
-						writer.close();
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Unable to close stats file " + statsFile + ".", e);
-					}
-				}
-			}
-		}
-		sink.complete();
-	}
+        // Apply tag transformations.
+        for (Translation translation : translations) {
+            Collection<Match> matches = translation.match(
+                    tagMap,
+                    TTEntityType.fromEntityType06(entityType),
+                    entity.getUser().getName(),
+                    entity.getUser().getId());
+            if (matches == null || matches.isEmpty()) {
+                continue;
+            }
+            if (translation.isDropOnMatch()) {
+                return null;
+            }
 
+            Map<String, String> newTags = new HashMap<String, String>();
+            for (Output output : translation.getOutputs()) {
+                output.apply(tagMap, newTags, matches, translation.getDataSources());
+            }
+            tagMap = newTags;
+        }
 
-	@Override
-	public void close() {
-		sink.close();
-	}
+        // Replace the entity tags with the transformed values.
+        entityTags.clear();
+        for (Entry<String, String> tag : tagMap.entrySet()) {
+            entityTags.add(new Tag(tag.getKey(), tag.getValue()));
+        }
 
-
-	/**
-	 * Transforms entity container according to configFile.
-	 * 
-	 * @param entityContainer
-	 *            The entity to be processed.
-	 * @return transformed (if needed) entityContainer
-	 */
-	protected EntityContainer processEntityContainer(EntityContainer entityContainer) {
-		// Entities may have been made read-only at some point in the pipeline.
-		// We want a writeable instance so that we can update the tags.
-		EntityContainer writeableEntityContainer = entityContainer.getWriteableInstance();
-		Entity entity = entityContainer.getEntity();
-		Collection<Tag> entityTags = entity.getTags();
-		EntityType entityType = entity.getType();
-
-		// Store the tags in a map keyed by tag key.
-		Map<String, String> tagMap = new HashMap<String, String>();
-		for (Tag tag : entity.getTags()) {
-			tagMap.put(tag.getKey(), tag.getValue());
-		}
-
-		// Apply tag transformations.
-		for (Translation translation : translations) {
-			Collection<Match> matches = translation.match(tagMap, TTEntityType.fromEntityType06(entityType), entity
-					.getUser().getName(), entity.getUser().getId());
-			if (matches == null || matches.isEmpty()) {
-				continue;
-			}
-			if (translation.isDropOnMatch()) {
-				return null;
-			}
-
-			Map<String, String> newTags = new HashMap<String, String>();
-			for (Output output : translation.getOutputs()) {
-				output.apply(tagMap, newTags, matches, translation.getDataSources());
-			}
-			tagMap = newTags;
-		}
-
-		// Replace the entity tags with the transformed values.
-		entityTags.clear();
-		for (Entry<String, String> tag : tagMap.entrySet()) {
-			entityTags.add(new Tag(tag.getKey(), tag.getValue()));
-		}
-
-		return writeableEntityContainer;
-	}
+        return writeableEntityContainer;
+    }
 }

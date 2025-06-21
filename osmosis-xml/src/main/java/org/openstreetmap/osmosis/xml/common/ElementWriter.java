@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.domain.common.TimestampFormat;
 
@@ -30,16 +29,16 @@ public class ElementWriter {
     static {
         // Define all the characters and their encodings.
         XML_ENCODING = new HashMap<Character, String>();
-        
+
         // Non-xml compatible control characters will not be written
         // with the exception of tab, carriage return and line feed.
         for (int i = 0; i <= 0x1F; i++) {
-        	if (i != 0x9 && i != 0xA && i != 0xD) {
-        		XML_ENCODING.put(Character.valueOf((char) i), "");
-        	}
+            if (i != 0x9 && i != 0xA && i != 0xD) {
+                XML_ENCODING.put(Character.valueOf((char) i), "");
+            }
         }
         XML_ENCODING.put(Character.valueOf((char) 0x7F), "");
-        
+
         XML_ENCODING.put(Character.valueOf('<'), "&lt;");
         XML_ENCODING.put(Character.valueOf('>'), "&gt;");
         XML_ENCODING.put(Character.valueOf('"'), "&quot;");
@@ -79,8 +78,7 @@ public class ElementWriter {
      * @param anElementName The name of the element to be written.
      * @param anIndentionLevel The indent level of the element.
      */
-    protected ElementWriter(final String anElementName,
-                            final int anIndentionLevel) {
+    protected ElementWriter(final String anElementName, final int anIndentionLevel) {
         this.myElementName = anElementName;
         this.myIndentLevel = anIndentionLevel;
 
@@ -94,9 +92,9 @@ public class ElementWriter {
      * @param aWriter The writer.
      */
     public void setWriter(final Writer aWriter) {
-    	if (aWriter == null) {
-    		throw new IllegalArgumentException("null writer given");
-    	}
+        if (aWriter == null) {
+            throw new IllegalArgumentException("null writer given");
+        }
         this.myWriter = aWriter;
     }
 

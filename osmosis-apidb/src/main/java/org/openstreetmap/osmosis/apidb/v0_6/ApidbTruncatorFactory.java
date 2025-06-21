@@ -6,26 +6,21 @@ import org.openstreetmap.osmosis.core.pipeline.common.RunnableTaskManager;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManager;
 
-
 /**
  * The task manager factory for a database table truncator.
- * 
+ *
  * @author Brett Henderson
  */
 public class ApidbTruncatorFactory extends DatabaseTaskManagerFactory {
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
-		return new RunnableTaskManager(
-			taskConfig.getId(),
-			new ApidbTruncator(
-				getDatabaseLoginCredentials(taskConfig),
-				getDatabasePreferences(taskConfig)
-			),
-			taskConfig.getPipeArgs()
-		);
-	}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
+        return new RunnableTaskManager(
+                taskConfig.getId(),
+                new ApidbTruncator(getDatabaseLoginCredentials(taskConfig), getDatabasePreferences(taskConfig)),
+                taskConfig.getPipeArgs());
+    }
 }

@@ -12,86 +12,86 @@ import org.openstreetmap.osmosis.tagtransform.Output;
 import org.openstreetmap.osmosis.tagtransform.TTEntityType;
 import org.openstreetmap.osmosis.tagtransform.Translation;
 
-
 public class TranslationImpl implements Translation {
 
-	private String name;
-	private String description;
-	private Matcher matcher;
-	private Map<String, DataSource> dataSources;
-	private List<Output> output;
-	private Matcher finder;
+    private String name;
+    private String description;
+    private Matcher matcher;
+    private Map<String, DataSource> dataSources;
+    private List<Output> output;
+    private Matcher finder;
 
+    public TranslationImpl(
+            String name,
+            String description,
+            Matcher matcher,
+            Matcher finder,
+            Map<String, DataSource> dataSources,
+            List<Output> output) {
+        this.name = name;
+        this.description = description;
+        this.matcher = matcher;
+        this.finder = finder;
+        this.dataSources = dataSources;
+        this.output = output;
+    }
 
-	public TranslationImpl(String name, String description, Matcher matcher, Matcher finder, Map<String, DataSource> dataSources, List<Output> output) {
-		this.name = name;
-		this.description = description;
-		this.matcher = matcher;
-		this.finder = finder;
-                this.dataSources = dataSources;
-		this.output = output;
-	}
+    @Override
+    public Collection<Output> getOutputs() {
+        return output;
+    }
 
+    @Override
+    public Map<String, DataSource> getDataSources() {
+        return dataSources;
+    }
 
-	@Override
-	public Collection<Output> getOutputs() {
-		return output;
-	}
+    @Override
+    public boolean isDropOnMatch() {
+        return output.isEmpty();
+    }
 
-	@Override
-	public Map<String, DataSource> getDataSources() {
-		return dataSources;
-	}
+    @Override
+    public Collection<Match> match(Map<String, String> tags, TTEntityType type, String uname, int uid) {
+        Collection<Match> matches = matcher.match(tags, type, uname, uid);
+        if (matches != null && !matches.isEmpty()) {
+            Collection<Match> finds;
+            if (finder == null) {
+                finds = null;
+            } else {
+                finds = finder.match(tags, type, uname, uid);
+            }
+            if (finds != null && !finds.isEmpty()) {
+                if (matches instanceof ArrayList) {
+                    matches.addAll(finds);
+                } else {
+                    List<Match> allMatches = new ArrayList<Match>();
+                    allMatches.addAll(matches);
+                    allMatches.addAll(finds);
+                    return allMatches;
+                }
+            }
 
-	@Override
-	public boolean isDropOnMatch() {
-		return output.isEmpty();
-	}
+            return matches;
+        }
 
+        return null;
+    }
 
-	@Override
-	public Collection<Match> match(Map<String, String> tags, TTEntityType type, String uname, int uid) {
-		Collection<Match> matches = matcher.match(tags, type, uname, uid);
-		if (matches != null && !matches.isEmpty()) {
-			Collection<Match> finds;
-			if (finder == null) {
-				finds = null;
-			} else {
-				finds = finder.match(tags, type, uname, uid);
-			}
-			if (finds != null && !finds.isEmpty()) {
-				if (matches instanceof ArrayList) {
-					matches.addAll(finds);
-				} else {
-					List<Match> allMatches = new ArrayList<Match>();
-					allMatches.addAll(matches);
-					allMatches.addAll(finds);
-					return allMatches;
-				}
-			}
-
-			return matches;
-		}
-
-		return null;
-	}
-
-
-	@Override
-	public void outputStats(StringBuilder statsOutput, String indent) {
-		statsOutput.append(indent);
-		statsOutput.append(name);
-		statsOutput.append(":");
-		statsOutput.append('\n');
-		if (description != null && !description.isEmpty()) {
-			statsOutput.append(description);
-			statsOutput.append('\n');
-		}
-		matcher.outputStats(statsOutput, indent + "    ");
-		if (finder != null) {
-			finder.outputStats(statsOutput, "  + ");
-		}
-		statsOutput.append('\n');
-	}
-
+    @Override
+    public void outputStats(StringBuilder statsOutput, String indent) {
+        statsOutput.append(indent);
+        statsOutput.append(name);
+        statsOutput.append(":");
+        statsOutput.append('\n');
+        if (description != null && !description.isEmpty()) {
+            statsOutput.append(description);
+            statsOutput.append('\n');
+        }
+        matcher.outputStats(statsOutput, indent + "    ");
+        if (finder != null) {
+            finder.outputStats(statsOutput, "  + ");
+        }
+        statsOutput.append('\n');
+    }
 }

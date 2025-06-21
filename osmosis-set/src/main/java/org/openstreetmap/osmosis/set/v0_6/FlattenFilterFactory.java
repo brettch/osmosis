@@ -10,16 +10,11 @@ import org.openstreetmap.osmosis.core.pipeline.v0_6.SinkSourceManager;
  * The task manager factory for a flatten/simplify filter.
  */
 public class FlattenFilterFactory extends TaskManagerFactory {
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TaskManager createTaskManagerImpl(
-			TaskConfiguration taskConfig) {
-		return new SinkSourceManager(
-			taskConfig.getId(),
-			new FlattenFilter(),
-			taskConfig.getPipeArgs()
-		);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
+        return new SinkSourceManager(taskConfig.getId(), new FlattenFilter(), taskConfig.getPipeArgs());
+    }
 }

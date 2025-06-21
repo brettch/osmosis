@@ -11,23 +11,19 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
-import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.OsmosisConstants;
+import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.BoundContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Bound;
 import org.openstreetmap.osmosis.core.task.v0_6.RunnableSource;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 import org.openstreetmap.osmosis.xml.v0_6.impl.OsmHandler;
 import org.openstreetmap.osmosis.xml.v0_6.impl.XmlConstants;
-
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * An OSM data source reading from an osm-xml file from the
@@ -42,18 +38,15 @@ public class XmlDownloader implements RunnableSource {
      */
     private static final int RESPONSECODE_OK = 200;
 
-
     /**
      * My logger for debug- and error-output.
      */
     private static Logger log = Logger.getLogger(XmlDownloader.class.getName());
 
-
     /**
      * The timeout we use for the  HttpURLConnection.
      */
     private static final int TIMEOUT = 15000;
-
 
     /**
      * Where to deliver the loaded data.
@@ -111,11 +104,8 @@ public class XmlDownloader implements RunnableSource {
      *            (optional) The base url of the server (eg.
      *            http://www.openstreetmap.org/api/0.5).
      */
-    public XmlDownloader(final double left,
-                         final double right,
-                         final double top,
-                         final double bottom,
-                         final String baseUrl) {
+    public XmlDownloader(
+            final double left, final double right, final double top, final double bottom, final String baseUrl) {
         this.myLeft = Math.min(left, right);
         this.myRight = Math.max(left, right);
         this.myTop = Math.max(top, bottom);
@@ -124,7 +114,6 @@ public class XmlDownloader implements RunnableSource {
             this.myBaseUrl = baseUrl;
         }
     }
-
 
     /**
      * {@inheritDoc}
@@ -157,7 +146,6 @@ public class XmlDownloader implements RunnableSource {
         }
     }
 
-
     /**
      * Creates a new SAX parser.
      *
@@ -174,17 +162,16 @@ public class XmlDownloader implements RunnableSource {
         }
     }
 
-
     /**
      * Reads all data from the server and send it to the {@link Sink}.
      */
     public void run() {
         try {
-        	mySink.initialize(Collections.<String, Object>emptyMap());
-        	
+            mySink.initialize(Collections.<String, Object>emptyMap());
+
             SAXParser parser = createParser();
             InputStream inputStream =
-            	getInputStream(myBaseUrl + "/map?bbox=" + myLeft + "," + myBottom + "," + myRight + "," + myTop);
+                    getInputStream(myBaseUrl + "/map?bbox=" + myLeft + "," + myBottom + "," + myRight + "," + myTop);
 
             // First send the Bound down the pipeline
             mySink.process(new BoundContainer(new Bound(myRight, myLeft, myTop, myBottom, myBaseUrl)));
@@ -201,10 +188,10 @@ public class XmlDownloader implements RunnableSource {
         } catch (SAXParseException e) {
             throw new OsmosisRuntimeException(
                     "Unable to parse xml"
-                    + ".  publicId=(" + e.getPublicId()
-                    + "), systemId=(" + e.getSystemId()
-                    + "), lineNumber=" + e.getLineNumber()
-                    + ", columnNumber=" + e.getColumnNumber() + ".",
+                            + ".  publicId=(" + e.getPublicId()
+                            + "), systemId=(" + e.getSystemId()
+                            + "), lineNumber=" + e.getLineNumber()
+                            + ", columnNumber=" + e.getColumnNumber() + ".",
                     e);
         } catch (SAXException e) {
             throw new OsmosisRuntimeException("Unable to parse XML.", e);
@@ -249,11 +236,10 @@ public class XmlDownloader implements RunnableSource {
 
             if (apiErrorMessage != null) {
                 message = "Received API HTTP response code " + responseCode
-                + " with message \"" + apiErrorMessage
-                + "\" for URL \"" + pUrlStr + "\".";
+                        + " with message \"" + apiErrorMessage
+                        + "\" for URL \"" + pUrlStr + "\".";
             } else {
-                message = "Received API HTTP response code " + responseCode
-                + " for URL \"" + pUrlStr + "\".";
+                message = "Received API HTTP response code " + responseCode + " for URL \"" + pUrlStr + "\".";
             }
 
             throw new OsmosisRuntimeException(message);

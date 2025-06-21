@@ -9,18 +9,15 @@ import org.openstreetmap.osmosis.core.pipeline.common.TaskManager;
  * The task manager factory for a replication file merger initializer.
  */
 public class ReplicationFileMergerInitializerFactory extends WorkingTaskManagerFactory {
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
-		return new RunnableTaskManager(
-			taskConfig.getId(),
-			new ReplicationFileMergerInitializer(
-				this.getWorkingDirectory(taskConfig)
-			),
-			taskConfig.getPipeArgs()
-		);
-	}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
+        return new RunnableTaskManager(
+                taskConfig.getId(),
+                new ReplicationFileMergerInitializer(this.getWorkingDirectory(taskConfig)),
+                taskConfig.getPipeArgs());
+    }
 }

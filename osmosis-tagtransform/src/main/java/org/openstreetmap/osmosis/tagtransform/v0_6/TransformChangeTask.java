@@ -8,31 +8,27 @@ import org.openstreetmap.osmosis.core.task.v0_6.ChangeSink;
 import org.openstreetmap.osmosis.core.task.v0_6.ChangeSinkChangeSource;
 import org.openstreetmap.osmosis.tagtransform.impl.TransformHelper;
 
-
 public class TransformChangeTask extends TransformHelper<ChangeSink> implements ChangeSinkChangeSource {
 
-	public TransformChangeTask(String configFile, String statsFile) {
-		super(configFile, statsFile);
-	}
+    public TransformChangeTask(String configFile, String statsFile) {
+        super(configFile, statsFile);
+    }
 
+    @Override
+    public void process(ChangeContainer changeContainer) {
+        if (!ChangeAction.Delete.equals(changeContainer.getAction())) {
+            EntityContainer output = super.processEntityContainer(changeContainer.getEntityContainer());
 
-	@Override
-	public void process(ChangeContainer changeContainer) {
-		if (!ChangeAction.Delete.equals(changeContainer.getAction())) {
-			EntityContainer output = super.processEntityContainer(changeContainer.getEntityContainer());
+            if (output != null) {
+                sink.process(new ChangeContainer(output, changeContainer.getAction()));
+            }
+        } else {
+            sink.process(changeContainer);
+        }
+    }
 
-			if (output != null) {
-				sink.process(new ChangeContainer(output, changeContainer.getAction()));
-			}
-		} else {
-			sink.process(changeContainer);
-		}
-	}
-
-
-	@Override
-	public void setChangeSink(ChangeSink changeSink) {
-		this.setSink(changeSink);
-	}
-
+    @Override
+    public void setChangeSink(ChangeSink changeSink) {
+        this.setSink(changeSink);
+    }
 }

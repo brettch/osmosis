@@ -3,12 +3,12 @@ package org.openstreetmap.osmosis.core.database;
 
 /**
  * Stores all information required to connect to a database.
- * 
+ *
  * @author Brett Henderson
  */
 public class DatabaseLoginCredentials {
 
-	private String datasourceJndiLocation;
+    private String datasourceJndiLocation;
     private String host;
     private String database;
     private String user;
@@ -17,41 +17,45 @@ public class DatabaseLoginCredentials {
     private boolean profileSql;
     private DatabaseType dbType;
     private String postgresSchema;
-    
-    
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param datasourceJndiLocation
-	 *            The location of the data source in JNDI.
-	 */
-    public DatabaseLoginCredentials(String datasourceJndiLocation) {
-    	this.datasourceJndiLocation = datasourceJndiLocation;
-    }
-    
 
     /**
-	 * Creates a new instance.
-	 * 
-	 * @param host
-	 *            The server hosting the database.
-	 * @param database
-	 *            The database instance.
-	 * @param user
-	 *            The user name for authentication.
-	 * @param password
-	 *            The password for authentication.
-	 * @param forceUtf8
-	 *            If true, the database connection will be forced to use utf-8 instead of the
-	 *            database default.
-	 * @param profileSql
-	 *            If true, profile logging will be enabled on the database connection causing all
-	 *            queries to be logged to stderr.
-	 * @param dbType
-	 *            The database type.
-	 */
-    public DatabaseLoginCredentials(String host, String database, String user, String password, boolean forceUtf8,
-            boolean profileSql, DatabaseType dbType) {
+     * Creates a new instance.
+     *
+     * @param datasourceJndiLocation
+     *            The location of the data source in JNDI.
+     */
+    public DatabaseLoginCredentials(String datasourceJndiLocation) {
+        this.datasourceJndiLocation = datasourceJndiLocation;
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param host
+     *            The server hosting the database.
+     * @param database
+     *            The database instance.
+     * @param user
+     *            The user name for authentication.
+     * @param password
+     *            The password for authentication.
+     * @param forceUtf8
+     *            If true, the database connection will be forced to use utf-8 instead of the
+     *            database default.
+     * @param profileSql
+     *            If true, profile logging will be enabled on the database connection causing all
+     *            queries to be logged to stderr.
+     * @param dbType
+     *            The database type.
+     */
+    public DatabaseLoginCredentials(
+            String host,
+            String database,
+            String user,
+            String password,
+            boolean forceUtf8,
+            boolean profileSql,
+            DatabaseType dbType) {
         this.host = host;
         this.database = database;
         this.user = user;
@@ -61,22 +65,20 @@ public class DatabaseLoginCredentials {
         this.dbType = dbType;
         this.postgresSchema = "";
     }
-    
-    
-	/**
-	 * Gets the location of the datasource in JNDI. If null, new connections
-	 * will need to be created using other parameters.
-	 * 
-	 * @return The datasource location in JNDI.
-	 */
+
+    /**
+     * Gets the location of the datasource in JNDI. If null, new connections
+     * will need to be created using other parameters.
+     *
+     * @return The datasource location in JNDI.
+     */
     public String getDatasourceJndiLocation() {
-    	return datasourceJndiLocation;
+        return datasourceJndiLocation;
     }
-    
 
     /**
      * Returns the host.
-     * 
+     *
      * @return The host.
      */
     public String getHost() {
@@ -85,7 +87,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Updates the host.
-     * 
+     *
      * @param host The new host.
      */
     public void setHost(String host) {
@@ -94,7 +96,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Returns the database.
-     * 
+     *
      * @return The database.
      */
     public String getDatabase() {
@@ -103,7 +105,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Updates the database.
-     * 
+     *
      * @param database The new database.
      */
     public void setDatabase(String database) {
@@ -112,7 +114,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Returns the user.
-     * 
+     *
      * @return The user.
      */
     public String getUser() {
@@ -121,7 +123,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Updates the user.
-     * 
+     *
      * @param user The new user.
      */
     public void setUser(String user) {
@@ -130,7 +132,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Returns the password.
-     * 
+     *
      * @return The password.
      */
     public String getPassword() {
@@ -139,7 +141,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Updates the password.
-     * 
+     *
      * @param password The new password.
      */
     public void setPassword(String password) {
@@ -148,7 +150,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Returns the force utf-8 flag.
-     * 
+     *
      * @return The force utf-8 flag.
      */
     public boolean getForceUtf8() {
@@ -157,7 +159,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Updates the force utf-8 flag.
-     * 
+     *
      * @param forceUtf8 The new force utf-8 flag.
      */
     public void setForceUtf8(boolean forceUtf8) {
@@ -166,7 +168,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Returns the profile SQL flag.
-     * 
+     *
      * @return The profile SQL flag.
      */
     public boolean getProfileSql() {
@@ -175,7 +177,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Updates the profile SQL flag.
-     * 
+     *
      * @param profileSql The new profile SQL flag.
      */
     public void setProfileSql(boolean profileSql) {
@@ -184,7 +186,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Return database type.
-     * 
+     *
      * @return database type
      */
     public DatabaseType getDbType() {
@@ -193,27 +195,26 @@ public class DatabaseLoginCredentials {
 
     /**
      * Updates database type.
-     * 
+     *
      * @param dbType database type
      */
     public void setDbType(DatabaseType dbType) {
         this.dbType = dbType;
     }
 
-    
     /**
-	 * Updates the database type.
-	 * 
-	 * @param property
-	 *            The database type property.
-	 */
+     * Updates the database type.
+     *
+     * @param property
+     *            The database type property.
+     */
     public void setDbType(String property) {
         this.dbType = DatabaseType.fromString(property);
     }
 
     /**
      * Returns the postgresql schema.
-     * 
+     *
      * @return The postgresql schema.
      */
     public String getPostgresSchema() {
@@ -222,7 +223,7 @@ public class DatabaseLoginCredentials {
 
     /**
      * Updates the postgresql schema.
-     * 
+     *
      * @param postgresSchema The new postgresql schema.
      */
     public void setPostgresSchema(String postgresSchema) {

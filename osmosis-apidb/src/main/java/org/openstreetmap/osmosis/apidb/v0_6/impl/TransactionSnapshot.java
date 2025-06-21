@@ -10,61 +10,57 @@ import java.util.StringTokenizer;
  * currently in-flight transactions.
  */
 public class TransactionSnapshot {
-	private long xMin;
-	private long xMax;
-	private List<Long> xIpList;
-	
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param snapshotString
-	 *            The snapshot string in format "xMin:xMax:inflight1,inflight2,...".
-	 */
-	public TransactionSnapshot(String snapshotString) {
-		StringTokenizer tokenizer;
-		
-		tokenizer = new StringTokenizer(snapshotString, ":");
-		
-		xMin = Long.parseLong(tokenizer.nextToken());
-		xMax = Long.parseLong(tokenizer.nextToken());
-		
-		xIpList = new ArrayList<Long>();
-		if (tokenizer.hasMoreTokens()) {
-			tokenizer = new StringTokenizer(tokenizer.nextToken(), ",");
-			while (tokenizer.hasMoreTokens()) {
-				xIpList.add(Long.parseLong(tokenizer.nextToken()));
-			}
-		}
-	}
+    private long xMin;
+    private long xMax;
+    private List<Long> xIpList;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param snapshotString
+     *            The snapshot string in format "xMin:xMax:inflight1,inflight2,...".
+     */
+    public TransactionSnapshot(String snapshotString) {
+        StringTokenizer tokenizer;
 
-	/**
-	 * Gets the earliest still active transaction.
-	 * 
-	 * @return The transaction id.
-	 */
-	public long getXMin() {
-		return xMin;
-	}
+        tokenizer = new StringTokenizer(snapshotString, ":");
 
+        xMin = Long.parseLong(tokenizer.nextToken());
+        xMax = Long.parseLong(tokenizer.nextToken());
 
-	/**
-	 * Gets the next transaction to be created.
-	 * 
-	 * @return The transaction id.
-	 */
-	public long getXMax() {
-		return xMax;
-	}
+        xIpList = new ArrayList<Long>();
+        if (tokenizer.hasMoreTokens()) {
+            tokenizer = new StringTokenizer(tokenizer.nextToken(), ",");
+            while (tokenizer.hasMoreTokens()) {
+                xIpList.add(Long.parseLong(tokenizer.nextToken()));
+            }
+        }
+    }
 
+    /**
+     * Gets the earliest still active transaction.
+     *
+     * @return The transaction id.
+     */
+    public long getXMin() {
+        return xMin;
+    }
 
-	/**
-	 * Gets the list of active transactions.
-	 * 
-	 * @return The transaction ids.
-	 */
-	public List<Long> getXIpList() {
-		return xIpList;
-	}
+    /**
+     * Gets the next transaction to be created.
+     *
+     * @return The transaction id.
+     */
+    public long getXMax() {
+        return xMax;
+    }
+
+    /**
+     * Gets the list of active transactions.
+     *
+     * @return The transaction ids.
+     */
+    public List<Long> getXIpList() {
+        return xIpList;
+    }
 }

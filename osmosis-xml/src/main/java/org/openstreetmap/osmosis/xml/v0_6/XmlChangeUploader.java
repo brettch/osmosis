@@ -12,14 +12,12 @@ import java.net.URL;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.apache.commons.codec.binary.Base64;
 import org.openstreetmap.osmosis.core.OsmosisConstants;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.ChangeContainer;
 import org.openstreetmap.osmosis.core.task.v0_6.ChangeSink;
 import org.openstreetmap.osmosis.xml.v0_6.impl.OsmChangeWriter;
-
 
 /**
  * An OSM change sink for uploading all data to an OpenStreetMap server.
@@ -31,14 +29,12 @@ public class XmlChangeUploader implements ChangeSink {
     /**
      * Our logger for debug and error -output.
      */
-    private static final Logger LOG = Logger.getLogger(
-            XmlChangeUploader.class.getName());
+    private static final Logger LOG = Logger.getLogger(XmlChangeUploader.class.getName());
 
     /**
      * Default-value for {@link DownloadingDataSet#APIBASEURSETTING}.
      */
-    private static final String DEFAULTAPIBASEURL =
-             "http://api.openstreetmap.org/api/0.6";
+    private static final String DEFAULTAPIBASEURL = "http://api.openstreetmap.org/api/0.6";
 
     /**
      * The baseURL defaults to the value of DEFAULTAPIBASEURL.
@@ -84,10 +80,8 @@ public class XmlChangeUploader implements ChangeSink {
      * @param aPassword the password to use
      * @param aComment the comment to set in the changeset
      */
-    public XmlChangeUploader(final String aBaseURL,
-                             final String aUserName,
-                             final String aPassword,
-                             final String aComment) {
+    public XmlChangeUploader(
+            final String aBaseURL, final String aUserName, final String aPassword, final String aComment) {
 
         if (aBaseURL == null) {
             this.myBaseURL = DEFAULTAPIBASEURL;
@@ -120,34 +114,29 @@ public class XmlChangeUploader implements ChangeSink {
         if (myChangesetNumber == -1) {
             URL url = new URL(this.myBaseURL + "/changeset/create");
             System.err.println("DEBUG: URL= " + url.toString());
-            HttpURLConnection httpCon = (HttpURLConnection)
-                                      url.openConnection();
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
             httpCon.setRequestProperty("User-Agent", "Osmosis/" + OsmosisConstants.VERSION);
 
             // we do not use Authenticator.setDefault()
             // here to stay thread-safe.
-            httpCon.setRequestProperty("Authorization", "Basic "
-                    + Base64.encodeBase64String(
-                            (this.myUserName + ":"
-                           + this.myPassword).getBytes("UTF8")));
+            httpCon.setRequestProperty(
+                    "Authorization",
+                    "Basic " + Base64.encodeBase64String((this.myUserName + ":" + this.myPassword).getBytes("UTF8")));
 
             httpCon.setDoOutput(true);
             httpCon.setRequestMethod("PUT");
-            OutputStreamWriter out = new OutputStreamWriter(
-                httpCon.getOutputStream());
+            OutputStreamWriter out = new OutputStreamWriter(httpCon.getOutputStream());
             out.write("<osm version=\"0.6\" generator=\"Osmosis "
                     + OsmosisConstants.VERSION + "\">\n"
                     + "\t<changeset>\n");
             out.write("\t\t<tag k=\"created_by\" v=\"Osmosis\"/>\n");
-            out.write("\t\t<tag k=\"comment\" v=\""
-                           + this.myComment + "\"/>\n");
+            out.write("\t\t<tag k=\"comment\" v=\"" + this.myComment + "\"/>\n");
             out.write("\t</changeset>\n</osm>");
             out.close();
 
             int responseCode = httpCon.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                InputStreamReader reader = new InputStreamReader(
-                        httpCon.getInputStream());
+                InputStreamReader reader = new InputStreamReader(httpCon.getInputStream());
                 LOG.severe(readAll(reader).toString());
                 throw new IllegalStateException("Http-Status-code is not"
                         + " 200 OK but " + responseCode
@@ -166,15 +155,13 @@ public class XmlChangeUploader implements ChangeSink {
             this.myChangeWriter.begin();
         }
     }
-    
-    
+
     /**
      * {@inheritDoc}
      */
     public void initialize(Map<String, Object> metaData) {
-		// Do nothing.
-	}
-    
+        // Do nothing.
+    }
 
     /**
      * {@inheritDoc}
@@ -185,8 +172,7 @@ public class XmlChangeUploader implements ChangeSink {
 
             myChangeWriter.process(changeContainer);
         } catch (IOException e) {
-            throw new OsmosisRuntimeException(
-                    "Cannot open changeset on server", e);
+            throw new OsmosisRuntimeException("Cannot open changeset on server", e);
         }
     }
 
@@ -200,8 +186,7 @@ public class XmlChangeUploader implements ChangeSink {
             uploadChangeBuffer();
             closeChangeset();
         } catch (Exception e) {
-            throw new OsmosisRuntimeException(
-                    "cannot upload or close changeset.", e);
+            throw new OsmosisRuntimeException("cannot upload or close changeset.", e);
         }
     }
 
@@ -211,35 +196,30 @@ public class XmlChangeUploader implements ChangeSink {
      * @throws IOException if we cannot contact the server
      */
     private void uploadChangeBuffer() throws IOException {
-        URL url = new URL(this.myBaseURL + "/changeset/"
-                        + this.myChangesetNumber + "/upload");
+        URL url = new URL(this.myBaseURL + "/changeset/" + this.myChangesetNumber + "/upload");
         HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
 
         // we do not use Authenticator.setDefault() here to stay thread-safe.
-        httpCon.setRequestProperty("Authorization", "Basic "
-                + Base64.encodeBase64String(
-                        (this.myUserName + ":"
-                       + this.myPassword).getBytes("UTF8")));
+        httpCon.setRequestProperty(
+                "Authorization",
+                "Basic " + Base64.encodeBase64String((this.myUserName + ":" + this.myPassword).getBytes("UTF8")));
 
         OutputStream out = httpCon.getOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(out, "UTF8");
         writer.flush();
         String changeSet = this.myChangesetBuffer.getBuffer().toString();
         System.out.println("changeset we got uploading:\n" + changeSet);
-        String modified = changeSet.replaceAll("changeset=\"[0-9]*\"",
-                                               "changeset=\""
-                                             + this.myChangesetNumber + "\"");
+        String modified = changeSet.replaceAll("changeset=\"[0-9]*\"", "changeset=\"" + this.myChangesetNumber + "\"");
         System.out.println("changeset we are uploading:\n" + modified);
         writer.write(modified);
         writer.close();
         int responseCode = httpCon.getResponseCode();
-        LOG.fine("response-code to changeset: "
-                + responseCode);
+        LOG.fine("response-code to changeset: " + responseCode);
         if (responseCode != HttpURLConnection.HTTP_OK) {
-//            InputStreamReader reader = new InputStreamReader(
-//                    httpCon.getInputStream());
-//            LOG.severe("response:\n" + readAll(reader).toString());
+            //            InputStreamReader reader = new InputStreamReader(
+            //                    httpCon.getInputStream());
+            //            LOG.severe("response:\n" + readAll(reader).toString());
             throw new IllegalStateException("Http-Status-code is not"
                     + " 200 OK but " + responseCode
                     + " \"" + httpCon.getResponseMessage()
@@ -253,30 +233,26 @@ public class XmlChangeUploader implements ChangeSink {
      * @throws IOException if we cannot contact the server
      */
     private void closeChangeset() throws IOException {
-        URL url = new URL(this.myBaseURL + "/changeset/"
-                + this.myChangesetNumber + "/close");
+        URL url = new URL(this.myBaseURL + "/changeset/" + this.myChangesetNumber + "/close");
         System.err.println("DEBUG: URL= " + url.toString());
         HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("PUT");
 
         // we do not use Authenticator.setDefault() here to stay thread-safe.
-        httpCon.setRequestProperty("Authorization", "Basic "
-                + Base64.encodeBase64String(
-                        (this.myUserName + ":"
-                       + this.myPassword).getBytes("UTF8")));
-
         httpCon.setRequestProperty(
-                "Content-Type", "application/x-www-form-urlencoded");
+                "Authorization",
+                "Basic " + Base64.encodeBase64String((this.myUserName + ":" + this.myPassword).getBytes("UTF8")));
+
+        httpCon.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         httpCon.connect();
         int responseCode = httpCon.getResponseCode();
-        LOG.info("response-code to closing of changeset: "
-                + responseCode);
+        LOG.info("response-code to closing of changeset: " + responseCode);
         this.myChangesetNumber = -1;
         if (responseCode != HttpURLConnection.HTTP_OK) {
-//            InputStreamReader reader = new InputStreamReader(
-//                       httpCon.getInputStream());
-//            LOG.severe(readAll(reader).toString());
+            //            InputStreamReader reader = new InputStreamReader(
+            //                       httpCon.getInputStream());
+            //            LOG.severe(readAll(reader).toString());
             throw new IllegalStateException("Http-Status-code is not"
                     + " 200 OK but " + responseCode
                     + " \"" + httpCon.getResponseMessage()

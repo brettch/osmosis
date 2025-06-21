@@ -3,6 +3,5 @@ package org.openstreetmap.osmosis.tagtransform;
 
 public interface DataSource {
 
-		String[] transform(String[] matches);
-
+    String[] transform(String[] matches);
 }

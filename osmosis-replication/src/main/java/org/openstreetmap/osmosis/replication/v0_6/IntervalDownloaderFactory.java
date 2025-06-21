@@ -7,23 +7,19 @@ import org.openstreetmap.osmosis.core.pipeline.v0_6.RunnableChangeSourceManager;
 
 /**
  * The task manager factory for a change downloader.
- * 
+ *
  * @author Brett Henderson
  */
 public class IntervalDownloaderFactory extends WorkingTaskManagerFactory {
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
-		return new RunnableChangeSourceManager(
-			taskConfig.getId(),
-			new IntervalDownloader(
-				taskConfig.getId(),
-				this.getWorkingDirectory(taskConfig)
-			),
-			taskConfig.getPipeArgs()
-		);
-	}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
+        return new RunnableChangeSourceManager(
+                taskConfig.getId(),
+                new IntervalDownloader(taskConfig.getId(), this.getWorkingDirectory(taskConfig)),
+                taskConfig.getPipeArgs());
+    }
 }

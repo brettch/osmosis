@@ -1,10 +1,9 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.core.database;
 
-
 /**
  * Defines common constants shared between database tasks.
- * 
+ *
  * @author Brett Henderson
  */
 public final class DatabaseConstants {
@@ -118,6 +117,5 @@ public final class DatabaseConstants {
     /**
      * This class cannot be instantiated.
      */
-    private DatabaseConstants() {
-    }
+    private DatabaseConstants() {}
 }

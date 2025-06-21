@@ -6,11 +6,11 @@ package org.openstreetmap.osmosis.core.filter.common;
  */
 public class BitSetIdTrackerTest extends IdTrackerBase {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected IdTracker getImplementation() {
-		return new BitSetIdTracker();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected IdTracker getImplementation() {
+        return new BitSetIdTracker();
+    }
 }

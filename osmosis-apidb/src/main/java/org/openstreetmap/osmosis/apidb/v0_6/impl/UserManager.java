@@ -6,17 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.openstreetmap.osmosis.apidb.common.DatabaseContext;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.database.ReleasableStatementContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.OsmUser;
 import org.openstreetmap.osmosis.core.lifecycle.Closeable;
 
-
 /**
  * Creates or loads the details of the Osmosis user in the database.
- * 
+ *
  * @author Brett Henderson
  */
 public class UserManager implements Closeable {
@@ -44,7 +42,7 @@ public class UserManager implements Closeable {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param dbCtx The database context to use for all database access.
      */
     public UserManager(DatabaseContext dbCtx) {
@@ -56,7 +54,7 @@ public class UserManager implements Closeable {
 
     /**
      * Checks if the specified user exists in the database.
-     * 
+     *
      * @param user The user to check for.
      * @return True if the user exists, false otherwise.
      */
@@ -66,22 +64,22 @@ public class UserManager implements Closeable {
         }
 
         try {
-	        statementExists.setInt(1, user.getId());
-	        
-	        try (ResultSet resultSet = statementExists.executeQuery()) {
-	        	resultSet.next();
-	        	
-	        	return resultSet.getInt("userCount") != 0;
-	        }
+            statementExists.setInt(1, user.getId());
+
+            try (ResultSet resultSet = statementExists.executeQuery()) {
+                resultSet.next();
+
+                return resultSet.getInt("userCount") != 0;
+            }
         } catch (SQLException e) {
-            throw new OsmosisRuntimeException("Unable to check if user with id " + user.getId()
-                    + " exists in the database.", e);
+            throw new OsmosisRuntimeException(
+                    "Unable to check if user with id " + user.getId() + " exists in the database.", e);
         }
     }
 
     /**
      * Inserts the specified user into the database.
-     * 
+     *
      * @param user The user to be inserted.
      */
     private void insertUser(OsmUser user) {
@@ -112,14 +110,14 @@ public class UserManager implements Closeable {
             statementInsert.executeUpdate();
 
         } catch (SQLException e) {
-            throw new OsmosisRuntimeException("Unable to insert user with id " + user.getId() + " into the database.",
-                    e);
+            throw new OsmosisRuntimeException(
+                    "Unable to insert user with id " + user.getId() + " into the database.", e);
         }
     }
 
     /**
      * Updates the specified user in the database.
-     * 
+     *
      * @param user The user to be updated.
      */
     private void updateUser(OsmUser user) {
@@ -152,7 +150,7 @@ public class UserManager implements Closeable {
     /**
      * Adds the user to the database or updates the name of the existing database entry if one
      * already exists with the same id.
-     * 
+     *
      * @param user The user to be created or updated.
      */
     public void addOrUpdateUser(OsmUser user) {

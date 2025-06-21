@@ -3,7 +3,6 @@ package org.openstreetmap.osmosis.core.runner;
 
 import java.util.Collections;
 import java.util.Map;
-
 import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
 import org.openstreetmap.osmosis.core.plugin.PluginLoader;
 
@@ -24,8 +23,7 @@ public class OsmosisTask {
      * @param name The name of the task
      * @param arguments arguments supplied for the task
      */
-    public OsmosisTask(final PluginLoader loader, final String name,
-            final Map<String, String> arguments) {
+    public OsmosisTask(final PluginLoader loader, final String name, final Map<String, String> arguments) {
         this.loader = loader;
         this.name = name;
         this.arguments = arguments;
@@ -65,7 +63,6 @@ public class OsmosisTask {
      * @return {@link TaskConfiguration}
      */
     public TaskConfiguration getTaskConfiguration(final int taskId) {
-        return new TaskConfiguration(taskId + "-" + this.name, this.name, Collections.emptyMap(),
-                this.arguments, null);
+        return new TaskConfiguration(taskId + "-" + this.name, this.name, Collections.emptyMap(), this.arguments, null);
     }
 }

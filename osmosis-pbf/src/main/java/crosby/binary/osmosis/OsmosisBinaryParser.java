@@ -1,12 +1,11 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package crosby.binary.osmosis;
 
+import crosby.binary.BinaryParser;
+import crosby.binary.Osmformat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import crosby.binary.BinaryParser;
-import crosby.binary.Osmformat;
 import org.openstreetmap.osmosis.core.OsmosisConstants;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.BoundContainer;
@@ -40,7 +39,7 @@ public class OsmosisBinaryParser extends BinaryParser {
         // System.out.println(info);
         if (info.hasUid() && info.hasUserSid()) {
             if (info.getUid() < 0) {
-              return OsmUser.NONE;
+                return OsmUser.NONE;
             }
             return new OsmUser(info.getUid(), getStringById(info.getUserSid()));
         } else {
@@ -55,35 +54,37 @@ public class OsmosisBinaryParser extends BinaryParser {
 
     @Override
     protected void parseNodes(List<Osmformat.Node> nodes) {
-      for (Osmformat.Node i : nodes) {
-        List<Tag> tags = new ArrayList<Tag>();
-        for (int j = 0; j < i.getKeysCount(); j++) {
-          tags.add(new Tag(getStringById(i.getKeys(j)), getStringById(i.getVals(j))));
-        }
-        // long id, int version, Date timestamp, OsmUser user,
-        // long changesetId, Collection<Tag> tags,
-        // double latitude, double longitude
-        Node tmp;
-        long id = i.getId();
-        double latf = parseLat(i.getLat()), lonf = parseLon(i.getLon());
+        for (Osmformat.Node i : nodes) {
+            List<Tag> tags = new ArrayList<Tag>();
+            for (int j = 0; j < i.getKeysCount(); j++) {
+                tags.add(new Tag(getStringById(i.getKeys(j)), getStringById(i.getVals(j))));
+            }
+            // long id, int version, Date timestamp, OsmUser user,
+            // long changesetId, Collection<Tag> tags,
+            // double latitude, double longitude
+            Node tmp;
+            long id = i.getId();
+            double latf = parseLat(i.getLat()), lonf = parseLon(i.getLon());
 
-        if (i.hasInfo()) {
-          Osmformat.Info info = i.getInfo();
-          tmp = new Node(new CommonEntityData(id, info.getVersion(), getDate(info),
-              getUser(info), info.getChangeset(), tags), latf, lonf);
-        } else {
-          tmp = new Node(new CommonEntityData(id, NOVERSION, NODATE, OsmUser.NONE,
-              NOCHANGESET, tags), latf, lonf);
+            if (i.hasInfo()) {
+                Osmformat.Info info = i.getInfo();
+                tmp = new Node(
+                        new CommonEntityData(
+                                id, info.getVersion(), getDate(info), getUser(info), info.getChangeset(), tags),
+                        latf,
+                        lonf);
+            } else {
+                tmp = new Node(
+                        new CommonEntityData(id, NOVERSION, NODATE, OsmUser.NONE, NOCHANGESET, tags), latf, lonf);
+            }
+            sink.process(new NodeContainer(tmp));
         }
-        sink.process(new NodeContainer(tmp));
-
-      }
     }
-    
+
     @Override
     protected void parseDense(Osmformat.DenseNodes nodes) {
         long lastId = 0, lastLat = 0, lastLon = 0;
-        
+
         int j = 0; // Index into the keysvals array.
 
         // Stuff for dense info
@@ -91,7 +92,7 @@ public class OsmosisBinaryParser extends BinaryParser {
         int lastuserSid = 0, lastuid = 0;
         Osmformat.DenseInfo di = null;
         if (nodes.hasDenseinfo()) {
-          di = nodes.getDenseinfo();
+            di = nodes.getDenseinfo();
         }
         for (int i = 0; i < nodes.getIdCount(); i++) {
             Node tmp;
@@ -114,24 +115,28 @@ public class OsmosisBinaryParser extends BinaryParser {
             }
             // Handle dense info.
             if (di != null) {
-              int uid = di.getUid(i) + lastuid; lastuid = uid;
-              int userSid = di.getUserSid(i) + lastuserSid; lastuserSid = userSid;
-              long timestamp = di.getTimestamp(i) + lasttimestamp; lasttimestamp = timestamp;
-              int version = di.getVersion(i); 
-              long changeset = di.getChangeset(i) + lastchangeset; lastchangeset = changeset;
+                int uid = di.getUid(i) + lastuid;
+                lastuid = uid;
+                int userSid = di.getUserSid(i) + lastuserSid;
+                lastuserSid = userSid;
+                long timestamp = di.getTimestamp(i) + lasttimestamp;
+                lasttimestamp = timestamp;
+                int version = di.getVersion(i);
+                long changeset = di.getChangeset(i) + lastchangeset;
+                lastchangeset = changeset;
 
-              Date date = new Date(date_granularity * timestamp);
+                Date date = new Date(date_granularity * timestamp);
 
-              OsmUser user;
-              if (uid < 0) {
-                user = OsmUser.NONE;
-              } else {
-                user = new OsmUser(uid, getStringById(userSid));
-              }
-              tmp = new Node(new CommonEntityData(id, version, date, user, changeset, tags), latf, lonf);
+                OsmUser user;
+                if (uid < 0) {
+                    user = OsmUser.NONE;
+                } else {
+                    user = new OsmUser(uid, getStringById(userSid));
+                }
+                tmp = new Node(new CommonEntityData(id, version, date, user, changeset, tags), latf, lonf);
             } else {
-                tmp = new Node(new CommonEntityData(id, NOVERSION, NODATE, OsmUser.NONE,
-                        NOCHANGESET, tags), latf, lonf);
+                tmp = new Node(
+                        new CommonEntityData(id, NOVERSION, NODATE, OsmUser.NONE, NOCHANGESET, tags), latf, lonf);
             }
             sink.process(new NodeContainer(tmp));
         }
@@ -149,17 +154,17 @@ public class OsmosisBinaryParser extends BinaryParser {
             long lastLon = 0;
             List<WayNode> nodes = new ArrayList<WayNode>();
             for (int index = 0; index < i.getRefsCount(); index++) {
-            	    long identifier = lastId + i.getRefs(index);
-            		WayNode node;
-            		if (index < i.getLatCount() && index < i.getLonCount()) {
-	            	    long lat = lastLat + i.getLat(index);
-	            	    long lon = lastLon + i.getLon(index);
-	            	    node = new WayNode(identifier, parseLat(lat), parseLon(lon));
-	            	    lastLat = lat;
-	            	    lastLon = lon;
-            		} else {
-            			node = new WayNode(identifier);
-            		}
+                long identifier = lastId + i.getRefs(index);
+                WayNode node;
+                if (index < i.getLatCount() && index < i.getLonCount()) {
+                    long lat = lastLat + i.getLat(index);
+                    long lon = lastLon + i.getLon(index);
+                    node = new WayNode(identifier, parseLat(lat), parseLon(lon));
+                    lastLat = lat;
+                    lastLon = lon;
+                } else {
+                    node = new WayNode(identifier);
+                }
                 nodes.add(node);
                 lastId = identifier;
             }
@@ -172,11 +177,12 @@ public class OsmosisBinaryParser extends BinaryParser {
             Way tmp;
             if (i.hasInfo()) {
                 Osmformat.Info info = i.getInfo();
-                tmp = new Way(new CommonEntityData(id, info.getVersion(), getDate(info),
-                        getUser(info), info.getChangeset(), tags), nodes);
+                tmp = new Way(
+                        new CommonEntityData(
+                                id, info.getVersion(), getDate(info), getUser(info), info.getChangeset(), tags),
+                        nodes);
             } else {
-                tmp = new Way(new CommonEntityData(id, NOVERSION, NODATE, OsmUser.NONE, NOCHANGESET,
-                        tags), nodes);
+                tmp = new Way(new CommonEntityData(id, NOVERSION, NODATE, OsmUser.NONE, NOCHANGESET, tags), nodes);
             }
             sink.process(new WayContainer(tmp));
         }
@@ -219,11 +225,12 @@ public class OsmosisBinaryParser extends BinaryParser {
             Relation tmp;
             if (i.hasInfo()) {
                 Osmformat.Info info = i.getInfo();
-                tmp = new Relation(new CommonEntityData(id, info.getVersion(), getDate(info),
-                        getUser(info), info.getChangeset(), tags), nodes);
+                tmp = new Relation(
+                        new CommonEntityData(
+                                id, info.getVersion(), getDate(info), getUser(info), info.getChangeset(), tags),
+                        nodes);
             } else {
-                tmp = new Relation(new CommonEntityData(id, NOVERSION, NODATE, OsmUser.NONE,
-                        NOCHANGESET, tags), nodes);
+                tmp = new Relation(new CommonEntityData(id, NOVERSION, NODATE, OsmUser.NONE, NOCHANGESET, tags), nodes);
             }
             sink.process(new RelationContainer(tmp));
         }
@@ -233,14 +240,14 @@ public class OsmosisBinaryParser extends BinaryParser {
     public void parse(Osmformat.HeaderBlock block) {
         for (String s : block.getRequiredFeaturesList()) {
             if (s.equals("OsmSchema-V0.6")) {
-              continue; // We can parse this.
+                continue; // We can parse this.
             }
             if (s.equals("DenseNodes")) {
-              continue; // We can parse this.
+                continue; // We can parse this.
             }
-           throw new OsmosisRuntimeException("File requires unknown feature: " + s);
+            throw new OsmosisRuntimeException("File requires unknown feature: " + s);
         }
-        
+
         if (block.hasBbox()) {
             String source = OsmosisConstants.VERSION;
             if (block.hasSource()) {
@@ -258,7 +265,6 @@ public class OsmosisBinaryParser extends BinaryParser {
         }
     }
 
-
     /**
      * Sets the osm sink to send data to.
      *
@@ -266,7 +272,7 @@ public class OsmosisBinaryParser extends BinaryParser {
      *            The sink for receiving all produced data.
      */
     public void setSink(Sink sink) {
-       this.sink = sink;
+        this.sink = sink;
     }
 
     private Sink sink;

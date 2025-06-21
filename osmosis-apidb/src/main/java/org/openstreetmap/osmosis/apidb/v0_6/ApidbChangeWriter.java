@@ -3,11 +3,10 @@ package org.openstreetmap.osmosis.apidb.v0_6;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.ActionChangeWriter;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.ChangeWriter;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.SchemaVersionValidator;
+import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.ChangeContainer;
 import org.openstreetmap.osmosis.core.database.DatabaseLoginCredentials;
 import org.openstreetmap.osmosis.core.database.DatabasePreferences;
@@ -17,7 +16,7 @@ import org.openstreetmap.osmosis.core.task.v0_6.ChangeSink;
 /**
  * A change sink writing to database tables. This aims to be suitable for running at regular
  * intervals with database overhead proportional to changeset size.
- * 
+ *
  * @author Brett Henderson
  */
 public class ApidbChangeWriter implements ChangeSink {
@@ -30,14 +29,14 @@ public class ApidbChangeWriter implements ChangeSink {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param loginCredentials Contains all information required to connect to the database.
      * @param preferences Contains preferences configuring database behaviour.
      * @param populateCurrentTables If true, the current tables will be populated as well as history
      *        tables.
      */
-    public ApidbChangeWriter(DatabaseLoginCredentials loginCredentials, DatabasePreferences preferences,
-            boolean populateCurrentTables) {
+    public ApidbChangeWriter(
+            DatabaseLoginCredentials loginCredentials, DatabasePreferences preferences, boolean populateCurrentTables) {
         changeWriter = new ChangeWriter(loginCredentials, populateCurrentTables);
         actionWriterMap = new HashMap<ChangeAction, ActionChangeWriter>();
         actionWriterMap.put(ChangeAction.Create, new ActionChangeWriter(changeWriter, ChangeAction.Create));
@@ -51,8 +50,8 @@ public class ApidbChangeWriter implements ChangeSink {
      * {@inheritDoc}
      */
     public void initialize(Map<String, Object> metaData) {
-		// Do nothing.
-	}
+        // Do nothing.
+    }
 
     /**
      * {@inheritDoc}

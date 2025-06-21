@@ -2,11 +2,10 @@
 package org.openstreetmap.osmosis.pbf2.v0_6.impl;
 
 import crosby.binary.Fileformat;
-import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
-
 import java.util.function.Function;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
+import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 
 /**
  * Obtains the raw uncompressed data from a {@link Fileformat.Blob}.

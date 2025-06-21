@@ -8,16 +8,16 @@ import org.openstreetmap.osmosis.core.pipeline.v0_6.RunnableChangeSourceManager;
 
 /**
  * The task manager factory for an empty change reader.
- * 
+ *
  * @author Brett Henderson
  */
 public class EmptyChangeReaderFactory extends TaskManagerFactory {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
-		return new RunnableChangeSourceManager(taskConfig.getId(), new EmptyChangeReader(), taskConfig.getPipeArgs());
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
+        return new RunnableChangeSourceManager(taskConfig.getId(), new EmptyChangeReader(), taskConfig.getPipeArgs());
+    }
 }

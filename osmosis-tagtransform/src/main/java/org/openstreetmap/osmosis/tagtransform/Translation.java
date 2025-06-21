@@ -4,21 +4,15 @@ package org.openstreetmap.osmosis.tagtransform;
 import java.util.Collection;
 import java.util.Map;
 
-
 public interface Translation {
 
-	Collection<Match> match(Map<String, String> tags, TTEntityType entityType, String uname, int uid);
+    Collection<Match> match(Map<String, String> tags, TTEntityType entityType, String uname, int uid);
 
+    Map<String, DataSource> getDataSources();
 
-	Map<String, DataSource> getDataSources();
+    boolean isDropOnMatch();
 
+    Collection<Output> getOutputs();
 
-	boolean isDropOnMatch();
-
-
-	Collection<Output> getOutputs();
-
-
-	void outputStats(StringBuilder output, String indent);
-
+    void outputStats(StringBuilder output, String indent);
 }

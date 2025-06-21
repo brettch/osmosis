@@ -10,14 +10,14 @@ import org.openstreetmap.osmosis.core.pipeline.v0_6.ChangeSinkChangeSourceManage
  */
 public class ReplicationToChangeWriterFactory extends WorkingTaskManagerFactory {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
-		return new ChangeSinkChangeSourceManager(
-				taskConfig.getId(),
-				new ReplicationToChangeWriter(this.getWorkingDirectory(taskConfig)),
-				taskConfig.getPipeArgs());
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
+        return new ChangeSinkChangeSourceManager(
+                taskConfig.getId(),
+                new ReplicationToChangeWriter(this.getWorkingDirectory(taskConfig)),
+                taskConfig.getPipeArgs());
+    }
 }

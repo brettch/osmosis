@@ -6,77 +6,70 @@ import org.openstreetmap.osmosis.core.store.StoreClassRegister;
 import org.openstreetmap.osmosis.core.store.StoreReader;
 import org.openstreetmap.osmosis.core.store.StoreWriter;
 
-
 /**
  * Entity container implementation for nodes.
- * 
+ *
  * @author Brett Henderson
  */
 public class NodeContainer extends EntityContainer {
-	
-	private Node node;
-	
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param node
-	 *            The node to wrap.
-	 */
-	public NodeContainer(Node node) {
-		this.node = node;
-	}
-	
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param sr
-	 *            The store to read state from.
-	 * @param scr
-	 *            Maintains the mapping between classes and their identifiers
-	 *            within the store.
-	 */
-	public NodeContainer(StoreReader sr, StoreClassRegister scr) {
-		node = new Node(sr, scr);
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void store(StoreWriter sw, StoreClassRegister scr) {
-		node.store(sw, scr);
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void process(EntityProcessor processor) {
-		processor.process(this);
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Node getEntity() {
-		return node;
-	}
 
+    private Node node;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeContainer getWriteableInstance() {
-		if (node.isReadOnly()) {
-			return new NodeContainer(node.getWriteableInstance());
-		} else {
-			return this;
-		}
-	}
+    /**
+     * Creates a new instance.
+     *
+     * @param node
+     *            The node to wrap.
+     */
+    public NodeContainer(Node node) {
+        this.node = node;
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param sr
+     *            The store to read state from.
+     * @param scr
+     *            Maintains the mapping between classes and their identifiers
+     *            within the store.
+     */
+    public NodeContainer(StoreReader sr, StoreClassRegister scr) {
+        node = new Node(sr, scr);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void store(StoreWriter sw, StoreClassRegister scr) {
+        node.store(sw, scr);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void process(EntityProcessor processor) {
+        processor.process(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Node getEntity() {
+        return node;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeContainer getWriteableInstance() {
+        if (node.isReadOnly()) {
+            return new NodeContainer(node.getWriteableInstance());
+        } else {
+            return this;
+        }
+    }
 }

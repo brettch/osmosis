@@ -1,15 +1,14 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.tagfilter.v0_6;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManager;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManagerFactory;
 import org.openstreetmap.osmosis.core.pipeline.v0_6.SinkSourceManager;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.HashSet;
 
 /**
  * Extends the basic task manager factory functionality with TagFilter task
@@ -18,8 +17,7 @@ import java.util.HashSet;
  * @author Andrew Byrd
  */
 public class TagFilterFactory extends TaskManagerFactory {
-    
-    
+
     /**
      * Decodes escaped wildcard, separator, equals, and space characters.
      *
@@ -31,13 +29,24 @@ public class TagFilterFactory extends TaskManagerFactory {
         boolean escaped = false;
         for (char c : s.toCharArray()) {
             if (escaped) {
-                switch (c) {                
-                    case '%': sb.append('%'); break;
-                    case 'a': sb.append('*'); break;
-                    case 'c': sb.append(','); break; 
-                    case 'e': sb.append('='); break;
-                    case 's': sb.append(' '); break;
-                    default : break;
+                switch (c) {
+                    case '%':
+                        sb.append('%');
+                        break;
+                    case 'a':
+                        sb.append('*');
+                        break;
+                    case 'c':
+                        sb.append(',');
+                        break;
+                    case 'e':
+                        sb.append('=');
+                        break;
+                    case 's':
+                        sb.append(' ');
+                        break;
+                    default:
+                        break;
                 }
                 escaped = false;
             } else {
@@ -50,8 +59,7 @@ public class TagFilterFactory extends TaskManagerFactory {
         }
         return sb.toString();
     }
-    
-    
+
     /**
      * {@inheritDoc}
      */
@@ -60,7 +68,7 @@ public class TagFilterFactory extends TaskManagerFactory {
         // Iterate over keyword arguments and fetch them through the appropriate TaskManagerFactory utility method
         // to avoid 'Argument was not recognized' exceptions from Osmosis
         Set<String> keys = new HashSet<String>();
-        Map<String, Set<String>> keyValues = new HashMap<String, Set<String>>(); 
+        Map<String, Set<String>> keyValues = new HashMap<String, Set<String>>();
         for (String key : taskConfig.getConfigArgs().keySet()) {
             String value = getStringArgument(taskConfig, key);
             if (value.equals("*")) {
@@ -74,10 +82,8 @@ public class TagFilterFactory extends TaskManagerFactory {
             }
         }
         return new SinkSourceManager(
-            taskConfig.getId(),
-            new TagFilter(getDefaultStringArgument(taskConfig, ""), keys, keyValues),
-            taskConfig.getPipeArgs()
-        );
+                taskConfig.getId(),
+                new TagFilter(getDefaultStringArgument(taskConfig, ""), keys, keyValues),
+                taskConfig.getPipeArgs());
     }
-
 }

@@ -3,12 +3,11 @@ package org.openstreetmap.osmosis.apidb.v0_6;
 
 import java.util.Collections;
 import java.util.Date;
-
-import org.openstreetmap.osmosis.core.OsmosisConstants;
 import org.openstreetmap.osmosis.apidb.common.DatabaseContext2;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.AllEntityDao;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.EntitySnapshotReader;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.SchemaVersionValidator;
+import org.openstreetmap.osmosis.core.OsmosisConstants;
 import org.openstreetmap.osmosis.core.container.v0_6.BoundContainer;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.database.DatabaseLoginCredentials;
@@ -22,7 +21,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 /**
  * An OSM data source reading from a database. The entire contents of the database are read.
- * 
+ *
  * @author Brett Henderson
  */
 public class ApidbReader implements RunnableSource {
@@ -33,21 +32,19 @@ public class ApidbReader implements RunnableSource {
     private DatabasePreferences preferences;
     private Date snapshotInstant;
 
-
     /**
      * Creates a new instance.
-     * 
+     *
      * @param loginCredentials Contains all information required to connect to the database.
      * @param preferences Contains preferences configuring database behaviour.
      * @param snapshotInstant The state of the node table at this point in time will be dumped. This
      *        ensures a consistent snapshot.
      */
-    public ApidbReader(DatabaseLoginCredentials loginCredentials, DatabasePreferences preferences,
-            Date snapshotInstant) {
+    public ApidbReader(
+            DatabaseLoginCredentials loginCredentials, DatabasePreferences preferences, Date snapshotInstant) {
         this.loginCredentials = loginCredentials;
         this.preferences = preferences;
         this.snapshotInstant = snapshotInstant;
-        
     }
 
     /**
@@ -56,52 +53,50 @@ public class ApidbReader implements RunnableSource {
     public void setSink(Sink sink) {
         this.sink = sink;
     }
-    
-    
-    /**
-	 * Runs the task implementation. This is called by the run method within a transaction.
-	 * 
-	 * @param dbCtx
-	 *            Used to access the database.
-	 */
-    protected void runImpl(DatabaseContext2 dbCtx) {
-    	try {
-    		AllEntityDao entityDao;
-    		
-    		sink.initialize(Collections.<String, Object>emptyMap());
-    		
-	        new SchemaVersionValidator(loginCredentials, preferences)
-	                .validateVersion(ApidbVersionConstants.SCHEMA_MIGRATIONS);
-	        
-	        entityDao = new AllEntityDao(dbCtx.getJdbcTemplate());
 
-	        sink.process(new BoundContainer(new Bound("Osmosis " + OsmosisConstants.VERSION)));
-	        try (ReleasableIterator<EntityContainer> reader =
-                         new EntitySnapshotReader(entityDao.getHistory(), snapshotInstant)) {
-	        	while (reader.hasNext()) {
-	        		sink.process(reader.next());
-	        	}
-	        }
-	
-	        sink.complete();
-	        
-    	} finally {
-    		sink.close();
-    	}
+    /**
+     * Runs the task implementation. This is called by the run method within a transaction.
+     *
+     * @param dbCtx
+     *            Used to access the database.
+     */
+    protected void runImpl(DatabaseContext2 dbCtx) {
+        try {
+            AllEntityDao entityDao;
+
+            sink.initialize(Collections.<String, Object>emptyMap());
+
+            new SchemaVersionValidator(loginCredentials, preferences)
+                    .validateVersion(ApidbVersionConstants.SCHEMA_MIGRATIONS);
+
+            entityDao = new AllEntityDao(dbCtx.getJdbcTemplate());
+
+            sink.process(new BoundContainer(new Bound("Osmosis " + OsmosisConstants.VERSION)));
+            try (ReleasableIterator<EntityContainer> reader =
+                    new EntitySnapshotReader(entityDao.getHistory(), snapshotInstant)) {
+                while (reader.hasNext()) {
+                    sink.process(reader.next());
+                }
+            }
+
+            sink.complete();
+
+        } finally {
+            sink.close();
+        }
     }
-    
 
     /**
      * Reads all data from the database and send it to the sink.
      */
     public void run() {
         try (DatabaseContext2 dbCtx = new DatabaseContext2(loginCredentials)) {
-        	dbCtx.executeWithinTransaction(new TransactionCallbackWithoutResult() {
-				@Override
-				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					runImpl(dbCtx);
-				}
-        	});
+            dbCtx.executeWithinTransaction(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus arg0) {
+                    runImpl(dbCtx);
+                }
+            });
         }
     }
 }

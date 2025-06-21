@@ -8,9 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
-
 import javax.xml.parsers.SAXParser;
-
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.xml.common.CompressionActivator;
 import org.openstreetmap.osmosis.xml.common.CompressionMethod;
@@ -19,7 +17,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
- /**
+/**
  * Handles common functionality used by XML readers.
  *
  * @author mcuthbert
@@ -29,7 +27,7 @@ public abstract class BaseXMLReader {
     private final boolean enableDateParsing;
     private final CompressionMethod method;
 
-     /**
+    /**
      * Default Constructor.
      *
      * @param file File to parse
@@ -42,7 +40,7 @@ public abstract class BaseXMLReader {
         this.method = method;
     }
 
-     /**
+    /**
      * Returns whether this object enables date parsing or not.
      *
      * @return true or false
@@ -51,7 +49,7 @@ public abstract class BaseXMLReader {
         return this.enableDateParsing;
     }
 
-     /**
+    /**
      * Function to parse xml, this default function just uses the SAXParser.
      *
      * @param stream InputStream for the XML
@@ -59,21 +57,20 @@ public abstract class BaseXMLReader {
      * @throws SAXException If there is any exceptions while parsing the XML
      * @throws IOException If there is any issues with the input stream
      */
-    protected void parseXML(final InputStream stream, final DefaultHandler handler)
-            throws SAXException, IOException {
+    protected void parseXML(final InputStream stream, final DefaultHandler handler) throws SAXException, IOException {
         final SAXParser parser = SaxParserFactory.createParser();
         parser.parse(stream, handler);
     }
 
-     /**
+    /**
      * Function to handle the XML for the sub classes.
      *
      * @param handler A {@link DefaultHandler}
      */
     protected void handleXML(final DefaultHandler handler) {
         try (InputStream stream = this.getInputStream()) {
-            try (InputStream compressionStream = new CompressionActivator(this.method)
-                    .createCompressionInputStream(stream)) {
+            try (InputStream compressionStream =
+                    new CompressionActivator(this.method).createCompressionInputStream(stream)) {
                 this.parseXML(compressionStream, handler);
             }
         } catch (final SAXParseException e) {
@@ -89,7 +86,7 @@ public abstract class BaseXMLReader {
         }
     }
 
-     private void unzipParse(final DefaultHandler handler) {
+    private void unzipParse(final DefaultHandler handler) {
         File tempFile;
         try {
             tempFile = File.createTempFile(this.getTempFilePrefix(), null);
@@ -97,7 +94,7 @@ public abstract class BaseXMLReader {
             throw new OsmosisRuntimeException("Failed to create temporary file.", e);
         }
 
-         try (InputStream fis = this.getInputStream();
+        try (InputStream fis = this.getInputStream();
                 GZIPInputStream gzipStream = new GZIPInputStream(fis);
                 FileOutputStream fos = new FileOutputStream(tempFile)) {
             final byte[] buffer = new byte[1024];
@@ -109,16 +106,16 @@ public abstract class BaseXMLReader {
             throw new OsmosisRuntimeException("Unable to unzip gz file " + this.file + ".", e);
         }
 
-         try (InputStream unzippedStream = new FileInputStream(tempFile)) {
+        try (InputStream unzippedStream = new FileInputStream(tempFile)) {
             this.parseXML(unzippedStream, handler);
         } catch (final SAXParseException e) {
             throw new OsmosisRuntimeException(
-                "Unable to parse xml file " + this.file
-                        + ".  publicId=(" + e.getPublicId()
-                        + "), systemId=(" + e.getSystemId()
-                        + "), lineNumber=" + e.getLineNumber()
-                        + ", columnNumber=" + e.getColumnNumber() + ".",
-                e);
+                    "Unable to parse xml file " + this.file
+                            + ".  publicId=(" + e.getPublicId()
+                            + "), systemId=(" + e.getSystemId()
+                            + "), lineNumber=" + e.getLineNumber()
+                            + ", columnNumber=" + e.getColumnNumber() + ".",
+                    e);
         } catch (SAXException e) {
             throw new OsmosisRuntimeException("Unable to parse XML.", e);
         } catch (IOException e) {
@@ -126,7 +123,7 @@ public abstract class BaseXMLReader {
         }
     }
 
-     private InputStream getInputStream() throws FileNotFoundException {
+    private InputStream getInputStream() throws FileNotFoundException {
         if (this.file.getName().equals("-")) {
             return System.in;
         } else {
@@ -134,7 +131,7 @@ public abstract class BaseXMLReader {
         }
     }
 
-     private String getTempFilePrefix() {
+    private String getTempFilePrefix() {
         return this.file.getName() + "_" + System.currentTimeMillis();
     }
 }

@@ -3,7 +3,6 @@ package org.openstreetmap.osmosis.core.plugin;
 
 import org.java.plugin.Plugin;
 
-
 /**
  * The core plugin entry point.
  *
@@ -11,20 +10,19 @@ import org.java.plugin.Plugin;
  */
 public class CorePlugin extends Plugin {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void doStart() throws Exception {
-		// ignored
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doStart() throws Exception {
+        // ignored
+    }
 
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void doStop() throws Exception {
-		// ignored
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doStop() throws Exception {
+        // ignored
+    }
 }

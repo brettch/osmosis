@@ -5,28 +5,23 @@ import org.openstreetmap.osmosis.core.pipeline.common.RunnableTaskManager;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManager;
 
-
 /**
  * The task manager factory for a replication file merger.
  */
 public class ReplicationFileMergerFactory extends WorkingTaskManagerFactory {
-	private static final String ARG_SINGLE = "single";
-	private static final boolean DEFAULT_SINGLE = false;
+    private static final String ARG_SINGLE = "single";
+    private static final boolean DEFAULT_SINGLE = false;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
-		boolean single = getBooleanArgument(taskConfig, ARG_SINGLE, DEFAULT_SINGLE);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
+        boolean single = getBooleanArgument(taskConfig, ARG_SINGLE, DEFAULT_SINGLE);
 
-		return new RunnableTaskManager(
-			taskConfig.getId(),
-			new ReplicationFileMerger(
-				this.getWorkingDirectory(taskConfig),
-				single
-			),
-			taskConfig.getPipeArgs()
-		);
-	}
+        return new RunnableTaskManager(
+                taskConfig.getId(),
+                new ReplicationFileMerger(this.getWorkingDirectory(taskConfig), single),
+                taskConfig.getPipeArgs());
+    }
 }

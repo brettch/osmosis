@@ -2,12 +2,10 @@
 package crosby.binary.osmosis;
 
 import java.io.File;
-
 import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManager;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManagerFactory;
 import org.openstreetmap.osmosis.core.pipeline.v0_6.RunnableSourceManager;
-
 
 /**
  * The task manager factory for a binary (PBF) reader.
@@ -26,8 +24,8 @@ public class OsmosisReaderFactory extends TaskManagerFactory {
         OsmosisReader task;
 
         // Get the task arguments.
-        fileName = getStringArgument(taskConfig, ARG_FILE_NAME,
-                getDefaultStringArgument(taskConfig, DEFAULT_FILE_NAME));
+        fileName =
+                getStringArgument(taskConfig, ARG_FILE_NAME, getDefaultStringArgument(taskConfig, DEFAULT_FILE_NAME));
 
         // Create a file object from the file name provided.
         file = new File(fileName);
@@ -35,7 +33,6 @@ public class OsmosisReaderFactory extends TaskManagerFactory {
         // Build the task object.
         task = new OsmosisReader(file);
 
-        return new RunnableSourceManager(taskConfig.getId(), task, taskConfig
-                .getPipeArgs());
+        return new RunnableSourceManager(taskConfig.getId(), task, taskConfig.getPipeArgs());
     }
 }

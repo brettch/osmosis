@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.openstreetmap.osmosis.apidb.common.DatabaseContext;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.ChangesetManager;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.MemberTypeRenderer;
@@ -37,64 +36,59 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 import org.openstreetmap.osmosis.core.util.FixedPrecisionCoordinateConvertor;
 import org.openstreetmap.osmosis.core.util.TileCalculator;
 
-
 /**
  * An OSM data sink for storing all data to a database. This task is intended for writing to an
  * empty database.
- * 
+ *
  * @author Brett Henderson
  */
 public class ApidbWriter implements Sink, EntityProcessor {
 
     // These SQL strings are the prefix to statements that will be built based
     // on how many rows of data are to be inserted at a time.
-	private static final String INSERT_SQL_NODE_COLUMNS =
-		"INSERT INTO nodes(node_id, timestamp, version, visible, changeset_id, latitude, longitude, tile)";
-	private static final String INSERT_SQL_NODE_PARAMS = createParamPlaceholders(8);
-	private static final int INSERT_PRM_COUNT_NODE = 8;
+    private static final String INSERT_SQL_NODE_COLUMNS =
+            "INSERT INTO nodes(node_id, timestamp, version, visible, changeset_id, latitude, longitude, tile)";
+    private static final String INSERT_SQL_NODE_PARAMS = createParamPlaceholders(8);
+    private static final int INSERT_PRM_COUNT_NODE = 8;
 
     private static final String INSERT_SQL_NODE_TAG_COLUMNS = "INSERT INTO node_tags (node_id, k, v, version)";
     private static final String INSERT_SQL_NODE_TAG_PARAMS = createParamPlaceholders(4);
-	private static final int INSERT_PRM_COUNT_NODE_TAG = 4;
+    private static final int INSERT_PRM_COUNT_NODE_TAG = 4;
 
     private static final String INSERT_SQL_WAY_COLUMNS =
-    	"INSERT INTO ways (way_id, timestamp, version, visible, changeset_id)";
+            "INSERT INTO ways (way_id, timestamp, version, visible, changeset_id)";
     private static final String INSERT_SQL_WAY_PARAMS = createParamPlaceholders(5);
-	private static final int INSERT_PRM_COUNT_WAY = 5;
+    private static final int INSERT_PRM_COUNT_WAY = 5;
 
     private static final String INSERT_SQL_WAY_TAG_COLUMNS = "INSERT INTO way_tags (way_id, k, v, version)";
     private static final String INSERT_SQL_WAY_TAG_PARAMS = createParamPlaceholders(4);
-	private static final int INSERT_PRM_COUNT_WAY_TAG = 4;
+    private static final int INSERT_PRM_COUNT_WAY_TAG = 4;
 
     private static final String INSERT_SQL_WAY_NODE_COLUMNS =
-    	"INSERT INTO way_nodes (way_id, node_id, sequence_id, version)";
+            "INSERT INTO way_nodes (way_id, node_id, sequence_id, version)";
     private static final String INSERT_SQL_WAY_NODE_PARAMS = createParamPlaceholders(4);
-	private static final int INSERT_PRM_COUNT_WAY_NODE = 4;
+    private static final int INSERT_PRM_COUNT_WAY_NODE = 4;
 
     private static final String INSERT_SQL_RELATION_COLUMNS =
-    	"INSERT INTO relations (relation_id, timestamp, version, visible, changeset_id)";
-    private static final String INSERT_SQL_RELATION_PARAMS =
-    	"?, ?, ?, ?, ?";
-	private static final int INSERT_PRM_COUNT_RELATION = 5;
+            "INSERT INTO relations (relation_id, timestamp, version, visible, changeset_id)";
+    private static final String INSERT_SQL_RELATION_PARAMS = "?, ?, ?, ?, ?";
+    private static final int INSERT_PRM_COUNT_RELATION = 5;
 
     private static final String INSERT_SQL_RELATION_TAG_COLUMNS =
-        "INSERT INTO relation_tags (relation_id, k, v, version)";
+            "INSERT INTO relation_tags (relation_id, k, v, version)";
     private static final String INSERT_SQL_RELATION_TAG_PARAMS = createParamPlaceholders(4);
-	private static final int INSERT_PRM_COUNT_RELATION_TAG = 4;
+    private static final int INSERT_PRM_COUNT_RELATION_TAG = 4;
 
     private static final String INSERT_SQL_RELATION_MEMBER_COLUMNS =
-    	"INSERT INTO relation_members (relation_id, member_type, member_id, sequence_id, member_role, version)";
-    private static final String INSERT_SQL_RELATION_MEMBER_PARAMS_MYSQL =
-    	"?, ?, ?, ?, ?, ?";
-    private static final String INSERT_SQL_RELATION_MEMBER_PARAMS_PGSQL =
-    	"?, ?::nwr_enum, ?, ?, ?, ?";
-	private static final int INSERT_PRM_COUNT_RELATION_MEMBER = 6;
+            "INSERT INTO relation_members (relation_id, member_type, member_id, sequence_id, member_role, version)";
+    private static final String INSERT_SQL_RELATION_MEMBER_PARAMS_MYSQL = "?, ?, ?, ?, ?, ?";
+    private static final String INSERT_SQL_RELATION_MEMBER_PARAMS_PGSQL = "?, ?::nwr_enum, ?, ?, ?, ?";
+    private static final int INSERT_PRM_COUNT_RELATION_MEMBER = 6;
 
     // These tables will have indexes disabled during loading data.
-    private static final List<String> DISABLE_KEY_TABLES = Arrays.asList(new String[] {"nodes",
-            "node_tags", "ways", "way_tags",
-            "way_nodes", "relations",
-            "relation_tags", "relation_members"});
+    private static final List<String> DISABLE_KEY_TABLES = Arrays.asList(new String[] {
+        "nodes", "node_tags", "ways", "way_tags", "way_nodes", "relations", "relation_tags", "relation_members"
+    });
 
     // These SQL statements will be invoked after loading history tables to
     // populate the current tables.
@@ -105,44 +99,59 @@ public class ApidbWriter implements Sink, EntityProcessor {
     private static final int LOAD_CURRENT_RELATION_ROW_COUNT = 100000;
 
     private static final String LOAD_CURRENT_NODES =
-    	"INSERT INTO current_nodes SELECT node_id, latitude, longitude, changeset_id, visible, timestamp, tile, version"
-            + " FROM nodes WHERE node_id >= ? AND node_id < ?";
+            "INSERT INTO current_nodes SELECT node_id, latitude, longitude, changeset_id, visible, timestamp, tile, version"
+                    + " FROM nodes WHERE node_id >= ? AND node_id < ?";
 
     private static final String LOAD_CURRENT_NODE_TAGS =
-    	"INSERT INTO current_node_tags SELECT node_id, k, v FROM node_tags WHERE node_id >= ? AND node_id < ?";
+            "INSERT INTO current_node_tags SELECT node_id, k, v FROM node_tags WHERE node_id >= ? AND node_id < ?";
 
     private static final String WHERE_WAY_ID_IN_RANGE = " WHERE way_id >= ? AND way_id < ?";
 
     private static final String LOAD_CURRENT_WAYS =
-    	"INSERT INTO current_ways SELECT way_id, changeset_id, timestamp, visible, version FROM ways"
-            + WHERE_WAY_ID_IN_RANGE;
+            "INSERT INTO current_ways SELECT way_id, changeset_id, timestamp, visible, version FROM ways"
+                    + WHERE_WAY_ID_IN_RANGE;
 
     private static final String LOAD_CURRENT_WAY_TAGS =
-    	"INSERT INTO current_way_tags SELECT way_id, k, v FROM way_tags"
-            + WHERE_WAY_ID_IN_RANGE;
+            "INSERT INTO current_way_tags SELECT way_id, k, v FROM way_tags" + WHERE_WAY_ID_IN_RANGE;
 
     private static final String LOAD_CURRENT_WAY_NODES =
-    	"INSERT INTO current_way_nodes SELECT way_id, node_id, sequence_id FROM way_nodes"
-            + WHERE_WAY_ID_IN_RANGE;
+            "INSERT INTO current_way_nodes SELECT way_id, node_id, sequence_id FROM way_nodes" + WHERE_WAY_ID_IN_RANGE;
 
     private static final String LOAD_CURRENT_RELATIONS =
-    	"INSERT INTO current_relations SELECT relation_id, changeset_id, timestamp, visible, version"
-            + " FROM relations WHERE relation_id >= ? AND relation_id < ?";
+            "INSERT INTO current_relations SELECT relation_id, changeset_id, timestamp, visible, version"
+                    + " FROM relations WHERE relation_id >= ? AND relation_id < ?";
 
     private static final String LOAD_CURRENT_RELATION_TAGS =
-    	"INSERT INTO current_relation_tags SELECT relation_id, k, v FROM relation_tags"
-            + " WHERE relation_id >= ? AND relation_id < ?";
+            "INSERT INTO current_relation_tags SELECT relation_id, k, v FROM relation_tags"
+                    + " WHERE relation_id >= ? AND relation_id < ?";
 
     private static final String LOAD_CURRENT_RELATION_MEMBERS =
-    	"INSERT INTO current_relation_members (relation_id, member_id, member_role, member_type, sequence_id)"
-    		+ " SELECT relation_id, member_id, member_role, member_type, sequence_id"
-            + " FROM relation_members WHERE relation_id >= ? AND relation_id < ?";
+            "INSERT INTO current_relation_members (relation_id, member_id, member_role, member_type, sequence_id)"
+                    + " SELECT relation_id, member_id, member_role, member_type, sequence_id"
+                    + " FROM relation_members WHERE relation_id >= ? AND relation_id < ?";
 
     // These tables will be locked for exclusive access while loading data.
-	private static final List<String> LOCK_TABLES = Arrays.asList(new String[] {"nodes", "node_tags", "ways",
-			"way_tags", "way_nodes", "relations", "relation_tags", "relation_members", "current_nodes",
-			"current_node_tags", "current_ways", "current_way_tags", "current_way_nodes", "current_relations",
-			"current_relation_tags", "current_relation_members", "users", "changesets", "changeset_tags" });
+    private static final List<String> LOCK_TABLES = Arrays.asList(new String[] {
+        "nodes",
+        "node_tags",
+        "ways",
+        "way_tags",
+        "way_nodes",
+        "relations",
+        "relation_tags",
+        "relation_members",
+        "current_nodes",
+        "current_node_tags",
+        "current_ways",
+        "current_way_tags",
+        "current_way_nodes",
+        "current_relations",
+        "current_relation_tags",
+        "current_relation_members",
+        "users",
+        "changesets",
+        "changeset_tags"
+    });
 
     // These constants define how many rows of each data type will be inserted
     // with single insert statements.
@@ -154,9 +163,9 @@ public class ApidbWriter implements Sink, EntityProcessor {
     private static final int INSERT_BULK_ROW_COUNT_RELATION = 100;
     private static final int INSERT_BULK_ROW_COUNT_RELATION_TAG = 100;
     private static final int INSERT_BULK_ROW_COUNT_RELATION_MEMBER = 100;
-    
+
     private static final int TRANSACTION_SIZE = 100000;
-    
+
     private String insertSqlSingleNode;
     private String insertSqlBulkNode;
     private String insertSqlSingleNodeTag;
@@ -217,10 +226,10 @@ public class ApidbWriter implements Sink, EntityProcessor {
     private PreparedStatement loadCurrentNodeTagsStatement;
     private PreparedStatement loadCurrentWaysStatement;
     private PreparedStatement loadCurrentWayTagsStatement;
-	private PreparedStatement loadCurrentWayNodesStatement;
-	private PreparedStatement loadCurrentRelationsStatement;
-	private PreparedStatement loadCurrentRelationTagsStatement;
-	private PreparedStatement loadCurrentRelationMembersStatement;
+    private PreparedStatement loadCurrentWayNodesStatement;
+    private PreparedStatement loadCurrentRelationsStatement;
+    private PreparedStatement loadCurrentRelationTagsStatement;
+    private PreparedStatement loadCurrentRelationMembersStatement;
 
     /**
      * Creates a new instance.
@@ -231,7 +240,10 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * @param populateCurrentTables If true, the current tables will be populated as well as history
      *        tables.
      */
-    public ApidbWriter(DatabaseLoginCredentials loginCredentials, DatabasePreferences preferences, boolean lockTables,
+    public ApidbWriter(
+            DatabaseLoginCredentials loginCredentials,
+            DatabasePreferences preferences,
+            boolean lockTables,
             boolean populateCurrentTables) {
         dbCtx = new DatabaseContext(loginCredentials);
 
@@ -296,40 +308,35 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
         return buffer.toString();
     }
-    
-    private void buildSqlStatements() {
-    	insertSqlSingleNode = buildSqlInsertStatement(INSERT_SQL_NODE_COLUMNS, INSERT_SQL_NODE_PARAMS, 1);
-		insertSqlBulkNode = buildSqlInsertStatement(INSERT_SQL_NODE_COLUMNS, INSERT_SQL_NODE_PARAMS,
-				INSERT_BULK_ROW_COUNT_NODE);
-		insertSqlSingleNodeTag = buildSqlInsertStatement(
-				INSERT_SQL_NODE_TAG_COLUMNS, INSERT_SQL_NODE_TAG_PARAMS, 1);
-		insertSqlBulkNodeTag = buildSqlInsertStatement(INSERT_SQL_NODE_TAG_COLUMNS, INSERT_SQL_NODE_TAG_PARAMS,
-				INSERT_BULK_ROW_COUNT_NODE_TAG);
-		insertSqlSingleWay = buildSqlInsertStatement(INSERT_SQL_WAY_COLUMNS, INSERT_SQL_WAY_PARAMS, 1);
-		insertSqlBulkWay = buildSqlInsertStatement(INSERT_SQL_WAY_COLUMNS, INSERT_SQL_WAY_PARAMS,
-				INSERT_BULK_ROW_COUNT_WAY);
-		insertSqlSingleWayTag = buildSqlInsertStatement(INSERT_SQL_WAY_TAG_COLUMNS, INSERT_SQL_WAY_TAG_PARAMS, 1);
-		insertSqlBulkWayTag = buildSqlInsertStatement(INSERT_SQL_WAY_TAG_COLUMNS, INSERT_SQL_WAY_TAG_PARAMS,
-				INSERT_BULK_ROW_COUNT_WAY_TAG);
-		insertSqlSingleWayNode = buildSqlInsertStatement(
-				INSERT_SQL_WAY_NODE_COLUMNS, INSERT_SQL_WAY_NODE_PARAMS, 1);
-		insertSqlBulkWayNode = buildSqlInsertStatement(INSERT_SQL_WAY_NODE_COLUMNS, INSERT_SQL_WAY_NODE_PARAMS,
-				INSERT_BULK_ROW_COUNT_WAY_NODE);
-		insertSqlSingleRelation = buildSqlInsertStatement(INSERT_SQL_RELATION_COLUMNS, INSERT_SQL_RELATION_PARAMS,
-				1);
-		insertSqlBulkRelation = buildSqlInsertStatement(INSERT_SQL_RELATION_COLUMNS, INSERT_SQL_RELATION_PARAMS,
-				INSERT_BULK_ROW_COUNT_RELATION);
-    	insertSqlSingleRelationTag = buildSqlInsertStatement(INSERT_SQL_RELATION_TAG_COLUMNS,
-				INSERT_SQL_RELATION_TAG_PARAMS, 1);
-		insertSqlBulkRelationTag = buildSqlInsertStatement(INSERT_SQL_RELATION_TAG_COLUMNS,
-				INSERT_SQL_RELATION_TAG_PARAMS, INSERT_BULK_ROW_COUNT_RELATION_TAG);
-    }
 
+    private void buildSqlStatements() {
+        insertSqlSingleNode = buildSqlInsertStatement(INSERT_SQL_NODE_COLUMNS, INSERT_SQL_NODE_PARAMS, 1);
+        insertSqlBulkNode =
+                buildSqlInsertStatement(INSERT_SQL_NODE_COLUMNS, INSERT_SQL_NODE_PARAMS, INSERT_BULK_ROW_COUNT_NODE);
+        insertSqlSingleNodeTag = buildSqlInsertStatement(INSERT_SQL_NODE_TAG_COLUMNS, INSERT_SQL_NODE_TAG_PARAMS, 1);
+        insertSqlBulkNodeTag = buildSqlInsertStatement(
+                INSERT_SQL_NODE_TAG_COLUMNS, INSERT_SQL_NODE_TAG_PARAMS, INSERT_BULK_ROW_COUNT_NODE_TAG);
+        insertSqlSingleWay = buildSqlInsertStatement(INSERT_SQL_WAY_COLUMNS, INSERT_SQL_WAY_PARAMS, 1);
+        insertSqlBulkWay =
+                buildSqlInsertStatement(INSERT_SQL_WAY_COLUMNS, INSERT_SQL_WAY_PARAMS, INSERT_BULK_ROW_COUNT_WAY);
+        insertSqlSingleWayTag = buildSqlInsertStatement(INSERT_SQL_WAY_TAG_COLUMNS, INSERT_SQL_WAY_TAG_PARAMS, 1);
+        insertSqlBulkWayTag = buildSqlInsertStatement(
+                INSERT_SQL_WAY_TAG_COLUMNS, INSERT_SQL_WAY_TAG_PARAMS, INSERT_BULK_ROW_COUNT_WAY_TAG);
+        insertSqlSingleWayNode = buildSqlInsertStatement(INSERT_SQL_WAY_NODE_COLUMNS, INSERT_SQL_WAY_NODE_PARAMS, 1);
+        insertSqlBulkWayNode = buildSqlInsertStatement(
+                INSERT_SQL_WAY_NODE_COLUMNS, INSERT_SQL_WAY_NODE_PARAMS, INSERT_BULK_ROW_COUNT_WAY_NODE);
+        insertSqlSingleRelation = buildSqlInsertStatement(INSERT_SQL_RELATION_COLUMNS, INSERT_SQL_RELATION_PARAMS, 1);
+        insertSqlBulkRelation = buildSqlInsertStatement(
+                INSERT_SQL_RELATION_COLUMNS, INSERT_SQL_RELATION_PARAMS, INSERT_BULK_ROW_COUNT_RELATION);
+        insertSqlSingleRelationTag =
+                buildSqlInsertStatement(INSERT_SQL_RELATION_TAG_COLUMNS, INSERT_SQL_RELATION_TAG_PARAMS, 1);
+        insertSqlBulkRelationTag = buildSqlInsertStatement(
+                INSERT_SQL_RELATION_TAG_COLUMNS, INSERT_SQL_RELATION_TAG_PARAMS, INSERT_BULK_ROW_COUNT_RELATION_TAG);
+    }
 
     private OsmosisRuntimeException createUnknownDbTypeException() {
         return new OsmosisRuntimeException("Unknown database type " + dbCtx.getDatabaseType() + ".");
     }
-
 
     /**
      * Initialises prepared statements and obtains database locks. Can be called multiple times.
@@ -341,20 +348,24 @@ public class ApidbWriter implements Sink, EntityProcessor {
             buildSqlStatements();
 
             switch (dbCtx.getDatabaseType()) {
-            case POSTGRESQL:
-    			insertSqlSingleRelationMember = buildSqlInsertStatement(INSERT_SQL_RELATION_MEMBER_COLUMNS,
-    					INSERT_SQL_RELATION_MEMBER_PARAMS_PGSQL, 1);
-    			insertSqlBulkRelationMember = buildSqlInsertStatement(INSERT_SQL_RELATION_MEMBER_COLUMNS,
-    					INSERT_SQL_RELATION_MEMBER_PARAMS_PGSQL, INSERT_BULK_ROW_COUNT_RELATION_MEMBER);
-                break;
-            case MYSQL:
-    			insertSqlSingleRelationMember = buildSqlInsertStatement(INSERT_SQL_RELATION_MEMBER_COLUMNS,
-    					INSERT_SQL_RELATION_MEMBER_PARAMS_MYSQL, 1);
-    			insertSqlBulkRelationMember = buildSqlInsertStatement(INSERT_SQL_RELATION_MEMBER_COLUMNS,
-    					INSERT_SQL_RELATION_MEMBER_PARAMS_MYSQL, INSERT_BULK_ROW_COUNT_RELATION_MEMBER);
-                break;
-            default:
-                throw createUnknownDbTypeException();
+                case POSTGRESQL:
+                    insertSqlSingleRelationMember = buildSqlInsertStatement(
+                            INSERT_SQL_RELATION_MEMBER_COLUMNS, INSERT_SQL_RELATION_MEMBER_PARAMS_PGSQL, 1);
+                    insertSqlBulkRelationMember = buildSqlInsertStatement(
+                            INSERT_SQL_RELATION_MEMBER_COLUMNS,
+                            INSERT_SQL_RELATION_MEMBER_PARAMS_PGSQL,
+                            INSERT_BULK_ROW_COUNT_RELATION_MEMBER);
+                    break;
+                case MYSQL:
+                    insertSqlSingleRelationMember = buildSqlInsertStatement(
+                            INSERT_SQL_RELATION_MEMBER_COLUMNS, INSERT_SQL_RELATION_MEMBER_PARAMS_MYSQL, 1);
+                    insertSqlBulkRelationMember = buildSqlInsertStatement(
+                            INSERT_SQL_RELATION_MEMBER_COLUMNS,
+                            INSERT_SQL_RELATION_MEMBER_PARAMS_MYSQL,
+                            INSERT_BULK_ROW_COUNT_RELATION_MEMBER);
+                    break;
+                default:
+                    throw createUnknownDbTypeException();
             }
 
             bulkNodeStatement = dbCtx.prepareStatement(insertSqlBulkNode);
@@ -388,7 +399,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
             // Lock tables if required to improve load performance.
             if (lockTables) {
-            	dbCtx.lockTables(LOCK_TABLES);
+                dbCtx.lockTables(LOCK_TABLES);
             }
 
             initialized = true;
@@ -475,8 +486,8 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * @param initialIndex The offset index of the first variable to set.
      * @param dbEntityTag The entity tag containing the data to be inserted.
      */
-    private void populateEntityTagParameters(PreparedStatement statement, int initialIndex,
-        DbFeatureHistory<DbFeature<Tag>> dbEntityTag) {
+    private void populateEntityTagParameters(
+            PreparedStatement statement, int initialIndex, DbFeatureHistory<DbFeature<Tag>> dbEntityTag) {
         int prmIndex;
         Tag tag;
 
@@ -502,8 +513,8 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * @param initialIndex The offset index of the first variable to set.
      * @param dbWayNode The way node containing the data to be inserted.
      */
-    private void populateWayNodeParameters(PreparedStatement statement, int initialIndex,
-        DbFeatureHistory<DbOrderedFeature<WayNode>> dbWayNode) {
+    private void populateWayNodeParameters(
+            PreparedStatement statement, int initialIndex, DbFeatureHistory<DbOrderedFeature<WayNode>> dbWayNode) {
         int prmIndex;
 
         prmIndex = initialIndex;
@@ -535,7 +546,8 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
         try {
             statement.setLong(prmIndex++, relation.getId());
-            statement.setTimestamp(prmIndex++, new Timestamp(relation.getTimestamp().getTime()));
+            statement.setTimestamp(
+                    prmIndex++, new Timestamp(relation.getTimestamp().getTime()));
             statement.setInt(prmIndex++, relation.getVersion());
             statement.setBoolean(prmIndex++, true);
             statement.setLong(prmIndex++, relation.getChangesetId());
@@ -552,8 +564,10 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * @param initialIndex The offset index of the first variable to set.
      * @param dbRelationMember The relation member containing the data to be inserted.
      */
-    private void populateRelationMemberParameters(PreparedStatement statement, int initialIndex,
-        DbFeatureHistory<DbOrderedFeature<RelationMember>> dbRelationMember) {
+    private void populateRelationMemberParameters(
+            PreparedStatement statement,
+            int initialIndex,
+            DbFeatureHistory<DbOrderedFeature<RelationMember>> dbRelationMember) {
         int prmIndex;
         RelationMember relationMember;
 
@@ -578,7 +592,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * Flushes nodes to the database. If complete is false, this will only write nodes until the
      * remaining node count is less than the multi-row insert statement row count. If complete is
      * true, all remaining rows will be written using single row insert statements.
-     * 
+     *
      * @param complete If true, all data will be written to the database. If false, some data may be
      *        left until more data is available.
      */
@@ -603,11 +617,11 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
             try {
                 bulkNodeStatement.executeUpdate();
-                
+
                 if (transactionSizeCount % TRANSACTION_SIZE == 0) {
-                	dbCtx.commit();
+                    dbCtx.commit();
                 }
-                
+
             } catch (SQLException e) {
                 throw new OsmosisRuntimeException("Unable to bulk insert nodes into the database.", e);
             }
@@ -634,7 +648,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
                 addNodeTags(node);
             }
         }
-        
+
         dbCtx.commit();
     }
 
@@ -642,7 +656,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * Flushes node tags to the database. If complete is false, this will only write node tags until
      * the remaining node tag count is less than the multi-row insert statement row count. If
      * complete is true, all remaining rows will be written using single row insert statements.
-     * 
+     *
      * @param complete If true, all data will be written to the database. If false, some data may be
      *        left until more data is available.
      */
@@ -659,9 +673,9 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
             try {
                 bulkNodeTagStatement.executeUpdate();
-                
+
                 if (transactionSizeCount % TRANSACTION_SIZE == 0) {
-                	dbCtx.commit();
+                    dbCtx.commit();
                 }
             } catch (SQLException e) {
                 throw new OsmosisRuntimeException("Unable to bulk insert node tags into the database.", e);
@@ -679,7 +693,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
                 }
             }
         }
-        
+
         dbCtx.commit();
     }
 
@@ -687,7 +701,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * Flushes ways to the database. If complete is false, this will only write ways until the
      * remaining way count is less than the multi-row insert statement row count. If complete is
      * true, all remaining rows will be written using single row insert statements.
-     * 
+     *
      * @param complete If true, all data will be written to the database. If false, some data may be
      *        left until more data is available.
      */
@@ -712,9 +726,9 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
             try {
                 bulkWayStatement.executeUpdate();
-                
+
                 if (transactionSizeCount % TRANSACTION_SIZE == 0) {
-                	dbCtx.commit();
+                    dbCtx.commit();
                 }
             } catch (SQLException e) {
                 throw new OsmosisRuntimeException("Unable to bulk insert ways into the database.", e);
@@ -744,7 +758,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
                 addWayNodes(way);
             }
         }
-        
+
         dbCtx.commit();
     }
 
@@ -752,7 +766,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * Flushes way tags to the database. If complete is false, this will only write way tags until
      * the remaining way tag count is less than the multi-row insert statement row count. If
      * complete is true, all remaining rows will be written using single row insert statements.
-     * 
+     *
      * @param complete If true, all data will be written to the database. If false, some data may be
      *        left until more data is available.
      */
@@ -769,9 +783,9 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
             try {
                 bulkWayTagStatement.executeUpdate();
-                
+
                 if (transactionSizeCount % TRANSACTION_SIZE == 0) {
-                	dbCtx.commit();
+                    dbCtx.commit();
                 }
             } catch (SQLException e) {
                 throw new OsmosisRuntimeException("Unable to bulk insert way tags into the database.", e);
@@ -789,7 +803,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
                 }
             }
         }
-        
+
         dbCtx.commit();
     }
 
@@ -797,7 +811,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * Flushes way nodes to the database. If complete is false, this will only write way nodes until
      * the remaining way node count is less than the multi-row insert statement row count. If
      * complete is true, all remaining rows will be written using single row insert statements.
-     * 
+     *
      * @param complete If true, all data will be written to the database. If false, some data may be
      *        left until more data is available.
      */
@@ -815,7 +829,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
             try {
                 bulkWayNodeStatement.executeUpdate();
                 if (transactionSizeCount % TRANSACTION_SIZE == 0) {
-                	dbCtx.commit();
+                    dbCtx.commit();
                 }
             } catch (SQLException e) {
                 throw new OsmosisRuntimeException("Unable to bulk insert way nodes into the database.", e);
@@ -833,7 +847,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
                 }
             }
         }
-        
+
         dbCtx.commit();
     }
 
@@ -841,7 +855,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * Flushes relations to the database. If complete is false, this will only write relations until
      * the remaining way count is less than the multi-row insert statement row count. If complete is
      * true, all remaining rows will be written using single row insert statements.
-     * 
+     *
      * @param complete If true, all data will be written to the database. If false, some data may be
      *        left until more data is available.
      */
@@ -867,7 +881,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
             try {
                 bulkRelationStatement.executeUpdate();
                 if (transactionSizeCount % TRANSACTION_SIZE == 0) {
-                	dbCtx.commit();
+                    dbCtx.commit();
                 }
             } catch (SQLException e) {
                 throw new OsmosisRuntimeException("Unable to bulk insert relations into the database.", e);
@@ -897,7 +911,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
                 addRelationMembers(relation);
             }
         }
-        
+
         dbCtx.commit();
     }
 
@@ -906,7 +920,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * tags until the remaining relation tag count is less than the multi-row insert statement row
      * count. If complete is true, all remaining rows will be written using single row insert
      * statements.
-     * 
+     *
      * @param complete If true, all data will be written to the database. If false, some data may be
      *        left until more data is available.
      */
@@ -924,7 +938,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
             try {
                 bulkRelationTagStatement.executeUpdate();
                 if (transactionSizeCount % TRANSACTION_SIZE == 0) {
-                	dbCtx.commit();
+                    dbCtx.commit();
                 }
             } catch (SQLException e) {
                 throw new OsmosisRuntimeException("Unable to bulk insert relation tags into the database.", e);
@@ -942,7 +956,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
                 }
             }
         }
-        
+
         dbCtx.commit();
     }
 
@@ -951,7 +965,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * members until the remaining relation member count is less than the multi-row insert statement
      * row count. If complete is true, all remaining rows will be written using single row insert
      * statements.
-     * 
+     *
      * @param complete If true, all data will be written to the database. If false, some data may be
      *        left until more data is available.
      */
@@ -969,7 +983,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
             try {
                 bulkRelationMemberStatement.executeUpdate();
                 if (transactionSizeCount % TRANSACTION_SIZE == 0) {
-                	dbCtx.commit();
+                    dbCtx.commit();
                 }
             } catch (SQLException e) {
                 throw new OsmosisRuntimeException("Unable to bulk insert relation members into the database.", e);
@@ -987,11 +1001,10 @@ public class ApidbWriter implements Sink, EntityProcessor {
                 }
             }
         }
-        
+
         dbCtx.commit();
     }
-    
-    
+
     private void populateCurrentNodes() {
         // Copy data into the current node tables.
         for (long i = minNodeId; i < maxNodeId; i += LOAD_CURRENT_NODE_ROW_COUNT) {
@@ -1020,8 +1033,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
             dbCtx.commit();
         }
     }
-    
-    
+
     private void populateCurrentWays() {
         for (long i = minWayId; i < maxWayId; i += LOAD_CURRENT_WAY_ROW_COUNT) {
             // Way
@@ -1060,8 +1072,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
             dbCtx.commit();
         }
     }
-    
-    
+
     private void populateCurrentRelations() {
         for (long i = minRelationId; i < maxRelationId; i += LOAD_CURRENT_RELATION_ROW_COUNT) {
             // Way
@@ -1100,24 +1111,21 @@ public class ApidbWriter implements Sink, EntityProcessor {
             dbCtx.commit();
         }
     }
-    
-    
+
     private void populateCurrentTables() {
-    	if (populateCurrentTables) {
-    		populateCurrentNodes();
-    		populateCurrentWays();
-    		populateCurrentRelations();
+        if (populateCurrentTables) {
+            populateCurrentNodes();
+            populateCurrentWays();
+            populateCurrentRelations();
         }
     }
-
 
     /**
      * {@inheritDoc}
      */
     public void initialize(Map<String, Object> metaData) {
-		// Do nothing.
-	}
-
+        // Do nothing.
+    }
 
     /**
      * Writes any buffered data to the database and commits.
@@ -1142,7 +1150,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
         // Unlock tables (if they were locked) now that we have completed.
         if (lockTables) {
-        	dbCtx.unlockTables(LOCK_TABLES);
+            dbCtx.unlockTables(LOCK_TABLES);
         }
 
         dbCtx.commit();
@@ -1161,8 +1169,8 @@ public class ApidbWriter implements Sink, EntityProcessor {
      * {@inheritDoc}
      */
     public void process(EntityContainer entityContainer) {
-    	Entity entity;
-    	
+        Entity entity;
+
         initialize();
 
         entity = entityContainer.getEntity();
@@ -1193,7 +1201,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
             maxNodeId = nodeId + 1;
         }
         if (nodeId < minNodeId) {
-          minNodeId = nodeId;
+            minNodeId = nodeId;
         }
 
         nodeBuffer.add(node);
@@ -1203,13 +1211,13 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
     /**
      * Process the node tags.
-     * 
+     *
      * @param node The node to be processed.
      */
     private void addNodeTags(Node node) {
         for (Tag tag : node.getTags()) {
-            nodeTagBuffer.add(new DbFeatureHistory<DbFeature<Tag>>(new DbFeature<Tag>(node.getId(), tag), node
-                    .getVersion()));
+            nodeTagBuffer.add(
+                    new DbFeatureHistory<DbFeature<Tag>>(new DbFeature<Tag>(node.getId(), tag), node.getVersion()));
         }
 
         flushNodeTags(false);
@@ -1231,7 +1239,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
             maxWayId = wayId + 1;
         }
         if (wayId < minWayId) {
-          minWayId = wayId;
+            minWayId = wayId;
         }
         wayBuffer.add(way);
 
@@ -1240,13 +1248,13 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
     /**
      * Process the way tags.
-     * 
+     *
      * @param way The way to be processed.
      */
     private void addWayTags(Way way) {
         for (Tag tag : way.getTags()) {
-            wayTagBuffer.add(new DbFeatureHistory<DbFeature<Tag>>(new DbFeature<Tag>(way.getId(), tag), way
-                    .getVersion()));
+            wayTagBuffer.add(
+                    new DbFeatureHistory<DbFeature<Tag>>(new DbFeature<Tag>(way.getId(), tag), way.getVersion()));
         }
 
         flushWayTags(false);
@@ -1254,7 +1262,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
     /**
      * Process the way nodes.
-     * 
+     *
      * @param way The way to be processed.
      */
     private void addWayNodes(Way way) {
@@ -1263,8 +1271,8 @@ public class ApidbWriter implements Sink, EntityProcessor {
         nodeReferenceList = way.getWayNodes();
 
         for (int i = 0; i < nodeReferenceList.size(); i++) {
-            wayNodeBuffer.add(new DbFeatureHistory<DbOrderedFeature<WayNode>>(new DbOrderedFeature<WayNode>(
-                    way.getId(), nodeReferenceList.get(i), i + 1), way.getVersion()));
+            wayNodeBuffer.add(new DbFeatureHistory<DbOrderedFeature<WayNode>>(
+                    new DbOrderedFeature<WayNode>(way.getId(), nodeReferenceList.get(i), i + 1), way.getVersion()));
         }
 
         flushWayNodes(false);
@@ -1286,7 +1294,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
             maxRelationId = relationId + 1;
         }
         if (relationId < minRelationId) {
-          minRelationId = relationId;
+            minRelationId = relationId;
         }
         relationBuffer.add(relation);
 
@@ -1295,13 +1303,13 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
     /**
      * Process the relation tags.
-     * 
+     *
      * @param relation The relation to be processed.
      */
     private void addRelationTags(Relation relation) {
         for (Tag tag : relation.getTags()) {
-            relationTagBuffer.add(new DbFeatureHistory<DbFeature<Tag>>(new DbFeature<Tag>(relation.getId(), tag),
-                    relation.getVersion()));
+            relationTagBuffer.add(new DbFeatureHistory<DbFeature<Tag>>(
+                    new DbFeature<Tag>(relation.getId(), tag), relation.getVersion()));
         }
 
         flushRelationTags(false);
@@ -1309,7 +1317,7 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
     /**
      * Process the relation members.
-     * 
+     *
      * @param relation The relation to be processed.
      */
     private void addRelationMembers(Relation relation) {
@@ -1319,8 +1327,8 @@ public class ApidbWriter implements Sink, EntityProcessor {
 
         for (int i = 0; i < memberReferenceList.size(); i++) {
             relationMemberBuffer.add(new DbFeatureHistory<DbOrderedFeature<RelationMember>>(
-                    new DbOrderedFeature<RelationMember>(relation.getId(), memberReferenceList.get(i), i + 1), relation
-                            .getVersion()));
+                    new DbOrderedFeature<RelationMember>(relation.getId(), memberReferenceList.get(i), i + 1),
+                    relation.getVersion()));
         }
 
         flushRelationMembers(false);

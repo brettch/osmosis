@@ -8,33 +8,28 @@ import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManager;
 import org.openstreetmap.osmosis.core.pipeline.v0_6.ChangeSinkManager;
 
-
 /**
  * The task manager factory for a database change writer.
- * 
+ *
  * @author Brett Henderson
  */
 public class PostgreSqlChangeWriterFactory extends DatabaseTaskManagerFactory {
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
-		DatabaseLoginCredentials loginCredentials;
-		DatabasePreferences preferences;
-		
-		// Get the task arguments.
-		loginCredentials = getDatabaseLoginCredentials(taskConfig);
-		preferences = getDatabasePreferences(taskConfig);
-		
-		return new ChangeSinkManager(
-			taskConfig.getId(),
-			new PostgreSqlChangeWriter(
-				loginCredentials,
-				preferences
-			),
-			taskConfig.getPipeArgs()
-		);
-	}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TaskManager createTaskManagerImpl(TaskConfiguration taskConfig) {
+        DatabaseLoginCredentials loginCredentials;
+        DatabasePreferences preferences;
+
+        // Get the task arguments.
+        loginCredentials = getDatabaseLoginCredentials(taskConfig);
+        preferences = getDatabasePreferences(taskConfig);
+
+        return new ChangeSinkManager(
+                taskConfig.getId(),
+                new PostgreSqlChangeWriter(loginCredentials, preferences),
+                taskConfig.getPipeArgs());
+    }
 }

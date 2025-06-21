@@ -5,14 +5,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
 import org.openstreetmap.osmosis.core.task.v0_6.RunnableSource;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
-
 import org.openstreetmap.osmosis.xml.common.CompressionMethod;
 import org.openstreetmap.osmosis.xml.v0_6.impl.BaseXMLReader;
 import org.openstreetmap.osmosis.xml.v0_6.impl.FastXmlParser;
@@ -22,39 +19,39 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * An OSM data source reading from an xml file. The entire contents of the file
  * are read.
- * 
+ *
  * @author Jiri Clement
  * @author Brett Henderson
  */
 public class FastXmlReader extends BaseXMLReader implements RunnableSource {
-	private Sink sink;
-		
-	/**
+    private Sink sink;
+
+    /**
      * Creates a new instance.
-	 * 
-	 * @param file
-	 *            The file to read.
-	 * @param enableDateParsing
-	 *            If true, dates will be parsed from xml data, else the current
+     *
+     * @param file
+     *            The file to read.
+     * @param enableDateParsing
+     *            If true, dates will be parsed from xml data, else the current
      *            date will be used thus saving parsing time.
      * @param compressionMethod
-	 *            Specifies the compression method to employ.
-	 */
-	public FastXmlReader(File file, boolean enableDateParsing, CompressionMethod compressionMethod) {
+     *            Specifies the compression method to employ.
+     */
+    public FastXmlReader(File file, boolean enableDateParsing, CompressionMethod compressionMethod) {
         super(file, enableDateParsing, compressionMethod);
-	}
-		
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setSink(Sink sink) {
-		this.sink = sink;
-	}
-		
-	/**
-	 * Reads all data from the file and send it to the sink.
-	 */
-	public void run() {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setSink(Sink sink) {
+        this.sink = sink;
+    }
+
+    /**
+     * Reads all data from the file and send it to the sink.
+     */
+    public void run() {
         try {
             this.sink.initialize(Collections.emptyMap());
             this.handleXML(null);
@@ -62,11 +59,10 @@ public class FastXmlReader extends BaseXMLReader implements RunnableSource {
         } finally {
             this.sink.close();
         }
-	}
+    }
 
     @Override
-    protected void parseXML(InputStream stream, DefaultHandler handler)
-                    throws SAXException, IOException {
+    protected void parseXML(InputStream stream, DefaultHandler handler) throws SAXException, IOException {
         try {
             final XMLInputFactory factory = XMLInputFactory.newInstance();
             factory.setProperty(XMLInputFactory.IS_COALESCING, false);

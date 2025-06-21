@@ -6,7 +6,6 @@ import org.openstreetmap.osmosis.core.pipeline.common.TaskManager;
 import org.openstreetmap.osmosis.core.pipeline.v0_6.ChangeSinkManager;
 import org.openstreetmap.osmosis.xml.common.XmlTaskManagerFactory;
 
-
 /**
  * The task manager factory for an {@link XmlChangeUploader}.
  *
@@ -35,37 +34,17 @@ public class XmlChangeUploaderFactory extends XmlTaskManagerFactory {
      * {@inheritDoc}
      */
     @Override
-    protected final TaskManager createTaskManagerImpl(
-            final TaskConfiguration taskConfig) {
+    protected final TaskManager createTaskManagerImpl(final TaskConfiguration taskConfig) {
 
         // Get the task arguments.
-        String userName = getStringArgument(
-            taskConfig,
-            ARG_USER_NAME
-        );
-        String password = getStringArgument(
-                taskConfig,
-                ARG_PASSWORD
-            );
-        String baseURL = getStringArgument(
-            taskConfig,
-            ARG_BASEURL,
-            null
-        );
-        String comment = getStringArgument(
-                taskConfig,
-                ARG_COMMENT,
-                ""
-            );
+        String userName = getStringArgument(taskConfig, ARG_USER_NAME);
+        String password = getStringArgument(taskConfig, ARG_PASSWORD);
+        String baseURL = getStringArgument(taskConfig, ARG_BASEURL, null);
+        String comment = getStringArgument(taskConfig, ARG_COMMENT, "");
 
         // Build the task object.
-       XmlChangeUploader task = new XmlChangeUploader(
-               baseURL,
-               userName,
-               password,
-               comment);
+        XmlChangeUploader task = new XmlChangeUploader(baseURL, userName, password, comment);
 
-        return new ChangeSinkManager(taskConfig.getId(),
-                                     task, taskConfig.getPipeArgs());
+        return new ChangeSinkManager(taskConfig.getId(), task, taskConfig.getPipeArgs());
     }
 }

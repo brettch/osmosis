@@ -6,20 +6,17 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 import org.openstreetmap.osmosis.core.task.v0_6.SinkSource;
 import org.openstreetmap.osmosis.tagtransform.impl.TransformHelper;
 
-
 public class TransformTask extends TransformHelper<Sink> implements SinkSource {
 
-	public TransformTask(String configFile, String statsFile) {
-		super(configFile, statsFile);
-	}
+    public TransformTask(String configFile, String statsFile) {
+        super(configFile, statsFile);
+    }
 
-
-	@Override
-	public void process(EntityContainer entityContainer) {
-		EntityContainer output = processEntityContainer(entityContainer);
-		if (output != null) {
-			sink.process(output);
-		}
-	}
-
+    @Override
+    public void process(EntityContainer entityContainer) {
+        EntityContainer output = processEntityContainer(entityContainer);
+        if (output != null) {
+            sink.process(output);
+        }
+    }
 }

@@ -7,25 +7,24 @@ package org.openstreetmap.osmosis.core.store;
  * store location.
  */
 public interface StoreClassRegister {
-	
-	/**
-	 * Stores the unique identifier for the specified class to the store.
-	 * 
-	 * @param storeWriter
-	 *            The store to write class identification data to.
-	 * @param clazz
-	 *            The class for which an identifier is required.
-	 */
-	void storeIdentifierForClass(StoreWriter storeWriter, Class<?> clazz);
-	
-	
-	/**
-	 * Returns the class associated with the unique identifier in the store. An
-	 * exception will be thrown if the identifier is not recognised.
-	 * 
-	 * @param storeReader
-	 *            The store to read class identification information from.
-	 * @return The class associated with the identifier.
-	 */
-	Class<?> getClassFromIdentifier(StoreReader storeReader);
+
+    /**
+     * Stores the unique identifier for the specified class to the store.
+     *
+     * @param storeWriter
+     *            The store to write class identification data to.
+     * @param clazz
+     *            The class for which an identifier is required.
+     */
+    void storeIdentifierForClass(StoreWriter storeWriter, Class<?> clazz);
+
+    /**
+     * Returns the class associated with the unique identifier in the store. An
+     * exception will be thrown if the identifier is not recognised.
+     *
+     * @param storeReader
+     *            The store to read class identification information from.
+     * @return The class associated with the identifier.
+     */
+    Class<?> getClassFromIdentifier(StoreReader storeReader);
 }
