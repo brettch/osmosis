@@ -1,4 +1,5 @@
 dependencies {
     implementation project(':osmosis-core')
-    implementation libs.junit
+    implementation platform(libs.junit.bom)
+    implementation libs.junit.jupiter
 }

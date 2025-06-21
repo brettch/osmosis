@@ -60,6 +60,8 @@ configure(javaProjects) {
 	}
 
 	test {
+		useJUnitPlatform()
+
 		/*
 		 * Pass on each of our custom properties to the unit tests if they have
 		 * been provided.
@@ -74,7 +76,9 @@ configure(javaProjects) {
 	}
 
 	dependencies {
-		testImplementation libs.junit
+		testImplementation platform(libs.junit.bom)
+		testImplementation libs.junit.jupiter
+		testRuntimeOnly libs.junit.platform.launcher
 	}
 
 	// Configure the maven-publish plugin to upload artifacts to the Sonatype repository.
