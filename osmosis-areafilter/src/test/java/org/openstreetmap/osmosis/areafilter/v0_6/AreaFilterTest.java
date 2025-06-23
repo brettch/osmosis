@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.areafilter.v0_6;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -14,12 +13,9 @@ public class AreaFilterTest extends AbstractDataTest {
 
     /**
      * A basic test verifying that the area filter includes all data when the complete planet is selected.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testEntirePlanet() throws IOException {
+    public void testEntirePlanet() {
         File inputFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -46,12 +42,9 @@ public class AreaFilterTest extends AbstractDataTest {
 
     /**
      * Performs a standard bounding box filter.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testBboxFilterStandard() throws IOException {
+    public void testBboxFilterStandard() {
         File inputFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -82,12 +75,9 @@ public class AreaFilterTest extends AbstractDataTest {
 
     /**
      * Performs a standard bounding box filter with the cascadingRelations feature added.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testBboxFilterCascadingRelations() throws IOException {
+    public void testBboxFilterCascadingRelations() {
         File inputFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -119,12 +109,9 @@ public class AreaFilterTest extends AbstractDataTest {
 
     /**
      * Performs a bounding box filter with the completeWays option enabled.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testBboxFilterCompleteWays() throws IOException {
+    public void testBboxFilterCompleteWays() {
         File inputFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -156,12 +143,9 @@ public class AreaFilterTest extends AbstractDataTest {
 
     /**
      * Performs a bounding box filter with the completeRelations option enabled.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testBboxFilterCompleteRelations() throws IOException {
+    public void testBboxFilterCompleteRelations() {
         File inputFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -193,12 +177,9 @@ public class AreaFilterTest extends AbstractDataTest {
 
     /**
      * Performs a bounding box filter with the clipIncompleteEntities option enabled.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testBboxFilterClipIncompleteEntities() throws IOException {
+    public void testBboxFilterClipIncompleteEntities() {
         File inputFile;
         File expectedOutputFile;
         File actualOutputFile;

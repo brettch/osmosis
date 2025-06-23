@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.set.v0_6;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -15,12 +14,9 @@ import org.openstreetmap.osmosis.testutil.AbstractDataTest;
 public class FlattenFilterTest extends AbstractDataTest {
     /**
      * Tests that a set of changes is simplified correctly.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void commonCase() throws IOException {
+    public void commonCase() {
         File sourceFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -41,12 +37,9 @@ public class FlattenFilterTest extends AbstractDataTest {
     /**
      * Tests that simplifying an already simple change successfully
      * yields the same change.
-     *
-     * @throws Exception
-     *             if anything fails.
      */
     @Test
-    public void alreadyFlattened() throws Exception {
+    public void alreadyFlattened() {
         File sourceFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -65,12 +58,9 @@ public class FlattenFilterTest extends AbstractDataTest {
     /**
      * Tests that simplifying an empty change successfully
      * yields an empty change.
-     *
-     * @throws Exception
-     *             if anything fails.
      */
     @Test
-    public void empty() throws Exception {
+    public void empty() {
         File expectedOutputFile;
         File actualOutputFile;
 

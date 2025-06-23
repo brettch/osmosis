@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.apidb.v0_6;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,7 +30,7 @@ public class ApiDbTest extends AbstractDataTest {
         dbUtils = new DatabaseUtilities(dataUtils);
     }
 
-    private String convertUTCTimeToLocalTime(String dateString) throws ParseException {
+    private String convertUTCTimeToLocalTime(String dateString) {
         DateFormat inFormat;
         DateFormat outFormat;
         Date date;
@@ -40,7 +39,11 @@ public class ApiDbTest extends AbstractDataTest {
         inFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         outFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 
-        date = inFormat.parse(dateString);
+        try {
+            date = inFormat.parse(dateString);
+        } catch (ParseException e) {
+            throw new RuntimeException("Failed to parse date: " + dateString, e);
+        }
 
         return outFormat.format(date);
     }
@@ -48,11 +51,9 @@ public class ApiDbTest extends AbstractDataTest {
     /**
      * A basic test loading an osm file into a mysql database, then dumping it again and verifying
      * that it is identical.
-     *
-     * @throws IOException if any file operations fail.
      */
     @Test
-    public void testLoadAndDump() throws IOException {
+    public void testLoadAndDump() {
         File authFile;
         File inputFile;
         File outputFile;
@@ -93,11 +94,9 @@ public class ApiDbTest extends AbstractDataTest {
     /**
      * A basic test loading an osm file into a apidb database, then dumping it from current tables
      * and verifying that it is identical.
-     *
-     * @throws IOException if any file operations fail.
      */
     @Test
-    public void testLoadAndCurrentDump() throws IOException {
+    public void testLoadAndCurrentDump() {
         File authFile;
         File inputFile;
         File outputFile;
@@ -105,7 +104,7 @@ public class ApiDbTest extends AbstractDataTest {
         // Generate input files.
         authFile = dbUtils.getAuthorizationFile();
         inputFile = dataUtils.createDataFile("v0_6/db-snapshot.osm");
-        outputFile = File.createTempFile("test", ".osm");
+        outputFile = dataUtils.newFile();
 
         // Remove all existing data from the database.
         dbUtils.truncateDatabase();
@@ -138,11 +137,9 @@ public class ApiDbTest extends AbstractDataTest {
     /**
      * A test loading an osm file into a apidb database, then applying a changeset, then dumping it
      * again and verifying the output is as expected.
-     *
-     * @throws IOException if any file operations fail.
      */
     @Test
-    public void testApplyChangeset() throws IOException {
+    public void testApplyChangeset() {
         File authFile;
         File snapshotFile;
         File changesetFile;
@@ -154,7 +151,7 @@ public class ApiDbTest extends AbstractDataTest {
         snapshotFile = dataUtils.createDataFile("v0_6/db-snapshot.osm");
         changesetFile = dataUtils.createDataFile("v0_6/db-changeset.osc");
         expectedResultFile = dataUtils.createDataFile("v0_6/db-changeset-expected.osm");
-        actualResultFile = File.createTempFile("test", ".osm");
+        actualResultFile = dataUtils.newFile();
 
         // Remove all existing data from the database.
         dbUtils.truncateDatabase();
@@ -197,12 +194,9 @@ public class ApiDbTest extends AbstractDataTest {
     /**
      * A test loading an osm file into a apidb database, then applying a changeset, then dumping the
      * original snapshot timeframe and verifying the output is as expected.
-     *
-     * @throws IOException if any file operations fail.
-     * @throws ParseException if any date operations fail.
      */
     @Test
-    public void testSnapshotDump() throws IOException, ParseException {
+    public void testSnapshotDump() {
         File authFile;
         File snapshotFile;
         File changesetFile;
@@ -214,7 +208,7 @@ public class ApiDbTest extends AbstractDataTest {
         snapshotFile = dataUtils.createDataFile("v0_6/db-snapshot.osm");
         changesetFile = dataUtils.createDataFile("v0_6/db-changeset.osc");
         expectedResultFile = dataUtils.createDataFile("v0_6/db-snapshot-b.osm");
-        actualResultFile = File.createTempFile("test", ".osm");
+        actualResultFile = dataUtils.newFile();
 
         // Remove all existing data from the database.
         dbUtils.truncateDatabase();
@@ -258,12 +252,9 @@ public class ApiDbTest extends AbstractDataTest {
     /**
      * A test loading an osm file into a apidb database, then applying a changeset, then extracting
      * the changeset timeframe and verifying the output is as expected.
-     *
-     * @throws IOException if any file operations fail.
-     * @throws ParseException if any date operations fail.
      */
     @Test
-    public void testChangesetDump() throws IOException, ParseException {
+    public void testChangesetDump() {
         File authFile;
         File snapshotFile;
         File changesetFile;
@@ -275,7 +266,7 @@ public class ApiDbTest extends AbstractDataTest {
         snapshotFile = dataUtils.createDataFile("v0_6/db-snapshot.osm");
         changesetFile = dataUtils.createDataFile("v0_6/db-changeset.osc");
         expectedResultFile = dataUtils.createDataFile("v0_6/db-changeset-b.osc");
-        actualResultFile = File.createTempFile("test", ".osm");
+        actualResultFile = dataUtils.newFile();
 
         // Remove all existing data from the database.
         dbUtils.truncateDatabase();

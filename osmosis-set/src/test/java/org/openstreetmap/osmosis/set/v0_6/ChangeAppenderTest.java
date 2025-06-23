@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.set.v0_6;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -16,12 +15,9 @@ public class ChangeAppenderTest extends AbstractDataTest {
 
     /**
      * Tests appending two change files into a single file.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testAppend() throws IOException {
+    public void testAppend() {
         File sourceFile1;
         File sourceFile2;
         File expectedOutputFile;

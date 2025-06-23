@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.xml.v0_6;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -17,12 +16,9 @@ public class XmlReaderWriterTest extends AbstractDataTest {
     /**
      * A basic test reading and writing an osm file testing both reader and
      * writer tasks.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testSimple() throws IOException {
+    public void testSimple() {
         File inputFile;
         File outputFile;
 
@@ -41,12 +37,9 @@ public class XmlReaderWriterTest extends AbstractDataTest {
     /**
      * A basic test reading and writing an osm file testing both reader and
      * writer tasks.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testSimpleCompressed() throws IOException {
+    public void testSimpleCompressed() {
         File uncompressedFile;
         File workingFolder;
         File inputFile;

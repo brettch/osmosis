@@ -4,7 +4,6 @@ package org.openstreetmap.osmosis.set.v0_6;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
@@ -29,32 +28,26 @@ public class ChangeDeriverTest extends AbstractDataTest {
 
     /**
      * Empty inputs should yield empty change.
-     *
-     * @throws Exception if something goes wrong.
      */
     @Test
-    public void emptyInputs() throws Exception {
+    public void emptyInputs() {
         deriveChange("v0_6/empty-entity.osm", "v0_6/empty-entity.osm", "v0_6/empty-change.osc");
     }
 
     /**
      * Same inputs should yield empty change.
-     *
-     * @throws Exception if something goes wrong.
      */
     @Test
-    public void sameInputs() throws Exception {
+    public void sameInputs() {
         deriveChange("v0_6/derive_change/simple.osm", "v0_6/derive_change/simple.osm", "v0_6/empty-change.osc");
     }
 
     /**
      * Deriving change with an empty left input should yield
      * a change with deletes only.
-     *
-     * @throws Exception if something goes wrong.
      */
     @Test
-    public void leftEmpty() throws Exception {
+    public void leftEmpty() {
         deriveChange("v0_6/empty-entity.osm", "v0_6/derive_change/simple.osm", "v0_6/derive_change/full-create.osc");
     }
 
@@ -101,8 +94,7 @@ public class ChangeDeriverTest extends AbstractDataTest {
         assertEquals(78, e.getVersion());
     }
 
-    private void deriveChange(String leftFileName, String rightFileName, String expectedOutputFileName)
-            throws IOException {
+    private void deriveChange(String leftFileName, String rightFileName, String expectedOutputFileName) {
         File leftFile;
         File rightFile;
         File expectedOutputFile;

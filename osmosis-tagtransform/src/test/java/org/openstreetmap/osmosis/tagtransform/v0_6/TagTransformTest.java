@@ -18,12 +18,9 @@ public class TagTransformTest extends AbstractDataTest {
 
     /**
      * Tests transforming all tags in a single OSM file.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testTransform() throws IOException {
+    public void testTransform() {
         File sourceFile;
         File translationFile;
         File expectedOutputFile;

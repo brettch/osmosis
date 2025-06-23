@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.tagfilter.v0_6;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -16,12 +15,9 @@ public class TagRemoverTest extends AbstractDataTest {
 
     /**
      * Tests tag removal functionality using full key names.
-     *
-     * @throws IOException
-     *             if file manipulation fails.
      */
     @Test
-    public void testKey() throws IOException {
+    public void testKey() {
         File inputFile;
         File outputFile;
         File expectedResultFile;
@@ -47,12 +43,9 @@ public class TagRemoverTest extends AbstractDataTest {
 
     /**
      * Tests tag removal functionality using full key names.
-     *
-     * @throws IOException
-     *             if file manipulation fails.
      */
     @Test
-    public void testKeyPrefix() throws IOException {
+    public void testKeyPrefix() {
         File inputFile;
         File outputFile;
         File expectedResultFile;

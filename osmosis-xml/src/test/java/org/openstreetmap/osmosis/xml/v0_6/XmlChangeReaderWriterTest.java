@@ -4,7 +4,6 @@ package org.openstreetmap.osmosis.xml.v0_6;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.misc.v0_6.NullChangeWriter;
@@ -22,12 +21,9 @@ public class XmlChangeReaderWriterTest extends AbstractDataTest {
     /**
      * A basic test reading and writing an osm file testing both reader and
      * writer tasks.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testSimple() throws IOException {
+    public void testSimple() {
         XmlChangeReader xmlReader;
         XmlChangeWriter xmlWriter;
         File inputFile;
@@ -50,11 +46,9 @@ public class XmlChangeReaderWriterTest extends AbstractDataTest {
 
     /**
      * Tests acceptance of nodes in a delete change with lat/lon attribute not set.
-     *
-     * @throws Exception if something goes wrong.
      */
     @Test
-    public void testDeleteLatLonNotSet() throws Exception {
+    public void testDeleteLatLonNotSet() {
         XmlChangeReader xmlReader;
         XmlChangeWriter xmlWriter;
         File inputFile;
@@ -77,11 +71,9 @@ public class XmlChangeReaderWriterTest extends AbstractDataTest {
 
     /**
      * Tests non-acceptance of nodes in a non-delete change with lat/lon attribute not set.
-     *
-     * @throws Exception if something goes wrong.
      */
     @Test
-    public void testNonDeleteLatLonNotSet() throws Exception {
+    public void testNonDeleteLatLonNotSet() {
         File inputFile = dataUtils.createDataFile("v0_6/xml-create-no-coordinates.osc");
         XmlChangeReader reader = new XmlChangeReader(inputFile, false, CompressionMethod.None);
         reader.setChangeSink(new NullChangeWriter());

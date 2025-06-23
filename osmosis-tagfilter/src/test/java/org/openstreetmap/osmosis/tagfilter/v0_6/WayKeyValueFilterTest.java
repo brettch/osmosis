@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.tagfilter.v0_6;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -17,29 +16,23 @@ public class WayKeyValueFilterTest extends AbstractDataTest {
     /**
      * Tests the way key-value filter when allowed value pairs are read from
      * comma separated list of values.
-     *
-     * @throws IOException
-     *             if file manipulation fails.
      */
     @Test
-    public final void testWayKeyValueFilterFromList() throws IOException {
+    public final void testWayKeyValueFilterFromList() {
         testWayKeyValueFilter("keyValueList=box_type.lamp_box,box_type.wall");
     }
 
     /**
      * Tests the way key-value filter when allowed value pairs are read from
      * file.
-     *
-     * @throws IOException
-     *             if file manipulation fails.
      */
     @Test
-    public final void testWayKeyValueFilterFromFile() throws IOException {
+    public final void testWayKeyValueFilterFromFile() {
         File allowedPairs = dataUtils.createDataFile("v0_6/allowed-key-values.txt");
         testWayKeyValueFilter("keyValueListFile=" + allowedPairs.getPath());
     }
 
-    private void testWayKeyValueFilter(String keyValueListOption) throws IOException {
+    private void testWayKeyValueFilter(String keyValueListOption) {
 
         File inputFile = dataUtils.createDataFile("v0_6/way-key-value-filter-snapshot.osm");
         File expectedResultFile = dataUtils.createDataFile("v0_6/way-key-value-filter-expected.osm");

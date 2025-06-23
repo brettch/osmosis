@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.pgsimple.v0_6;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -21,12 +20,9 @@ public class PostgreSqlTest extends AbstractDataTest {
     /**
      * A basic test loading an osm file into a pgsql database, then dumping it
      * again and verifying that it is identical.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testLoadAndDump() throws IOException {
+    public void testLoadAndDump() {
         File authFile;
         File inputFile;
         File outputFile;
@@ -62,12 +58,9 @@ public class PostgreSqlTest extends AbstractDataTest {
     /**
      * A basic test loading an osm file into a pgsql database using the COPY
      * file approach, then dumping it again and verifying that it is identical.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testFastLoadAndDump() throws IOException {
+    public void testFastLoadAndDump() {
         File authFile;
         File inputFile;
         File outputFile;
@@ -103,12 +96,9 @@ public class PostgreSqlTest extends AbstractDataTest {
     /**
      * A test loading an osm file into a pgsql database, then applying a
      * changeset, then dumping it again and verifying the output is as expected.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testChangeset() throws IOException {
+    public void testChangeset() {
         File authFile;
         File snapshotFile;
         File changesetFile;
@@ -157,12 +147,9 @@ public class PostgreSqlTest extends AbstractDataTest {
     /**
      * A test loading an osm file into a pgsql database, then making some modifications via the
      * dataset api, then dumping it again and verifying the output is as expected.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testDataset() throws IOException {
+    public void testDataset() {
         File authFile;
         File snapshotFile;
         File expectedResultFile;

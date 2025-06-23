@@ -2,7 +2,6 @@
 package org.openstreetmap.osmosis.apidb.v0_6;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.DatabaseUtilities;
@@ -23,11 +22,9 @@ public class ApidbFileReplicatorTest extends AbstractDataTest {
 
     /**
      * A basic test loading an osm file into an API database and verifying that it gets replicated correctly.
-     *
-     * @throws IOException if any file operations fail.
      */
     @Test
-    public void testLoadAndDump() throws IOException {
+    public void testLoadAndDump() {
         File authFile;
         File snapshotFile;
         File changesetFile;

@@ -4,7 +4,6 @@ package org.openstreetmap.osmosis.set.v0_6;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import org.junit.jupiter.api.Test;
@@ -28,12 +27,9 @@ public class ChangeSimplifierTest extends AbstractDataTest {
 
     /**
      * Tests that a set of changes is simplified correctly.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void commonCase() throws IOException {
+    public void commonCase() {
         File sourceFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -59,12 +55,9 @@ public class ChangeSimplifierTest extends AbstractDataTest {
     /**
      * Tests that simplifying an already simple change successfully
      * yields the same change.
-     *
-     * @throws IOException
-     *             if file comparisons fail.
      */
     @Test
-    public void alreadySimple() throws IOException {
+    public void alreadySimple() {
         File sourceFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -88,12 +81,9 @@ public class ChangeSimplifierTest extends AbstractDataTest {
     /**
      * Tests that simplifying an empty change successfully
      * yields an empty change.
-     *
-     * @throws IOException
-     *             if anything fails.
      */
     @Test
-    public void empty() throws IOException {
+    public void empty() {
         File expectedOutputFile;
         File actualOutputFile;
 
@@ -113,12 +103,9 @@ public class ChangeSimplifierTest extends AbstractDataTest {
 
     /**
      * Tests that badly ordered input (with respect to the version) is detected correctly.
-     *
-     * @throws IOException
-     *             if anything fails.
      */
     @Test
-    public void badSortOrderVersion() throws IOException {
+    public void badSortOrderVersion() {
         try (ChangeSimplifier simplifier = new ChangeSimplifier()) {
             simplifier.setChangeSink(new NullChangeWriter());
             simplifier.initialize(new HashMap<String, Object>());
@@ -142,12 +129,9 @@ public class ChangeSimplifierTest extends AbstractDataTest {
 
     /**
      * Tests that badly ordered input (with respect to the ids) is detected correctly.
-     *
-     * @throws Exception
-     *             if anything fails.
      */
     @Test
-    public void badSortOrderId() throws Exception {
+    public void badSortOrderId() {
         try (ChangeSimplifier simplifier = new ChangeSimplifier()) {
             simplifier.setChangeSink(new NullChangeWriter());
             simplifier.initialize(new HashMap<String, Object>());
@@ -173,7 +157,7 @@ public class ChangeSimplifierTest extends AbstractDataTest {
      * Tests that badly ordered input (with respect to the ids) is detected correctly.
      */
     @Test
-    public void badSortOrderType() throws Exception {
+    public void badSortOrderType() {
         try (ChangeSimplifier simplifier = new ChangeSimplifier()) {
             simplifier.setChangeSink(new NullChangeWriter());
             simplifier.initialize(new HashMap<String, Object>());
