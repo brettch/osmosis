@@ -1,17 +1,17 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.v0_6.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.Date;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.domain.v0_6.CommonEntityData;
 import org.openstreetmap.osmosis.core.domain.v0_6.OsmUser;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
@@ -45,7 +45,7 @@ public class WayWriterTest {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         testWriter = new StringWriter();
         testBufferedWriter = new BufferedWriter(testWriter);
@@ -71,7 +71,7 @@ public class WayWriterTest {
      * @throws IOException
      *             if stream cleanup fails.
      */
-    @After
+    @AfterEach
     public void tearDown() throws IOException {
         testBufferedWriter.close();
         testWriter.close();
@@ -95,11 +95,11 @@ public class WayWriterTest {
             fail("IOException");
         }
         String[] strArray = testWriter.toString().split("\\n", 5);
-        assertTrue("Way opening element does not match.", strArray[0].matches(wayOpeningMatch));
-        assertTrue("Way node 1 does not match.", strArray[1].matches(wayNode1Match));
-        assertTrue("Way node 2 does not match.", strArray[2].matches(wayNode2Match));
-        assertTrue("Way tag does not match.", strArray[3].matches(wayTagMatch));
-        assertTrue("Way closing element does not match.", strArray[4].matches(wayClosingMatch));
+        assertTrue(strArray[0].matches(wayOpeningMatch), "Way opening element does not match.");
+        assertTrue(strArray[1].matches(wayNode1Match), "Way node 1 does not match.");
+        assertTrue(strArray[2].matches(wayNode2Match), "Way node 2 does not match.");
+        assertTrue(strArray[3].matches(wayTagMatch), "Way tag does not match.");
+        assertTrue(strArray[4].matches(wayClosingMatch), "Way closing element does not match.");
     }
 
     /**
@@ -125,11 +125,11 @@ public class WayWriterTest {
                 + "timestamp=['\"]2013-10-07T10:24:31Z?['\"]\\s*"
                 + ">\\s*";
         String[] strArray = testWriter.toString().split("\\n", 5);
-        assertTrue("Way opening element does not match.", strArray[0].matches(wayOpeningNoUserMatch));
-        assertTrue("Way node 1 does not match.", strArray[1].matches(wayNode1Match));
-        assertTrue("Way node 2 does not match.", strArray[2].matches(wayNode2Match));
-        assertTrue("Way tag does not match.", strArray[3].matches(wayTagMatch));
-        assertTrue("Way closing element does not match.", strArray[4].matches(wayClosingMatch));
+        assertTrue(strArray[0].matches(wayOpeningNoUserMatch), "Way opening element does not match.");
+        assertTrue(strArray[1].matches(wayNode1Match), "Way node 1 does not match.");
+        assertTrue(strArray[2].matches(wayNode2Match), "Way node 2 does not match.");
+        assertTrue(strArray[3].matches(wayTagMatch), "Way tag does not match.");
+        assertTrue(strArray[4].matches(wayClosingMatch), "Way closing element does not match.");
     }
 
     /**
@@ -149,9 +149,9 @@ public class WayWriterTest {
             fail("IOException");
         }
         String[] strArray = testWriter.toString().split("\\n", 4);
-        assertTrue("Way opening element does not match.", strArray[0].matches(wayOpeningMatch));
-        assertTrue("Way node 1 does not match.", strArray[1].matches(wayNode1Match));
-        assertTrue("Way node 2 does not match.", strArray[2].matches(wayNode2Match));
-        assertTrue("Way closing element does not match.", strArray[3].matches(wayClosingMatch));
+        assertTrue(strArray[0].matches(wayOpeningMatch), "Way opening element does not match.");
+        assertTrue(strArray[1].matches(wayNode1Match), "Way node 1 does not match.");
+        assertTrue(strArray[2].matches(wayNode2Match), "Way node 2 does not match.");
+        assertTrue(strArray[3].matches(wayClosingMatch), "Way closing element does not match.");
     }
 }

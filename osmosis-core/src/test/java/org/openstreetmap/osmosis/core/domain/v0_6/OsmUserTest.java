@@ -1,13 +1,14 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.core.domain.v0_6;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.store.DataInputStoreReader;
 import org.openstreetmap.osmosis.core.store.DataOutputStoreWriter;
@@ -29,24 +30,24 @@ public class OsmUserTest {
      */
     @Test
     public final void testGetInstanceNoUser() {
-        assertEquals("None user id is incorrect.", -1, OsmUser.NONE.getId());
-        assertEquals("None user name is incorrect.", "", OsmUser.NONE.getName());
+        assertEquals(-1, OsmUser.NONE.getId(), "None user id is incorrect.");
+        assertEquals("", OsmUser.NONE.getName(), "None user name is incorrect.");
     }
 
     /**
      * Ensure that the class doesn't allow a null user name.
      */
-    @Test(expected = NullPointerException.class)
+    @Test
     public final void testGetInstancePreventsNullUser() {
-        new OsmUser(1, null);
+        assertThrows(NullPointerException.class, () -> new OsmUser(1, null));
     }
 
     /**
      * Ensure that the class doesn't allow the reserved "NONE" user id to be specified.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testGetInstancePreventsNoneUser() {
-        new OsmUser(OsmUser.NONE.getId(), "MyNoneUser");
+        assertThrows(OsmosisRuntimeException.class, () -> new OsmUser(OsmUser.NONE.getId(), "MyNoneUser"));
     }
 
     /**
@@ -67,8 +68,8 @@ public class OsmUserTest {
         OsmUser user2 = new OsmUser(sr, scr);
         OsmUser user4 = new OsmUser(sr, scr);
         OsmUser user6 = new OsmUser(sr, scr);
-        assertEquals("Object not equal after retrieval from store", user1, user2);
-        assertEquals("Object not equal after retrieval from store", user3, user4);
-        assertEquals("Object not equal after retrieval from store", user5, user6);
+        assertEquals(user1, user2, "Object not equal after retrieval from store");
+        assertEquals(user3, user4, "Object not equal after retrieval from store");
+        assertEquals(user5, user6, "Object not equal after retrieval from store");
     }
 }

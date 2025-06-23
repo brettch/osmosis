@@ -1,11 +1,9 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.core.domain.v0_6;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the Bound entity class.
@@ -17,82 +15,91 @@ public class BoundTest {
     /**
      * Test the constructor with right > 180.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public final void testConstructor1() {
-        new Bound(181.0000000000001, -20, 20, -20, "not null");
-        fail("Expected to throw an exception");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Bound(181.0000000000001, -20, 20, -20, "not null");
+        });
     }
 
     /**
      * Test the constructor with right < -180.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public final void testConstructor2() {
-        new Bound(-181.0000000000001, -20, 20, -20, "not null");
-        fail("Expected to throw an exception");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Bound(-181.0000000000001, -20, 20, -20, "not null");
+        });
     }
 
     /**
      * Test the constructor with left > 180.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public final void testConstructor3() {
-        new Bound(20, 181.0000000000001, 20, -20, "not null");
-        fail("Expected to throw an exception");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Bound(20, 181.0000000000001, 20, -20, "not null");
+        });
     }
 
     /**
      * Test the constructor with left < -180.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public final void testConstructor4() {
-        new Bound(20, -181.0000000000001, 20, -20, "not null");
-        fail("Expected to throw an exception");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Bound(20, -181.0000000000001, 20, -20, "not null");
+        });
     }
 
     /**
      * Test the constructor with top > 90.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public final void testConstructor5() {
-        new Bound(20, -20, 91.0000000000001, -20, "not null");
-        fail("Expected to throw an exception");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Bound(20, -20, 91.0000000000001, -20, "not null");
+        });
     }
 
     /**
      * Test the constructor with top < -90.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public final void testConstructor6() {
-        new Bound(20, -20, -91.0000000000001, -20, "not null");
-        fail("Expected to throw an exception");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Bound(20, -20, -91.0000000000001, -20, "not null");
+        });
     }
 
     /**
      * Test the constructor with bottom > 90.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public final void testConstructor7() {
-        new Bound(20, -20, 20, 91.0000000000001, "not null");
-        fail("Expected to throw an exception");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Bound(20, -20, 20, 91.0000000000001, "not null");
+        });
     }
 
     /**
      * Test the constructor with bottom < -90.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public final void testConstructor8() {
-        new Bound(20, -20, 20, -91.0000000000001, "not null");
-        fail("Expected to throw an exception");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Bound(20, -20, 20, -91.0000000000001, "not null");
+        });
     }
 
     /**
      * Test the constructor with top < bottom.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public final void testConstructor9() {
-        new Bound(20, -20, -20, 20, "not null");
-        fail("Expected to throw an exception");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Bound(20, -20, -20, 20, "not null");
+        });
     }
 
     /**

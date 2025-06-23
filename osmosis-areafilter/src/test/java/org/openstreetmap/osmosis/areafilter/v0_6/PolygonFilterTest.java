@@ -1,17 +1,17 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.areafilter.v0_6;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.container.v0_6.BoundContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Bound;
 import org.openstreetmap.osmosis.core.domain.v0_6.CommonEntityData;
@@ -41,7 +41,7 @@ public class PolygonFilterTest {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         OsmUser user;
         List<Tag> tags;
@@ -67,7 +67,7 @@ public class PolygonFilterTest {
     /**
      * Performs post-test activities.
      */
-    @After
+    @AfterEach
     public void tearDown() {
         polyAreaFilter.close();
     }
@@ -120,8 +120,8 @@ public class PolygonFilterTest {
     @Test
     public final void testIsNodeWithinArea1() {
         assertTrue(
-                "Node lying inside filter area not considered inside area.",
-                polyAreaFilter.isNodeWithinArea(inAreaNode));
+                polyAreaFilter.isNodeWithinArea(inAreaNode),
+                "Node lying inside filter area not considered inside area.");
     }
 
     /**
@@ -130,8 +130,8 @@ public class PolygonFilterTest {
     @Test
     public final void testIsNodeWithinArea2() {
         assertFalse(
-                "Node lying outside filter area not considered outside area.",
-                polyAreaFilter.isNodeWithinArea(outOfAreaNode));
+                polyAreaFilter.isNodeWithinArea(outOfAreaNode),
+                "Node lying outside filter area not considered outside area.");
     }
 
     /**
@@ -140,7 +140,7 @@ public class PolygonFilterTest {
     @Test
     public final void testIsNodeWithinArea3() {
         assertFalse(
-                "Node lying on edge of filter area not considered inside area.",
-                polyAreaFilter.isNodeWithinArea(edgeNode));
+                polyAreaFilter.isNodeWithinArea(edgeNode),
+                "Node lying on edge of filter area not considered inside area.");
     }
 }

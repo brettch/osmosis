@@ -1,9 +1,10 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.set.v0_6;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.File;
-import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -17,12 +18,9 @@ public class ChangeApplierTest extends AbstractDataTest {
 
     /**
      * Test the application of an empty change to a non-empty stream.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void emptyChange() throws Exception {
+    public void emptyChange() {
         applyChange(
                 "v0_6/apply_change/apply-change-base.osm",
                 "v0_6/empty-change.osc",
@@ -31,34 +29,25 @@ public class ChangeApplierTest extends AbstractDataTest {
 
     /**
      * Test the application of a non-empty change to an empty stream.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void emptyBase() throws Exception {
+    public void emptyBase() {
         applyChange("v0_6/empty-entity.osm", "v0_6/apply_change/change-delete.osc", "v0_6/empty-entity.osm");
     }
 
     /**
      * Test the application of an empty change to an empty stream.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void emptyBoth() throws Exception {
+    public void emptyBoth() {
         applyChange("v0_6/empty-entity.osm", "v0_6/empty-change.osc", "v0_6/empty-entity.osm");
     }
 
     /**
      * Test the creation of a node.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void createNode() throws Exception {
+    public void createNode() {
         applyChange(
                 "v0_6/apply_change/apply-change-base.osm",
                 "v0_6/apply_change/change-create.osc",
@@ -67,12 +56,9 @@ public class ChangeApplierTest extends AbstractDataTest {
 
     /**
      * Test the modification of a node.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void modifyNode() throws Exception {
+    public void modifyNode() {
         applyChange(
                 "v0_6/apply_change/apply-change-base.osm",
                 "v0_6/apply_change/change-modify.osc",
@@ -81,12 +67,9 @@ public class ChangeApplierTest extends AbstractDataTest {
 
     /**
      * Test the deletion of a node.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void deleteNode() throws Exception {
+    public void deleteNode() {
         applyChange(
                 "v0_6/apply_change/apply-change-base.osm",
                 "v0_6/apply_change/change-delete.osc",
@@ -99,24 +82,23 @@ public class ChangeApplierTest extends AbstractDataTest {
      * @throws Exception
      *             if something goes wrong
      */
-    @Test(expected = OsmosisRuntimeException.class)
-    public void createModifyDelete() throws Exception {
-        applyChange(
-                "v0_6/apply_change/apply-change-base.osm",
-                "v0_6/apply_change/change-create-modify-delete.osc",
-                "v0_6/apply_change/apply-change-base.osm");
+    @Test
+    public void createModifyDelete() {
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            applyChange(
+                    "v0_6/apply_change/apply-change-base.osm",
+                    "v0_6/apply_change/change-create-modify-delete.osc",
+                    "v0_6/apply_change/apply-change-base.osm");
+        });
     }
 
     /**
      * Test the deletion of an entity that does not exist in the source stream.
      *
      * Deletion of a non-existent entity doesn't change anything.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void deleteNonExistent() throws Exception {
+    public void deleteNonExistent() {
         applyChange(
                 "v0_6/apply_change/apply-change-base.osm",
                 "v0_6/apply_change/change-delete-nonexistent.osc",
@@ -127,12 +109,9 @@ public class ChangeApplierTest extends AbstractDataTest {
      * Test the modification of an entity that does not exist in the source stream.
      *
      * Modification of a non-existent entity has the same effect as its creation.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void modifyNonExistent() throws Exception {
+    public void modifyNonExistent() {
         applyChange(
                 "v0_6/apply_change/apply-change-base.osm",
                 "v0_6/apply_change/change-modify-nonexistent.osc",
@@ -143,12 +122,9 @@ public class ChangeApplierTest extends AbstractDataTest {
      * Test the creation of an entity that already exists in the source stream.
      *
      * Creation of an existent entity has the same effect as a modification.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void createExistent() throws Exception {
+    public void createExistent() {
         applyChange(
                 "v0_6/apply_change/apply-change-base.osm",
                 "v0_6/apply_change/change-create-existent.osc",
@@ -158,12 +134,9 @@ public class ChangeApplierTest extends AbstractDataTest {
     /**
      * Test the case when the version in the change stream is lower than in the
      * source stream.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void modifyHigherVersion() throws Exception {
+    public void modifyHigherVersion() {
         applyChange(
                 "v0_6/apply_change/apply-change-base-high.osm",
                 "v0_6/apply_change/change-modify.osc",
@@ -173,12 +146,9 @@ public class ChangeApplierTest extends AbstractDataTest {
     /**
      * Test the case when the change is longer than the source stream
      * and consists of creates.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void longChangeCreate() throws Exception {
+    public void longChangeCreate() {
         applyChange(
                 "v0_6/apply_change/apply-change-base-node-only.osm",
                 "v0_6/apply_change/change-big-create.osc",
@@ -188,20 +158,16 @@ public class ChangeApplierTest extends AbstractDataTest {
     /**
      * Test the case when the change is longer than the source
      * stream and consists of deletes.
-     *
-     * @throws Exception
-     *             if something goes wrong
      */
     @Test
-    public void longChangeDelete() throws Exception {
+    public void longChangeDelete() {
         applyChange(
                 "v0_6/apply_change/apply-change-base-node-only.osm",
                 "v0_6/apply_change/change-big-delete.osc",
                 "v0_6/apply_change/apply-change-base-node-only.osm");
     }
 
-    private void applyChange(String sourceFileName, String changeFileName, String expectedOutputFileName)
-            throws IOException {
+    private void applyChange(String sourceFileName, String changeFileName, String expectedOutputFileName) {
         File sourceFile;
         File changeFile;
         File expectedOutputFile;

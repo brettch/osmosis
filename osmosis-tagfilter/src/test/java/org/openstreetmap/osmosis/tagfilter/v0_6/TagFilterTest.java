@@ -1,7 +1,7 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.tagfilter.v0_6;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,9 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.container.v0_6.NodeContainer;
 import org.openstreetmap.osmosis.core.container.v0_6.RelationContainer;
@@ -57,7 +57,7 @@ public class TagFilterTest {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         OsmUser user;
         List<Tag> tags;
@@ -89,7 +89,7 @@ public class TagFilterTest {
     /**
      * Performs post-test activities.
      */
-    @After
+    @AfterEach
     public void tearDown() {
         // nothing to do here.
     }

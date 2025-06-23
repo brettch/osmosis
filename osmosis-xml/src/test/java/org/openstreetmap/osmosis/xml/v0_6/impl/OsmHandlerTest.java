@@ -1,10 +1,10 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.v0_6.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,8 +13,8 @@ import java.io.UnsupportedEncodingException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.domain.v0_6.Bound;
 import org.openstreetmap.osmosis.testutil.v0_6.SinkEntityInspector;
@@ -38,7 +38,7 @@ public class OsmHandlerTest {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         entityInspector = new SinkEntityInspector();
         try {
@@ -91,113 +91,123 @@ public class OsmHandlerTest {
     /**
      * Test a malformed box attribute for a bound element.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testBoundElement2() {
-        parseString(
-                OSM_PREFIX + "<bound box=\"-12.34567,-23.45678,34.56789\"" + " origin=\"someorigin\"/>" + OSM_SUFFIX);
-        fail("Expected to throw an exception");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            parseString(OSM_PREFIX + "<bound box=\"-12.34567,-23.45678,34.56789\"" + " origin=\"someorigin\"/>"
+                    + OSM_SUFFIX);
+        });
     }
 
     /**
      * Test a missing box attribute of a bound element.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testBoundElement3() {
-        parseString(OSM_PREFIX + "<bound origin=\"someorigin\"/>" + OSM_SUFFIX);
-        fail("Expected to throw an exception");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            // Missing box attribute
+            parseString(OSM_PREFIX + "<bound origin=\"someorigin\"/>" + OSM_SUFFIX);
+        });
     }
 
     /**
      * Test a number parse error for a box attribute of a bound element.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testBoundElement4() {
-        parseString(OSM_PREFIX
-                + "<bound box=\"-12..34567,-23.45678,34.56789,45.67891\""
-                + " origin=\"someorigin\"/>"
-                + OSM_SUFFIX);
-        fail("Expected to throw an exception");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            parseString(OSM_PREFIX
+                    + "<bound box=\"-12..34567,-23.45678,34.56789,45.67891\""
+                    + " origin=\"someorigin\"/>"
+                    + OSM_SUFFIX);
+        });
     }
 
     /**
      * Test a missing origin attribute of a bound element.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testBoundElement5() {
-        parseString(OSM_PREFIX + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\"/>" + OSM_SUFFIX);
-        fail("Expected to throw an exception");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            parseString(OSM_PREFIX + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\"/>" + OSM_SUFFIX);
+        });
     }
 
     /**
      * Test an empty origin attribute of a bound element.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testBoundElement6() {
-        parseString(
-                OSM_PREFIX + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\"" + " origin=\"\"/>" + OSM_SUFFIX);
-        fail("Expected to throw an exception");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            parseString(OSM_PREFIX + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\"" + " origin=\"\"/>"
+                    + OSM_SUFFIX);
+        });
     }
 
     /**
      * Test a repeated bound element.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testBoundElement7() {
-        parseString(OSM_PREFIX
-                + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
-                + " origin=\"someorigin\"/>"
-                + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
-                + " origin=\"someotherorigin\"/>"
-                + OSM_SUFFIX);
-        fail("Expected to throw an exception");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            parseString(OSM_PREFIX
+                    + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
+                    + " origin=\"someorigin\"/>"
+                    + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
+                    + " origin=\"someotherorigin\"/>"
+                    + OSM_SUFFIX);
+        });
     }
 
     /**
      * Test a bound element occurring after a node element.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testBoundElement8() {
-        parseString(OSM_PREFIX
-                + "<node id=\"12345\" user=\"OsmosisTest\" uid=\"12\" version=\"0\""
-                + "timestamp=\"2008-01-01T15:32:01\" lat=\"-12.34567\" lon=\"-23.45678\"/>"
-                + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
-                + " origin=\"someorigin\"/>"
-                + OSM_SUFFIX);
-        fail("Expected to throw an exception");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            parseString(OSM_PREFIX
+                    + "<node id=\"12345\" user=\"OsmosisTest\" uid=\"12\" version=\"0\""
+                    + "timestamp=\"2008-01-01T15:32:01\" lat=\"-12.34567\" lon=\"-23.45678\"/>"
+                    + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
+                    + " origin=\"someorigin\"/>"
+                    + OSM_SUFFIX);
+        });
     }
 
     /**
      * Test a bound element occurring after a way element.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testBoundElement9() {
-        parseString(OSM_PREFIX
-                + "<way id=\"12346\" user=\"OsmosisTest\" uid=\"12\" version=\"0\""
-                + "timestamp=\"2008-01-01T15:32:01\">"
-                + "<nd ref=\"12345\"/>"
-                + "<nd ref=\"12347\"/>"
-                + "</way>"
-                + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
-                + " origin=\"someorigin\"/>"
-                + OSM_SUFFIX);
-        fail("Expected to throw an exception");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            parseString(OSM_PREFIX
+                    + "<way id=\"12346\" user=\"OsmosisTest\" uid=\"12\" version=\"0\""
+                    + "timestamp=\"2008-01-01T15:32:01\">"
+                    + "<nd ref=\"12345\"/>"
+                    + "<nd ref=\"12347\"/>"
+                    + "</way>"
+                    + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
+                    + " origin=\"someorigin\"/>"
+                    + OSM_SUFFIX);
+        });
     }
 
     /**
      * Test a bound element occurring after a relation element.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testBoundElement10() {
-        parseString(OSM_PREFIX
-                + "<relation id=\"12348\" user=\"OsmosisTest\" uid=\"12\" version=\"0\""
-                + "timestamp=\"2008-01-01T15:32:01\">"
-                + "<member ref=\"12345\" type=\"node\" role=\"node1\"/>"
-                + "<member ref=\"12346\" type=\"way\" role=\"way1\"/>"
-                + "</relation>"
-                + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
-                + " origin=\"someorigin\"/>"
-                + OSM_SUFFIX);
-        fail("Expected to throw an exception");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            parseString(OSM_PREFIX
+                    + "<relation id=\"12348\" user=\"OsmosisTest\" uid=\"12\" version=\"0\""
+                    + "timestamp=\"2008-01-01T15:32:01\">"
+                    + "<member ref=\"12345\" type=\"node\" role=\"node1\"/>"
+                    + "<member ref=\"12346\" type=\"way\" role=\"way1\"/>"
+                    + "</relation>"
+                    + "<bound box=\"-12.34567,-23.45678,34.56789,45.67891\""
+                    + " origin=\"someorigin\"/>"
+                    + OSM_SUFFIX);
+        });
     }
 
     /**

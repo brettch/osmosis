@@ -1,8 +1,11 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.pgsimple.v0_6.impl;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.util.FixedPrecisionCoordinateConvertor;
 import org.openstreetmap.osmosis.pgsimple.common.InMemoryNodeLocationStore;
 import org.openstreetmap.osmosis.pgsimple.common.NodeLocation;
@@ -45,12 +48,12 @@ public class NodeLocationStoreTest {
             latitude = FixedPrecisionCoordinateConvertor.convertToDouble(1 << ((i + 1) % 32));
 
             location = store.getNodeLocation(i * 2);
-            Assert.assertTrue("The node location should be valid.", location.isValid());
-            Assert.assertEquals("The longitude is incorrect.", longitude, location.getLongitude(), 0);
-            Assert.assertEquals("The latitude is incorrect.", latitude, location.getLatitude(), 0);
+            assertTrue(location.isValid(), "The node location should be valid.");
+            assertEquals(longitude, location.getLongitude(), 0, "The longitude is incorrect.");
+            assertEquals(latitude, location.getLatitude(), 0, "The latitude is incorrect.");
 
             location = store.getNodeLocation((i * 2) + 1);
-            Assert.assertFalse("The node location should be invalid.", location.isValid());
+            assertFalse(location.isValid(), "The node location should be invalid.");
         }
 
         store.close();

@@ -3,7 +3,8 @@ package org.openstreetmap.osmosis.apidb.v0_6;
 
 import java.io.File;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.DatabaseUtilities;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -13,7 +14,12 @@ import org.openstreetmap.osmosis.testutil.AbstractDataTest;
  */
 public class ApidbFileReplicatorTest extends AbstractDataTest {
 
-    private final DatabaseUtilities dbUtils = new DatabaseUtilities(dataUtils);
+    private DatabaseUtilities dbUtils;
+
+    @BeforeEach
+    private void setUpDbUtils() {
+        dbUtils = new DatabaseUtilities(dataUtils);
+    }
 
     /**
      * A basic test loading an osm file into an API database and verifying that it gets replicated correctly.
@@ -33,7 +39,7 @@ public class ApidbFileReplicatorTest extends AbstractDataTest {
         snapshotFile = dataUtils.createDataFile("v0_6/db-snapshot.osm");
         changesetFile = dataUtils.createDataFile("v0_6/db-replicate-changeset.osc");
         outputFile = dataUtils.newFile();
-        workingDirectory = dataUtils.newFolder();
+        workingDirectory = dataUtils.getTempDir();
 
         // Remove all existing data from the database.
         dbUtils.truncateDatabase();

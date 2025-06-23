@@ -1,17 +1,17 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.v0_6.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.Date;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.domain.v0_6.CommonEntityData;
 import org.openstreetmap.osmosis.core.domain.v0_6.EntityType;
 import org.openstreetmap.osmosis.core.domain.v0_6.OsmUser;
@@ -57,7 +57,7 @@ public class RelationWriterTest {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         testWriter = new StringWriter();
         testBufferedWriter = new BufferedWriter(testWriter);
@@ -83,7 +83,7 @@ public class RelationWriterTest {
      * @throws IOException
      *             if stream cleanup fails.
      */
-    @After
+    @AfterEach
     public void tearDown() throws IOException {
         testBufferedWriter.close();
         testWriter.close();
@@ -108,12 +108,12 @@ public class RelationWriterTest {
             fail("IOException");
         }
         String[] strArray = testWriter.toString().split("\\n", 6);
-        assertTrue("Relation opening element does not match.", strArray[0].matches(relationOpeningMatch));
-        assertTrue("Relation member node does not match.", strArray[1].matches(nodeMemberMatch));
-        assertTrue("Relation member way does not match.", strArray[2].matches(wayMemberMatch));
-        assertTrue("Relation member relation does not match.", strArray[3].matches(relationMemberMatch));
-        assertTrue("Relation tag does not match.", strArray[4].matches(relationTagMatch));
-        assertTrue("Relation closing element does not match.", strArray[5].matches(relationClosingMatch));
+        assertTrue(strArray[0].matches(relationOpeningMatch), "Relation opening element does not match.");
+        assertTrue(strArray[1].matches(nodeMemberMatch), "Relation member node does not match.");
+        assertTrue(strArray[2].matches(wayMemberMatch), "Relation member way does not match.");
+        assertTrue(strArray[3].matches(relationMemberMatch), "Relation member relation does not match.");
+        assertTrue(strArray[4].matches(relationTagMatch), "Relation tag does not match.");
+        assertTrue(strArray[5].matches(relationClosingMatch), "Relation closing element does not match.");
     }
 
     /**

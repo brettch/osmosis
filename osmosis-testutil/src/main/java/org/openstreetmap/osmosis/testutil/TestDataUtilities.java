@@ -1,6 +1,8 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.testutil;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -12,9 +14,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.zip.GZIPOutputStream;
-import org.junit.Assert;
-import org.junit.rules.TemporaryFolder;
 import org.openstreetmap.osmosis.core.OsmosisConstants;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 
@@ -23,9 +24,51 @@ import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
  *
  * @author Brett Henderson
  */
-public class TestDataUtilities extends TemporaryFolder {
-
+public class TestDataUtilities {
     private static final Charset UTF8 = Charset.forName("UTF-8");
+
+    private Path tempDir;
+
+    /**
+     * Create a new instance.
+     *
+     * @param tempDir The temporary directory to use for test data files.
+     */
+    public TestDataUtilities(Path tempDir) {
+        this.tempDir = tempDir;
+    }
+
+    /**
+     * Get the temporary directory used for test data files.
+     *
+     * @return The temporary directory.
+     */
+    public File getTempDir() {
+        return tempDir.toFile();
+    }
+
+    /**
+     * Create a new temporary file.
+     *
+     * @return The new temporary file.
+     */
+    public File newFile() {
+        try {
+            return File.createTempFile("data", null, tempDir.toFile());
+        } catch (IOException e) {
+            throw new OsmosisRuntimeException("Unable to create temporary file.", e);
+        }
+    }
+
+    /**
+     * Create a new temporary file with the specified name.
+     *
+     * @param fileName The name of the temporary file to create.
+     * @return The new temporary file.
+     */
+    public File newFile(String fileName) {
+        return tempDir.resolve(fileName).toFile();
+    }
 
     /**
      * Obtains the data file with the specified name. The name is a path
@@ -92,39 +135,46 @@ public class TestDataUtilities extends TemporaryFolder {
         return createDataFile(dataFileName);
     }
 
-    private void copyFiles(File from, File to) throws IOException {
-        byte[] buffer;
-        int bytesRead;
-        BufferedInputStream isFrom;
-        BufferedOutputStream osTo;
+    private void copyFiles(File from, File to) {
+        try {
+            byte[] buffer;
+            int bytesRead;
+            BufferedInputStream isFrom;
+            BufferedOutputStream osTo;
 
-        buffer = new byte[4096];
+            buffer = new byte[4096];
 
-        isFrom = new BufferedInputStream(new FileInputStream(from));
-        osTo = new BufferedOutputStream(new FileOutputStream(to));
+            isFrom = new BufferedInputStream(new FileInputStream(from));
+            osTo = new BufferedOutputStream(new FileOutputStream(to));
 
-        while ((bytesRead = isFrom.read(buffer)) >= 0) {
-            osTo.write(buffer, 0, bytesRead);
+            while ((bytesRead = isFrom.read(buffer)) >= 0) {
+                osTo.write(buffer, 0, bytesRead);
+            }
+
+            isFrom.close();
+            osTo.close();
+        } catch (IOException e) {
+            throw new OsmosisRuntimeException("Unable to copy file " + from + " to " + to, e);
         }
-
-        isFrom.close();
-        osTo.close();
     }
 
-    private void handleInequalFiles(File file1, File file2, long failureoffset) throws IOException {
+    private void handleInequalFiles(File file1, File file2, long failureoffset) {
         File file1Copy;
         File file2Copy;
 
         // We must create copies of the files because the originals will be
         // cleaned up at the completion of the test.
-        file1Copy = File.createTempFile("junit", null);
-        file2Copy = File.createTempFile("junit", null);
+        try {
+            file1Copy = File.createTempFile("junit", null);
+            file2Copy = File.createTempFile("junit", null);
+        } catch (IOException e) {
+            throw new OsmosisRuntimeException("Unable to create temporary files for comparison.", e);
+        }
 
         copyFiles(file1, file1Copy);
         copyFiles(file2, file2Copy);
 
-        Assert.fail("File " + file1Copy + " and file " + file2Copy + " are not equal at file offset " + failureoffset
-                + ".");
+        fail("File " + file1Copy + " and file " + file2Copy + " are not equal at file offset " + failureoffset + ".");
     }
 
     /**
@@ -134,32 +184,34 @@ public class TestDataUtilities extends TemporaryFolder {
      *            The first file.
      * @param file2
      *            The second file.
-     * @throws IOException
-     *             if an exception occurs.
      */
-    public void compareFiles(File file1, File file2) throws IOException {
-        BufferedInputStream inStream1;
-        BufferedInputStream inStream2;
-        int byte1;
-        int byte2;
-        long offset;
+    public void compareFiles(File file1, File file2) {
+        try {
+            BufferedInputStream inStream1;
+            BufferedInputStream inStream2;
+            int byte1;
+            int byte2;
+            long offset;
 
-        inStream1 = new BufferedInputStream(new FileInputStream(file1));
-        inStream2 = new BufferedInputStream(new FileInputStream(file2));
-        offset = 0;
-        do {
-            byte1 = inStream1.read();
-            byte2 = inStream2.read();
+            inStream1 = new BufferedInputStream(new FileInputStream(file1));
+            inStream2 = new BufferedInputStream(new FileInputStream(file2));
+            offset = 0;
+            do {
+                byte1 = inStream1.read();
+                byte2 = inStream2.read();
 
-            if (byte1 != byte2) {
-                handleInequalFiles(file1, file2, offset);
-            }
+                if (byte1 != byte2) {
+                    handleInequalFiles(file1, file2, offset);
+                }
 
-            offset++;
-        } while (byte1 >= 0);
+                offset++;
+            } while (byte1 >= 0);
 
-        inStream2.close();
-        inStream1.close();
+            inStream2.close();
+            inStream1.close();
+        } catch (IOException e) {
+            throw new OsmosisRuntimeException("Unable to compare files " + file1 + " and " + file2, e);
+        }
     }
 
     /**
@@ -169,28 +221,30 @@ public class TestDataUtilities extends TemporaryFolder {
      *            The uncompressed input file.
      * @param outputFile
      *            The compressed output file to generate.
-     * @throws IOException
-     *             if an exception occurs.
      */
-    public void compressFile(File inputFile, File outputFile) throws IOException {
-        BufferedInputStream inStream;
-        BufferedOutputStream outStream;
-        byte[] buffer;
-        int bytesRead;
+    public void compressFile(File inputFile, File outputFile) {
+        try {
+            BufferedInputStream inStream;
+            BufferedOutputStream outStream;
+            byte[] buffer;
+            int bytesRead;
 
-        inStream = new BufferedInputStream(new FileInputStream(inputFile));
-        outStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outputFile)));
+            inStream = new BufferedInputStream(new FileInputStream(inputFile));
+            outStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outputFile)));
 
-        buffer = new byte[4096];
+            buffer = new byte[4096];
 
-        do {
-            bytesRead = inStream.read(buffer);
-            if (bytesRead > 0) {
-                outStream.write(buffer, 0, bytesRead);
-            }
-        } while (bytesRead >= 0);
+            do {
+                bytesRead = inStream.read(buffer);
+                if (bytesRead > 0) {
+                    outStream.write(buffer, 0, bytesRead);
+                }
+            } while (bytesRead >= 0);
 
-        outStream.close();
-        inStream.close();
+            outStream.close();
+            inStream.close();
+        } catch (IOException e) {
+            throw new OsmosisRuntimeException("Unable to compress file " + inputFile + " to " + outputFile, e);
+        }
     }
 }

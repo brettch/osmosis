@@ -3,7 +3,7 @@ package org.openstreetmap.osmosis.pgsnapshot.v0_6;
 
 import java.io.File;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
 

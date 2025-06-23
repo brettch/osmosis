@@ -1,10 +1,11 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.core.sort.common;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Comparator;
 import java.util.Random;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.lifecycle.ReleasableIterator;
 import org.openstreetmap.osmosis.core.store.SingleClassObjectSerializationFactory;
 
@@ -59,7 +60,7 @@ public class FileBasedSortTest {
                 int lastValue = Integer.MIN_VALUE;
                 while (resultIterator.hasNext()) {
                     int currentValue = resultIterator.next().getValue();
-                    Assert.assertTrue(currentValue >= lastValue);
+                    assertTrue(currentValue >= lastValue);
                     lastValue = currentValue;
                 }
             }

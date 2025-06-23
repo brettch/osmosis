@@ -1,11 +1,12 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.set.v0_6;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.core.container.v0_6.ChangeContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
@@ -78,26 +79,26 @@ public class ChangeDeriverTest extends AbstractDataTest {
         SinkChangeInspector result = RunTaskUtilities.run(deriver, left, right);
         List<ChangeContainer> changes = result.getProcessedChanges();
 
-        Assert.assertEquals(3, changes.size());
+        assertEquals(3, changes.size());
         for (ChangeContainer changeContainer : changes) {
-            Assert.assertEquals(ChangeAction.Delete, changeContainer.getAction());
+            assertEquals(ChangeAction.Delete, changeContainer.getAction());
         }
 
         Entity e;
         e = changes.get(0).getEntityContainer().getEntity();
-        Assert.assertEquals(EntityType.Node, e.getType());
-        Assert.assertEquals(10, e.getId());
-        Assert.assertEquals(34, e.getVersion());
+        assertEquals(EntityType.Node, e.getType());
+        assertEquals(10, e.getId());
+        assertEquals(34, e.getVersion());
 
         e = changes.get(1).getEntityContainer().getEntity();
-        Assert.assertEquals(EntityType.Way, e.getType());
-        Assert.assertEquals(100, e.getId());
-        Assert.assertEquals(56, e.getVersion());
+        assertEquals(EntityType.Way, e.getType());
+        assertEquals(100, e.getId());
+        assertEquals(56, e.getVersion());
 
         e = changes.get(2).getEntityContainer().getEntity();
-        Assert.assertEquals(EntityType.Relation, e.getType());
-        Assert.assertEquals(1000, e.getId());
-        Assert.assertEquals(78, e.getVersion());
+        assertEquals(EntityType.Relation, e.getType());
+        assertEquals(1000, e.getId());
+        assertEquals(78, e.getVersion());
     }
 
     private void deriveChange(String leftFileName, String rightFileName, String expectedOutputFileName)

@@ -1,10 +1,12 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.extract.apidb.v0_6;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.util.Date;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.extract.apidb.common.Configuration;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
 
@@ -14,7 +16,12 @@ import org.openstreetmap.osmosis.testutil.AbstractDataTest;
  * @author Brett Henderson
  */
 public class DatabaseTimeLoaderTest extends AbstractDataTest {
-    private DatabaseUtilities dbUtils = new DatabaseUtilities(dataUtils);
+    private DatabaseUtilities dbUtils;
+
+    @BeforeEach
+    private void setUpDbUtils() {
+        dbUtils = new DatabaseUtilities(dataUtils);
+    }
 
     /**
      * Tests getting the current time from the database.
@@ -36,9 +43,9 @@ public class DatabaseTimeLoaderTest extends AbstractDataTest {
         systemTime = new Date();
         difference = databaseTime.getTime() - systemTime.getTime();
 
-        Assert.assertTrue(
+        assertTrue(
+                difference > -1000 && difference < 1000,
                 "Database time is different to system time, databaseTime=" + databaseTime + ", systemTime=" + systemTime
-                        + ".",
-                difference > -1000 && difference < 1000);
+                        + ".");
     }
 }

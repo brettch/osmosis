@@ -1,16 +1,16 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.areafilter.v0_6;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.container.v0_6.BoundContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Bound;
 import org.openstreetmap.osmosis.core.domain.v0_6.CommonEntityData;
@@ -40,7 +40,7 @@ public class BoundingBoxFilterTest {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         OsmUser user;
         List<Tag> tags;
@@ -67,7 +67,7 @@ public class BoundingBoxFilterTest {
     /**
      * Performs post-test activities.
      */
-    @After
+    @AfterEach
     public void tearDown() {
         simpleAreaFilter.close();
     }
@@ -104,8 +104,8 @@ public class BoundingBoxFilterTest {
     @Test
     public final void testIsNodeWithinArea1() {
         assertTrue(
-                "Node lying inside filter area not considered inside area",
-                simpleAreaFilter.isNodeWithinArea(inAreaNode));
+                simpleAreaFilter.isNodeWithinArea(inAreaNode),
+                "Node lying inside filter area not considered inside area");
     }
 
     /**
@@ -114,8 +114,8 @@ public class BoundingBoxFilterTest {
     @Test
     public final void testIsNodeWithinArea2() {
         assertFalse(
-                "Node lying outside filter area not considered outside area",
-                simpleAreaFilter.isNodeWithinArea(outOfAreaNode));
+                simpleAreaFilter.isNodeWithinArea(outOfAreaNode),
+                "Node lying outside filter area not considered outside area");
     }
 
     /**
@@ -124,8 +124,8 @@ public class BoundingBoxFilterTest {
     @Test
     public final void testIsNodeWithinArea3() {
         assertTrue(
-                "Node lying on East edge of filter area not considered inside area",
-                simpleAreaFilter.isNodeWithinArea(edgeNodeEast));
+                simpleAreaFilter.isNodeWithinArea(edgeNodeEast),
+                "Node lying on East edge of filter area not considered inside area");
     }
 
     /**
@@ -134,8 +134,8 @@ public class BoundingBoxFilterTest {
     @Test
     public final void testIsNodeWithinArea4() {
         assertTrue(
-                "Node lying on West edge of filter area not considered inside area",
-                simpleAreaFilter.isNodeWithinArea(edgeNodeWest));
+                simpleAreaFilter.isNodeWithinArea(edgeNodeWest),
+                "Node lying on West edge of filter area not considered inside area");
     }
 
     /**
@@ -144,8 +144,8 @@ public class BoundingBoxFilterTest {
     @Test
     public final void testIsNodeWithinArea5() {
         assertTrue(
-                "Node lying on North edge of filter area not considered inside area",
-                simpleAreaFilter.isNodeWithinArea(edgeNodeNorth));
+                simpleAreaFilter.isNodeWithinArea(edgeNodeNorth),
+                "Node lying on North edge of filter area not considered inside area");
     }
 
     /**
@@ -154,7 +154,7 @@ public class BoundingBoxFilterTest {
     @Test
     public final void testIsNodeWithinArea6() {
         assertTrue(
-                "Node lying on South edge of filter area not considered inside area",
-                simpleAreaFilter.isNodeWithinArea(edgeNodeSouth));
+                simpleAreaFilter.isNodeWithinArea(edgeNodeSouth),
+                "Node lying on South edge of filter area not considered inside area");
     }
 }

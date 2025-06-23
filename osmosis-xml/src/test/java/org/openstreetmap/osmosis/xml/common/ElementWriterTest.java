@@ -1,11 +1,12 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.common;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the element writer.
@@ -34,10 +35,10 @@ public class ElementWriterTest {
 
         bufferedWriter.close();
 
-        Assert.assertEquals(
-                "Generated xml is incorrect.",
+        assertEquals(
                 "  <testElement myAttribute=\"ValueBeginValueEnd\"/>" + System.getProperty("line.separator"),
-                stringWriter.toString());
+                stringWriter.toString(),
+                "Generated xml is incorrect.");
     }
 
     private static class MyElementWriter extends ElementWriter {

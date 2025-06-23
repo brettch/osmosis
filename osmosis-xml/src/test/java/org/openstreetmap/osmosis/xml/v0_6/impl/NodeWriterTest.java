@@ -1,8 +1,8 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.v0_6.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -10,9 +10,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.domain.v0_6.CommonEntityData;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.OsmUser;
@@ -45,7 +45,7 @@ public class NodeWriterTest {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         testWriter = new StringWriter();
         testBufferedWriter = new BufferedWriter(testWriter);
@@ -71,7 +71,7 @@ public class NodeWriterTest {
      * @throws IOException
      *             if stream cleanup fails.
      */
-    @After
+    @AfterEach
     public void tearDown() throws IOException {
         testBufferedWriter.close();
         testWriter.close();
@@ -93,9 +93,9 @@ public class NodeWriterTest {
             fail("IOException");
         }
         String[] strArray = testWriter.toString().split("\\n", 3);
-        assertTrue("Node opening element does not match.", strArray[0].matches(nodeOpeningMatch));
-        assertTrue("Node tag does not match.", strArray[1].matches(nodeTagMatch));
-        assertTrue("Node closing element does not match.", strArray[2].matches(nodeClosingMatch));
+        assertTrue(strArray[0].matches(nodeOpeningMatch), "Node opening element does not match.");
+        assertTrue(strArray[1].matches(nodeTagMatch), "Node tag does not match.");
+        assertTrue(strArray[2].matches(nodeClosingMatch), "Node closing element does not match.");
     }
 
     /**
@@ -147,8 +147,8 @@ public class NodeWriterTest {
                 + "lon=['\"]-21.9876543['\"]\\s*"
                 + ">\\s*";
         String[] strArray = testWriter.toString().split("\\n", 3);
-        assertTrue("Node opening element does not match.", strArray[0].matches(nodeOpeningNoUserMatch));
-        assertTrue("Node tag does not match.", strArray[1].matches(nodeTagMatch));
-        assertTrue("Node closing element does not match.", strArray[2].matches(nodeClosingMatch));
+        assertTrue(strArray[0].matches(nodeOpeningNoUserMatch), "Node opening element does not match.");
+        assertTrue(strArray[1].matches(nodeTagMatch), "Node tag does not match.");
+        assertTrue(strArray[2].matches(nodeClosingMatch), "Node closing element does not match.");
     }
 }

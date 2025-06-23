@@ -1,12 +1,13 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.set.v0_6;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.merge.common.ConflictResolutionMethod;
@@ -397,14 +398,14 @@ public class EntityMergerTest extends AbstractDataTest {
         boolean sortExceptionFound = false;
         for (Throwable t : exceptions) {
             if (!(t instanceof OsmosisRuntimeException)) {
-                Assert.fail("Unexpected exception thrown: " + t);
+                fail("Unexpected exception thrown: " + t);
             }
 
             sortExceptionFound |= t.getMessage().startsWith(exceptionMessagePrefix);
         }
 
         if (!sortExceptionFound) {
-            Assert.fail("Expected exception not thrown");
+            fail("Expected exception not thrown");
         }
     }
 }

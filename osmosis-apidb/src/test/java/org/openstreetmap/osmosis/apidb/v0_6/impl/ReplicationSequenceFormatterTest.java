@@ -1,8 +1,9 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.apidb.v0_6.impl;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.replication.common.ReplicationSequenceFormatter;
 
 /**
@@ -21,7 +22,7 @@ public class ReplicationSequenceFormatterTest {
 
         formattedSequenceNumber = new ReplicationSequenceFormatter(minimumLength, groupingLength)
                 .getFormattedName(sequenceNumber, ".osc.gz");
-        Assert.assertEquals("The formatted sequence number is incorrect.", "100.osc.gz", formattedSequenceNumber);
+        assertEquals("100.osc.gz", formattedSequenceNumber, "The formatted sequence number is incorrect.");
     }
 
     /**
@@ -36,7 +37,7 @@ public class ReplicationSequenceFormatterTest {
 
         formattedSequenceNumber = new ReplicationSequenceFormatter(minimumLength, groupingLength)
                 .getFormattedName(sequenceNumber, ".osc.gz");
-        Assert.assertEquals("The formatted sequence number is incorrect.", "000000100.osc.gz", formattedSequenceNumber);
+        assertEquals("000000100.osc.gz", formattedSequenceNumber, "The formatted sequence number is incorrect.");
     }
 
     /**
@@ -51,7 +52,7 @@ public class ReplicationSequenceFormatterTest {
 
         formattedSequenceNumber = new ReplicationSequenceFormatter(minimumLength, groupingLength)
                 .getFormattedName(sequenceNumber, ".osc.gz");
-        Assert.assertEquals("The formatted sequence number is incorrect.", "1/000.osc.gz", formattedSequenceNumber);
+        assertEquals("1/000.osc.gz", formattedSequenceNumber, "The formatted sequence number is incorrect.");
     }
 
     /**
@@ -66,7 +67,6 @@ public class ReplicationSequenceFormatterTest {
 
         formattedSequenceNumber = new ReplicationSequenceFormatter(minimumLength, groupingLength)
                 .getFormattedName(sequenceNumber, ".osc.gz");
-        Assert.assertEquals(
-                "The formatted sequence number is incorrect.", "000/000/100.osc.gz", formattedSequenceNumber);
+        assertEquals("000/000/100.osc.gz", formattedSequenceNumber, "The formatted sequence number is incorrect.");
     }
 }

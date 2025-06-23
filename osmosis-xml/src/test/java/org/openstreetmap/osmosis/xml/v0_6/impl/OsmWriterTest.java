@@ -1,16 +1,16 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.v0_6.impl;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.BoundContainer;
 import org.openstreetmap.osmosis.core.container.v0_6.NodeContainer;
@@ -39,7 +39,7 @@ public class OsmWriterTest {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         testWriter = new StringWriter();
         testBufferedWriter = new BufferedWriter(testWriter);
@@ -53,7 +53,7 @@ public class OsmWriterTest {
      * @throws IOException
      *             if IO stream cleanup fails.
      */
-    @After
+    @AfterEach
     public void tearDown() throws IOException {
         testBufferedWriter.close();
         testWriter.close();
@@ -72,11 +72,12 @@ public class OsmWriterTest {
     /**
      * Test processing a repeated Bound entity.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testProcess2() {
         testOsmWriter.process(new BoundContainer(new Bound("source")));
-        testOsmWriter.process(new BoundContainer(new Bound("source2")));
-        fail("Expected to throw an exception.");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            testOsmWriter.process(new BoundContainer(new Bound("source2")));
+        });
     }
 
     /**
@@ -94,14 +95,15 @@ public class OsmWriterTest {
     /**
      * Test processing a Bound after a Node.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testProcess4() {
         testOsmWriter.process(new NodeContainer(new Node(
                 new CommonEntityData(1234, 0, new Date(), new OsmUser(12, "OsmosisTest"), 0, new ArrayList<Tag>()),
                 20,
                 20)));
-        testOsmWriter.process(new BoundContainer(new Bound("source")));
-        fail("Expected to throw an exception.");
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            testOsmWriter.process(new BoundContainer(new Bound("source")));
+        });
     }
 
     /**
@@ -123,7 +125,7 @@ public class OsmWriterTest {
     /**
      * Test processing a Bound after a Way.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testProcess7() {
         Way testWay;
 
@@ -133,7 +135,10 @@ public class OsmWriterTest {
         testWay.getTags().add(new Tag("test_key1", "test_value1"));
 
         testOsmWriter.process(new WayContainer(testWay));
-        testOsmWriter.process(new BoundContainer(new Bound("source")));
+
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            testOsmWriter.process(new BoundContainer(new Bound("source")));
+        });
     }
 
     /**
@@ -154,7 +159,7 @@ public class OsmWriterTest {
     /**
      * Test processing a Bound after a Relation.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public final void testProcess9() {
         Relation testRelation;
 
@@ -163,6 +168,9 @@ public class OsmWriterTest {
         testRelation.getTags().add(new Tag("test_key1", "test_value1"));
 
         testOsmWriter.process(new RelationContainer(testRelation));
-        testOsmWriter.process(new BoundContainer(new Bound("source")));
+
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            testOsmWriter.process(new BoundContainer(new Bound("source")));
+        });
     }
 }

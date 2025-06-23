@@ -1,8 +1,9 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.core.mysql.common;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.util.TileCalculator;
 
 /**
@@ -16,9 +17,9 @@ public class TileCalculatorTest {
      */
     @Test
     public void test() {
-        Assert.assertEquals(
-                "Incorrect tile value generated.",
-                2062265654,
-                new TileCalculator().calculateTile(51.4781325, -0.1474929));
+        assertEquals(
+                2062265654L,
+                new TileCalculator().calculateTile(51.4781325, -0.1474929),
+                "Incorrect tile value generated.");
     }
 }

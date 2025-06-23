@@ -1,11 +1,12 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.core.domain.v0_6;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verifies that read-only entities can be cloned.
@@ -25,14 +26,14 @@ public class CloneTest {
         Node entity = new Node(new CommonEntityData(1, 2, new Date(0), OsmUser.NONE, 3, tags), 4, 5);
 
         // Cloning a writeable object should return the original object.
-        Assert.assertSame("Entity was cloned", entity, entity.getWriteableInstance());
+        assertSame(entity, entity.getWriteableInstance(), "Entity was cloned");
 
         // Get a cloned entity.
         entity.makeReadOnly();
         Node clonedEntity = entity.getWriteableInstance();
 
         // Make sure we weren't assigned the original entity.
-        Assert.assertNotSame("Entity was not cloned", entity, clonedEntity);
+        assertNotSame(entity, clonedEntity, "Entity was not cloned");
     }
 
     /**
@@ -48,14 +49,14 @@ public class CloneTest {
         Way entity = new Way(new CommonEntityData(1, 2, new Date(0), OsmUser.NONE, 3, tags), wayNodes);
 
         // Cloning a writeable object should return the original object.
-        Assert.assertSame("Entity was cloned", entity, entity.getWriteableInstance());
+        assertSame(entity, entity.getWriteableInstance(), "Entity was cloned");
 
         // Get a cloned entity.
         entity.makeReadOnly();
         Way clonedEntity = entity.getWriteableInstance();
 
         // Make sure we weren't assigned the original entity.
-        Assert.assertNotSame("Entity was not cloned", entity, clonedEntity);
+        assertNotSame(entity, clonedEntity, "Entity was not cloned");
     }
 
     /**
@@ -71,13 +72,13 @@ public class CloneTest {
         Relation entity = new Relation(new CommonEntityData(1, 2, new Date(0), OsmUser.NONE, 3, tags), members);
 
         // Cloning a writeable object should return the original object.
-        Assert.assertSame("Entity was cloned", entity, entity.getWriteableInstance());
+        assertSame(entity, entity.getWriteableInstance(), "Entity was cloned");
 
         // Get a cloned entity.
         entity.makeReadOnly();
         Relation clonedEntity = entity.getWriteableInstance();
 
         // Make sure we weren't assigned the original entity.
-        Assert.assertNotSame("Entity was not cloned", entity, clonedEntity);
+        assertNotSame(entity, clonedEntity, "Entity was not cloned");
     }
 }

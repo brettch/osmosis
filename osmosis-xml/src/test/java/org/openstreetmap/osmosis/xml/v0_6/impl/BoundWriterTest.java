@@ -1,15 +1,15 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.v0_6.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.domain.v0_6.Bound;
 
 /**
@@ -23,7 +23,7 @@ public class BoundWriterTest {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         testWriter = new StringWriter();
         testBufferedWriter = new BufferedWriter(testWriter);
@@ -35,7 +35,7 @@ public class BoundWriterTest {
      * @throws IOException
      *             if stream cleanup fails.
      */
-    @After
+    @AfterEach
     public void tearDown() throws IOException {
         testBufferedWriter.close();
         testWriter.close();

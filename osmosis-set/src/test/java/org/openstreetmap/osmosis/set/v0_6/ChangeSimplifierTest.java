@@ -1,12 +1,13 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.set.v0_6;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.ChangeContainer;
@@ -59,11 +60,11 @@ public class ChangeSimplifierTest extends AbstractDataTest {
      * Tests that simplifying an already simple change successfully
      * yields the same change.
      *
-     * @throws Exception
-     *             if anything fails.
+     * @throws IOException
+     *             if file comparisons fail.
      */
     @Test
-    public void alreadySimple() throws Exception {
+    public void alreadySimple() throws IOException {
         File sourceFile;
         File expectedOutputFile;
         File actualOutputFile;
@@ -88,11 +89,11 @@ public class ChangeSimplifierTest extends AbstractDataTest {
      * Tests that simplifying an empty change successfully
      * yields an empty change.
      *
-     * @throws Exception
+     * @throws IOException
      *             if anything fails.
      */
     @Test
-    public void empty() throws Exception {
+    public void empty() throws IOException {
         File expectedOutputFile;
         File actualOutputFile;
 
@@ -113,11 +114,11 @@ public class ChangeSimplifierTest extends AbstractDataTest {
     /**
      * Tests that badly ordered input (with respect to the version) is detected correctly.
      *
-     * @throws Exception
+     * @throws IOException
      *             if anything fails.
      */
     @Test
-    public void badSortOrderVersion() throws Exception {
+    public void badSortOrderVersion() throws IOException {
         try (ChangeSimplifier simplifier = new ChangeSimplifier()) {
             simplifier.setChangeSink(new NullChangeWriter());
             simplifier.initialize(new HashMap<String, Object>());
@@ -136,7 +137,7 @@ public class ChangeSimplifierTest extends AbstractDataTest {
                 throw e;
             }
         }
-        Assert.fail("Expected exception not thrown");
+        fail("Expected exception not thrown");
     }
 
     /**
@@ -165,14 +166,11 @@ public class ChangeSimplifierTest extends AbstractDataTest {
                 throw e;
             }
         }
-        Assert.fail("Expected exception not thrown");
+        fail("Expected exception not thrown");
     }
 
     /**
      * Tests that badly ordered input (with respect to the ids) is detected correctly.
-     *
-     * @throws Exception
-     *             if anything fails.
      */
     @Test
     public void badSortOrderType() throws Exception {
@@ -195,6 +193,6 @@ public class ChangeSimplifierTest extends AbstractDataTest {
                 throw e;
             }
         }
-        Assert.fail("Expected exception not thrown");
+        fail("Expected exception not thrown");
     }
 }

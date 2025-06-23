@@ -1,13 +1,16 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.apidb.v0_6.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 
 /**
@@ -55,8 +58,7 @@ public class ReplicatorTest {
 
         // Verify the final state.
         state = destination.getCurrentState();
-        Assert.assertEquals(
-                "Incorrect final state.",
+        assertEquals(
                 new ReplicationState(
                         200,
                         200,
@@ -64,7 +66,8 @@ public class ReplicatorTest {
                         Arrays.asList(new Long[] {}),
                         buildDate("2009-10-11 12:13:14"),
                         0),
-                state);
+                state,
+                "Incorrect final state.");
     }
 
     /**
@@ -111,16 +114,13 @@ public class ReplicatorTest {
         // Verify that the final state does not match the initial state, but that the only
         // difference is the time and increment sequence number.
         finalState = destination.getCurrentState();
-        Assert.assertFalse("Final state should not match initial state.", finalState.equals(initialState));
+        assertFalse(finalState.equals(initialState), "Final state should not match initial state.");
         finalState.setTimestamp(initialState.getTimestamp());
         finalState.setSequenceNumber(finalState.getSequenceNumber() - 1);
-        Assert.assertTrue(
-                "Final state should match initial state after updating timestamp.", finalState.equals(initialState));
+        assertTrue(finalState.equals(initialState), "Final state should match initial state after updating timestamp.");
 
         // Verify that no changes were replicated.
-        Assert.assertTrue(
-                "No changes should have been replicated.",
-                source.getPredicatesList().size() == 0);
+        assertTrue(source.getPredicatesList().size() == 0, "No changes should have been replicated.");
     }
 
     /**
@@ -165,8 +165,7 @@ public class ReplicatorTest {
 
         // Verify that the final state is correct.
         state = destination.getCurrentState();
-        Assert.assertEquals(
-                "Incorrect final state.",
+        assertEquals(
                 new ReplicationState(
                         220,
                         220,
@@ -174,17 +173,16 @@ public class ReplicatorTest {
                         Arrays.asList(new Long[] {}),
                         buildDate("2009-10-11 12:13:15"),
                         1),
-                state);
+                state,
+                "Incorrect final state.");
 
         // Verify that the correct changes were replicated.
-        Assert.assertTrue(
-                "A single interval should have been replicated.",
-                source.getPredicatesList().size() == 1);
+        assertTrue(source.getPredicatesList().size() == 1, "A single interval should have been replicated.");
         predicates = source.getPredicatesList().get(0);
-        Assert.assertEquals("Incorrect active list.", Collections.emptyList(), predicates.getActiveList());
-        Assert.assertEquals("Incorrect ready list.", Collections.emptyList(), predicates.getReadyList());
-        Assert.assertEquals("Incorrect bottom transaction id.", 200, predicates.getBottomTransactionId());
-        Assert.assertEquals("Incorrect top transaction id.", 220, predicates.getTopTransactionId());
+        assertEquals(Collections.emptyList(), predicates.getActiveList(), "Incorrect active list.");
+        assertEquals(Collections.emptyList(), predicates.getReadyList(), "Incorrect ready list.");
+        assertEquals(200, predicates.getBottomTransactionId(), "Incorrect bottom transaction id.");
+        assertEquals(220, predicates.getTopTransactionId(), "Incorrect top transaction id.");
     }
 
     /**
@@ -229,8 +227,7 @@ public class ReplicatorTest {
 
         // Verify that the final state is correct.
         state = destination.getCurrentState();
-        Assert.assertEquals(
-                "Incorrect final state.",
+        assertEquals(
                 new ReplicationState(
                         220,
                         220,
@@ -238,17 +235,16 @@ public class ReplicatorTest {
                         Arrays.asList(new Long[] {}),
                         buildDate("2009-10-11 12:13:15"),
                         1),
-                state);
+                state,
+                "Incorrect final state.");
 
         // Verify that the correct changes were replicated.
-        Assert.assertTrue(
-                "A single interval should have been replicated.",
-                source.getPredicatesList().size() == 1);
+        assertTrue(source.getPredicatesList().size() == 1, "A single interval should have been replicated.");
         predicates = source.getPredicatesList().get(0);
-        Assert.assertEquals("Incorrect active list.", Arrays.asList(new Long[] {185L}), predicates.getActiveList());
-        Assert.assertEquals("Incorrect ready list.", Arrays.asList(new Long[] {180L}), predicates.getReadyList());
-        Assert.assertEquals("Incorrect bottom transaction id.", 200, predicates.getBottomTransactionId());
-        Assert.assertEquals("Incorrect top transaction id.", 220, predicates.getTopTransactionId());
+        assertEquals(Arrays.asList(new Long[] {185L}), predicates.getActiveList(), "Incorrect active list.");
+        assertEquals(Arrays.asList(new Long[] {180L}), predicates.getReadyList(), "Incorrect ready list.");
+        assertEquals(200, predicates.getBottomTransactionId(), "Incorrect bottom transaction id.");
+        assertEquals(220, predicates.getTopTransactionId(), "Incorrect top transaction id.");
     }
 
     /**
@@ -293,8 +289,7 @@ public class ReplicatorTest {
 
         // Verify that the final state is correct.
         state = destination.getCurrentState();
-        Assert.assertEquals(
-                "Incorrect final state.",
+        assertEquals(
                 new ReplicationState(
                         30000,
                         25005,
@@ -302,16 +297,15 @@ public class ReplicatorTest {
                         Arrays.asList(new Long[] {}),
                         buildDate("2009-10-11 12:13:14"),
                         1),
-                state);
+                state,
+                "Incorrect final state.");
 
         // Verify that the correct changes were replicated.
-        Assert.assertTrue(
-                "A single interval should have been replicated.",
-                source.getPredicatesList().size() == 1);
+        assertTrue(source.getPredicatesList().size() == 1, "A single interval should have been replicated.");
         predicates = source.getPredicatesList().get(0);
-        Assert.assertEquals("Incorrect active list.", Arrays.asList(new Long[] {26000L}), predicates.getActiveList());
-        Assert.assertEquals("Incorrect ready list.", Arrays.asList(new Long[] {}), predicates.getReadyList());
-        Assert.assertEquals("Incorrect bottom transaction id.", 5, predicates.getBottomTransactionId());
-        Assert.assertEquals("Incorrect top transaction id.", 25005, predicates.getTopTransactionId());
+        assertEquals(Arrays.asList(new Long[] {26000L}), predicates.getActiveList(), "Incorrect active list.");
+        assertEquals(Arrays.asList(new Long[] {}), predicates.getReadyList(), "Incorrect ready list.");
+        assertEquals(5, predicates.getBottomTransactionId(), "Incorrect bottom transaction id.");
+        assertEquals(25005, predicates.getTopTransactionId(), "Incorrect top transaction id.");
     }
 }

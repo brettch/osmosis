@@ -1,13 +1,15 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.set.v0_6;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.container.v0_6.BoundContainer;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.container.v0_6.NodeContainer;
@@ -51,9 +53,9 @@ public class MergeBoundTest {
         SinkEntityInspector merged = RunTaskUtilities.run(merger, source0, source1);
         List<EntityContainer> mergedList = createList(merged.getProcessedEntities());
 
-        Assert.assertEquals(2, mergedList.size());
+        assertEquals(2, mergedList.size());
         for (EntityContainer entityContainer : mergedList) {
-            Assert.assertEquals(EntityType.Node, entityContainer.getEntity().getType());
+            assertEquals(EntityType.Node, entityContainer.getEntity().getType());
         }
     }
 
@@ -73,9 +75,9 @@ public class MergeBoundTest {
         SinkEntityInspector merged = RunTaskUtilities.run(merger, source0, source1);
 
         List<EntityContainer> mergedList = createList(merged.getProcessedEntities());
-        Assert.assertEquals(2, mergedList.size());
+        assertEquals(2, mergedList.size());
         for (EntityContainer entityContainer : mergedList) {
-            Assert.assertEquals(EntityType.Node, entityContainer.getEntity().getType());
+            assertEquals(EntityType.Node, entityContainer.getEntity().getType());
         }
     }
 
@@ -95,9 +97,9 @@ public class MergeBoundTest {
         SinkEntityInspector merged = RunTaskUtilities.run(merger, source0, source1);
         List<EntityContainer> mergedList = createList(merged.getProcessedEntities());
 
-        Assert.assertEquals(2, mergedList.size());
+        assertEquals(2, mergedList.size());
         for (EntityContainer entityContainer : mergedList) {
-            Assert.assertEquals(EntityType.Node, entityContainer.getEntity().getType());
+            assertEquals(EntityType.Node, entityContainer.getEntity().getType());
         }
     }
 
@@ -119,15 +121,15 @@ public class MergeBoundTest {
 
         SinkEntityInspector merged = RunTaskUtilities.run(merger, source0, source1);
         List<EntityContainer> mergedList = createList(merged.getProcessedEntities());
-        Assert.assertEquals(3, mergedList.size());
-        Assert.assertEquals(EntityType.Bound, mergedList.get(0).getEntity().getType());
+        assertEquals(3, mergedList.size());
+        assertEquals(EntityType.Bound, mergedList.get(0).getEntity().getType());
 
         // Check the bound
         Bound bound01 = (Bound) mergedList.get(0).getEntity();
-        Assert.assertEquals(bound0.union(bound1), bound01);
+        assertEquals(bound0.union(bound1), bound01);
 
         for (int i = 1; i < mergedList.size(); i++) {
-            Assert.assertEquals(EntityType.Node, mergedList.get(i).getEntity().getType());
+            assertEquals(EntityType.Node, mergedList.get(i).getEntity().getType());
         }
     }
 
@@ -145,7 +147,7 @@ public class MergeBoundTest {
         EntityMerger merger = new EntityMerger(ConflictResolutionMethod.LatestSource, 1, BoundRemovedAction.Ignore);
 
         SinkEntityInspector merged = RunTaskUtilities.run(merger, source0, source1);
-        Assert.assertTrue("Expected empty result set but got some data", merged.getLastEntityContainer() == null);
+        assertNull(merged.getLastEntityContainer(), "Expected empty result set but got some data");
     }
 
     /**
@@ -166,9 +168,9 @@ public class MergeBoundTest {
         SinkEntityInspector merged = RunTaskUtilities.run(merger, source0, source1);
         List<EntityContainer> mergedList = createList(merged.getProcessedEntities());
 
-        Assert.assertEquals(2, mergedList.size());
-        Assert.assertEquals(bound1, mergedList.get(0).getEntity());
-        Assert.assertEquals(EntityType.Node, mergedList.get(1).getEntity().getType());
+        assertEquals(2, mergedList.size());
+        assertEquals(bound1, mergedList.get(0).getEntity());
+        assertEquals(EntityType.Node, mergedList.get(1).getEntity().getType());
     }
 
     private static <T> List<T> createList(Iterable<T> t) {

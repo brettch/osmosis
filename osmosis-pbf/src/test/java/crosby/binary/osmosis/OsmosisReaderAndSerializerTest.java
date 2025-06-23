@@ -2,8 +2,7 @@
 package crosby.binary.osmosis;
 
 import java.io.File;
-import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
 
@@ -15,12 +14,9 @@ import org.openstreetmap.osmosis.testutil.AbstractDataTest;
 public class OsmosisReaderAndSerializerTest extends AbstractDataTest {
     /**
      * Tests writing to and reading from PBF files.
-     *
-     * @throws IOException
-     *             if any file operations fail.
      */
     @Test
-    public void testWriteAndRead() throws IOException {
+    public void testWriteAndRead() {
         // Generate data files.
         File inputXmlFile = dataUtils.createDataFile("v0_6/data-snapshot.osm");
         File pbfFile = dataUtils.newFile();

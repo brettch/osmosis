@@ -9,7 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.apidb.v0_6.impl.DatabaseUtilities;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -23,7 +24,12 @@ public class ApiDbTest extends AbstractDataTest {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd_HH:mm:ss";
 
-    private final DatabaseUtilities dbUtils = new DatabaseUtilities(dataUtils);
+    private DatabaseUtilities dbUtils;
+
+    @BeforeEach
+    private void setUpDbUtils() {
+        dbUtils = new DatabaseUtilities(dataUtils);
+    }
 
     private String convertUTCTimeToLocalTime(String dateString) throws ParseException {
         DateFormat inFormat;

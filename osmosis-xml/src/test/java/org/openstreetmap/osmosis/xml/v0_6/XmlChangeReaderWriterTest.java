@@ -1,9 +1,11 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.xml.v0_6;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.File;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.misc.v0_6.NullChangeWriter;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
@@ -78,11 +80,13 @@ public class XmlChangeReaderWriterTest extends AbstractDataTest {
      *
      * @throws Exception if something goes wrong.
      */
-    @Test(expected = OsmosisRuntimeException.class)
+    @Test
     public void testNonDeleteLatLonNotSet() throws Exception {
         File inputFile = dataUtils.createDataFile("v0_6/xml-create-no-coordinates.osc");
         XmlChangeReader reader = new XmlChangeReader(inputFile, false, CompressionMethod.None);
         reader.setChangeSink(new NullChangeWriter());
-        reader.run();
+        assertThrows(OsmosisRuntimeException.class, () -> {
+            reader.run();
+        });
     }
 }

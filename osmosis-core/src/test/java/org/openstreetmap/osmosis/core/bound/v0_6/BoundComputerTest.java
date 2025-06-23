@@ -1,10 +1,11 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.core.bound.v0_6;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.Date;
 import java.util.Iterator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.container.v0_6.BoundContainer;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.container.v0_6.NodeContainer;
@@ -33,7 +34,7 @@ public class BoundComputerTest {
         bc.complete();
         bc.close();
 
-        Assert.assertNull(inspector.getLastEntityContainer());
+        assertNull(inspector.getLastEntityContainer());
     }
 
     /**
@@ -48,7 +49,7 @@ public class BoundComputerTest {
         bc.complete();
         bc.close();
 
-        Assert.assertNull(inspector.getLastEntityContainer());
+        assertNull(inspector.getLastEntityContainer());
     }
 
     /**
@@ -65,7 +66,7 @@ public class BoundComputerTest {
         bc.close();
 
         EntityContainer ec = inspector.getProcessedEntities().iterator().next();
-        Assert.assertEquals(new Bound(2, 1, 2, 1, "NewBound"), ec.getEntity());
+        assertEquals(new Bound(2, 1, 2, 1, "NewBound"), ec.getEntity());
     }
 
     /**
@@ -83,10 +84,10 @@ public class BoundComputerTest {
 
         Iterator<EntityContainer> iterator = inspector.getProcessedEntities().iterator();
         EntityContainer ec = iterator.next();
-        Assert.assertEquals(new Bound(2, 1, 2, 1, "NewBound"), ec.getEntity());
+        assertEquals(new Bound(2, 1, 2, 1, "NewBound"), ec.getEntity());
 
         // Ensure there is no second bound.
         ec = iterator.next();
-        Assert.assertEquals(EntityType.Node, ec.getEntity().getType());
+        assertEquals(EntityType.Node, ec.getEntity().getType());
     }
 }

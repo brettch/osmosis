@@ -3,7 +3,7 @@ package org.openstreetmap.osmosis.xml.v0_6;
 
 import java.io.File;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
 
@@ -54,7 +54,7 @@ public class XmlReaderWriterTest extends AbstractDataTest {
 
         // Generate input files.
         uncompressedFile = dataUtils.createDataFile("v0_6/xml-task-tests-v0_6.osm");
-        workingFolder = dataUtils.newFolder();
+        workingFolder = dataUtils.getTempDir();
         inputFile = new File(workingFolder, "testin.osm.gz");
         outputFile = new File(workingFolder, "testout.osm.gz");
         dataUtils.compressFile(uncompressedFile, inputFile);

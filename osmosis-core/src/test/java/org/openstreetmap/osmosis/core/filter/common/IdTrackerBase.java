@@ -1,13 +1,13 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.core.filter.common;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests an id tracker implementation.  Sub-classes provide the actual implementation to be tested.
@@ -25,7 +25,7 @@ public abstract class IdTrackerBase {
     /**
      * Performs pre-test activities.
      */
-    @Before
+    @BeforeEach
     public final void setUp() {
         idt = getImplementation();
     }
@@ -33,7 +33,7 @@ public abstract class IdTrackerBase {
     /**
      * Performs post-test activities.
      */
-    @After
+    @AfterEach
     public final void tearDown() {
         idt = null;
     }
@@ -161,7 +161,7 @@ public abstract class IdTrackerBase {
     /**
      * Tests the setAll method of the id tracker.
      */
-    @Ignore
+    @Disabled
     @Test
     public final void testSetAll() {
         fail("Not yet implemented"); // TODO

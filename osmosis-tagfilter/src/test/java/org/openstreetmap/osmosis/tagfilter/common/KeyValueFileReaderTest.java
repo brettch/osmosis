@@ -1,11 +1,13 @@
 // This software is released into the Public Domain.  See copying.txt for details.
 package org.openstreetmap.osmosis.tagfilter.common;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openstreetmap.osmosis.testutil.AbstractDataTest;
 
 /**
@@ -22,10 +24,12 @@ public class KeyValueFileReaderTest extends AbstractDataTest {
      * @throws FileNotFoundException
      *             when the test class encounters the non-existent file.
      */
-    @Test(expected = FileNotFoundException.class)
-    public final void testFileNotFound() throws FileNotFoundException {
+    @Test
+    public final void testFileNotFound() {
         File file = new File("non_existing_file.txt");
-        new KeyValueFileReader(file);
+        assertThrows(FileNotFoundException.class, () -> {
+            new KeyValueFileReader(file);
+        });
     }
 
     /**
@@ -39,6 +43,6 @@ public class KeyValueFileReaderTest extends AbstractDataTest {
         File file = dataUtils.createDataFile("v0_6/allowed-key-values.txt");
         String[] expected = {"box_type.lamp_box", "box_type.wall"};
         String[] actual = new KeyValueFileReader(file).loadKeyValues();
-        Assert.assertArrayEquals(expected, actual);
+        assertArrayEquals(expected, actual);
     }
 }
