@@ -1,6 +1,7 @@
 .gradle
 .gradle-docker
 .idea
+.vscode
 *.javaEe
 *.javae
 *.iml
